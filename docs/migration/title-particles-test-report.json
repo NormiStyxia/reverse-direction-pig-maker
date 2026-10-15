@@ -1,0 +1,13 @@
+{
+  "result": "PASS",
+  "frames": 600,
+  "quadsPerFrame": 11,
+  "vertexComponentsCompared": 277200,
+  "maxFloat32Difference": 1.1920928955078125e-07,
+  "source": "frozen particle/quad/pig builders executed verbatim",
+  "notCovered": [
+    "texture filtering",
+    "alpha blending",
+    "GPU rendering"
+  ]
+}

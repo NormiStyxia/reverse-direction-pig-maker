@@ -1,0 +1,9 @@
+[
+  {"wait": 8},
+  {"shot": "title.png"},
+  {"eval": "({title:document.title,text:document.body.innerText.slice(0,3000)})", "as":"title"},
+  {"eval": "window.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',code:'Enter',bubbles:true})); window.dispatchEvent(new KeyboardEvent('keyup',{key:'Enter',code:'Enter',bubbles:true}));"},
+  {"wait": 10},
+  {"shot": "prologue.png"},
+  {"eval": "({text:document.body.innerText.slice(0,4000),width:innerWidth,height:innerHeight})", "as":"prologue"}
+]

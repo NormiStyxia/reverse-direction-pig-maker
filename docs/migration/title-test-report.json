@@ -1,0 +1,29 @@
+{
+  "result": "PASS",
+  "differentialFrames": 10240,
+  "source": "frozen src/title-screen.js update executed verbatim",
+  "autoStages": [
+    "draft",
+    "glitch",
+    "glitchBack",
+    "wait"
+  ],
+  "covers": [
+    "intro flash/reveal/camera",
+    "automatic hard cuts and random waits",
+    "K hold/release and stopped world",
+    "pig independent orbit/spin",
+    "motion/parallax settings",
+    "leave/start/dispose timing",
+    "menu locks and zero-based choices",
+    "skip consumes input",
+    "activity does not reset auto timer",
+    "five viewport layouts"
+  ],
+  "notCovered": [
+    "UrhoX shader compilation",
+    "rendered pixels",
+    "native UI/input",
+    "full playthrough"
+  ]
+}

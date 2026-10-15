@@ -1,0 +1,22 @@
+{
+  "result": "PASS",
+  "luaRuntime": "Lua 5.4",
+  "frozenLevelsCompared": 11,
+  "tuningConfigsCompared": 2,
+  "timelineDifferentialSteps": 2604,
+  "blockedSteps": 129,
+  "covers": [
+    "idle compression",
+    "90-second history cap",
+    "partial rewind",
+    "blocked rewind",
+    "empty history"
+  ],
+  "notCovered": [
+    "UrhoX runtime",
+    "scene rendering",
+    "full gameplay",
+    "visual similarity",
+    "input and save integration"
+  ]
+}

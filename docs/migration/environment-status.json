@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-16",
+  "makerAppId": "1a737f5b-265f-4977-abf1-a9721b9582e6",
+  "projectCreatedAndBound": true,
+  "devKitReady": true,
+  "devKitVersionAvailable": "20261015-132558",
+  "initialDevKitError": "fetch failed",
+  "repairError": null,
+  "missing": [
+    ".project/project.json",
+    ".project/settings.json"
+  ],
+  "runnable": false,
+  "visualAcceptance": "NOT_TESTED",
+  "fullPlaythrough": "NOT_TESTED",
+  "submittedOrBuilt": false,
+  "goalTaskReceived": true,
+  "goalSwitchToolInvoked": false,
+  "devKitInstalledVersion": "20261015-132558",
+  "recoveryReceipt": "maker_init: AI dev kit prepared; installed_at 2026-10-15T18:44:23.878Z"
+}

@@ -1,0 +1,323 @@
+{
+  "sourceCommit": "6a316e84907d8bc94ab59f20796685172b3535b5",
+  "htmlSha256": "aac4343d1755cbd5163a36d7465db131d98aa9535d204df327df3f9cd3cbb42f",
+  "sourceFilesVerified": 129,
+  "buildInputsVerified": 111,
+  "prologueLevels": 6,
+  "chapter1Levels": 5,
+  "copied": [
+    {
+      "path": "assets/store/avatar-me.png",
+      "sha256": "c7dd7ea5879f92619e8105772b95fcd016affff99e44100771291d80097adccd"
+    },
+    {
+      "path": "assets/store/avatar-them.png",
+      "sha256": "a5b5f80b7e781505bdc8a4bbe3d64d2bb774dfe08f05d9ccc68a65f439d66f0e"
+    },
+    {
+      "path": "assets/store/clerk.png",
+      "sha256": "7537dacdc4332a261a675d96d7fec19b2fae97dd30200f54cf2847373dd66598"
+    },
+    {
+      "path": "assets/store/foliage-canopy.png",
+      "sha256": "ad57e6c12ac778567775b81edd42b54c1c35d3a46fc4d33c077a8e8950b019b3"
+    },
+    {
+      "path": "assets/store/foliage-hedge.png",
+      "sha256": "e6eed1f773839420726e878ad65b471d0bafe1ad94cca2b740756d423edd27a0"
+    },
+    {
+      "path": "assets/store/goods/bento.png",
+      "sha256": "91d9bb755c40a1ab770258c7b3b8625dafef4b3bb97e18708826868f037515c0"
+    },
+    {
+      "path": "assets/store/goods/bun.png",
+      "sha256": "1eb4abdc6007e8a15da4bedd1ef8e6a2aca2f2e6918ed29cc480c72f8ce4b765"
+    },
+    {
+      "path": "assets/store/goods/cap.png",
+      "sha256": "93a1a2bcd472849940200d993240b941739b98a0c8a7dec01946166c58ef9a72"
+    },
+    {
+      "path": "assets/store/goods/chips-original.png",
+      "sha256": "84704bdc21062f98aa65812933bc5fe347c74402e4682d46ce8c7b8910152641"
+    },
+    {
+      "path": "assets/store/goods/chips-tomato.png",
+      "sha256": "f761b4fa007dff2724b7587ed45566eb27ab47bb4c6c6789f97bce42c805e354"
+    },
+    {
+      "path": "assets/store/goods/chocolate.png",
+      "sha256": "e04f36d76ec1d4dd5395c8c51b5a51c863d45872cb8688fba76cb082a60ac921"
+    },
+    {
+      "path": "assets/store/goods/green-tea.png",
+      "sha256": "217016dc3526e7598c22210c05d3e2b01af81d4ebbadff55d9df976c36c32d6e"
+    },
+    {
+      "path": "assets/store/goods/ice-cream.png",
+      "sha256": "f9bb6d456346759370831cf5a087c72f39a9cc78fb04eae4daae8421ec1b8bd4"
+    },
+    {
+      "path": "assets/store/goods/iced-tea.png",
+      "sha256": "4742b3f1b5311be29512aba92206b8ad6b4fd30c90d11565b2e663477ee15d44"
+    },
+    {
+      "path": "assets/store/goods/magazine.png",
+      "sha256": "8bbf14b58f52293a7353945cce3658f73ff83c26569dacf54e11ed2e50b688be"
+    },
+    {
+      "path": "assets/store/goods/mints.png",
+      "sha256": "9a6d990057aa1bb3306459f14c220fad43a8fce9c1487d354e744664cab38dea"
+    },
+    {
+      "path": "assets/store/goods/noodles.png",
+      "sha256": "fb98efd603c1438bf200a277ac378c3f27772c364bcca861aeb221437dad0de3"
+    },
+    {
+      "path": "assets/store/goods/oden.png",
+      "sha256": "11498df7c6093d833d347b88748fffabea6ee4694605557221c7f3ff641949fe"
+    },
+    {
+      "path": "assets/store/goods/onigiri.png",
+      "sha256": "f78bdf73903d71366c6698a584ee5d43152c8f778ad70cd91d13aca86b835090"
+    },
+    {
+      "path": "assets/store/goods/peach-oolong.png",
+      "sha256": "60ad4fdb2de80aa69e8bf2493baa8d6450a50e91bec7df778a6b2fe06499d4e1"
+    },
+    {
+      "path": "assets/store/goods/pudding.png",
+      "sha256": "d4769abacdbc667c90d4cfba8a72f81b0140cc9723681ed00cb0ca19e7d24161"
+    },
+    {
+      "path": "assets/store/goods/sandwich.png",
+      "sha256": "1a4172946ac6f7a0bc3aa2ebb9eeb9dd5244c04548f76d4445490b715f0df397"
+    },
+    {
+      "path": "assets/store/goods/umbrella.png",
+      "sha256": "e3ae4685d649cc709b5901e4cf844b00e93a50a927a09b7d04c7aaa7f22de6f4"
+    },
+    {
+      "path": "assets/store/goods/water.png",
+      "sha256": "0d4731a3295c47f30e8d5002a9c62a70a72ddfa7e871d24394e37b4b91c88ee3"
+    },
+    {
+      "path": "assets/store/goods/yogurt.png",
+      "sha256": "96bfbb679377af2e34c59e0d6d330b172b789999c5a9d3c7046c3479ae73d680"
+    },
+    {
+      "path": "assets/store/phone-icon.png",
+      "sha256": "75f04eda8a9f7d19a8fd72d242be2c9309e94810885d8124dea0f07d908dd9e7"
+    },
+    {
+      "path": "assets/store/rider.png",
+      "sha256": "4584178e535399413b7325993a56e9511a3384a633c1d52948f43b0c0e679fb0"
+    },
+    {
+      "path": "assets/store/stranger.png",
+      "sha256": "f0db912359ad0ad07b6726937d01c5a00e66e21c590abf7261aefff6017fd95f"
+    },
+    {
+      "path": "assets/store/worker.png",
+      "sha256": "4fba243525aea2deb8e464cb15331c4b5651445e360b0ee884a63029fbca5314"
+    },
+    {
+      "path": "assets/ch1/avatar-leader.png",
+      "sha256": "6c6db17e49051c256efaca2ccda90b7275d34c52c11a58caaff3e68ff535e6d1"
+    },
+    {
+      "path": "assets/ch1/avatar-zhou.jpg",
+      "sha256": "4a5a3a4cf8f088abcc6dfd7554de613b087fb944bdb04e35066feb1290b80cda"
+    },
+    {
+      "path": "assets/ch1/normi-faces.png",
+      "sha256": "1837aafdff3bfc867f2013dfcbb897576845772052d0c61feb334df762c8ce6a"
+    },
+    {
+      "path": "assets/ch1/office/coworker-bun.png",
+      "sha256": "1f352489d040e61e8e2d043d67d6b731c15dbe785aeebfe4f3b54d088b9be12d"
+    },
+    {
+      "path": "assets/ch1/office/coworker-coffee.png",
+      "sha256": "3969e7778aa98498c1d9617815d22cc36de64c637ef46f200ddbb24eaaf8f339"
+    },
+    {
+      "path": "assets/ch1/office/coworker-glasses.png",
+      "sha256": "d6fe2d9b1c3d836364618a51db60260f384c2e36f7cfae4a4bdb9691749690ea"
+    },
+    {
+      "path": "assets/ch1/office/coworker-headphones.png",
+      "sha256": "693a2b1121755a7c4e292b9481d2b9016e6312c3dab21fadb7a2e4e1051935ee"
+    },
+    {
+      "path": "assets/ch1/office/desk-dino.png",
+      "sha256": "64ce0e16ff8de9df7e89fd62a0ca9294caf745a3411c128e6167df612b42c42f"
+    },
+    {
+      "path": "assets/ch1/office/desk-drinks.png",
+      "sha256": "a0ba2a3a2957aae24601af2305c343abd41fc1e018913fb75e50d2b551930e3e"
+    },
+    {
+      "path": "assets/ch1/office/desk-files.png",
+      "sha256": "fc77618077f2b2075086262d22bd4daf9febe1328eb10341db65760e85d5cd31"
+    },
+    {
+      "path": "assets/ch1/office/desk-mug.png",
+      "sha256": "e11da57ae7a8f508f56298934e1d0c78939299de6c2a9347f4e52782eca22995"
+    },
+    {
+      "path": "assets/ch1/office/desk-pothos.png",
+      "sha256": "386722833d6f824c5cffa830aec36b6fd90590a59c673113edf971b43ce98803"
+    },
+    {
+      "path": "assets/ch1/office/desk-tissue.png",
+      "sha256": "b793049a47292fa13e0039be459dfa507e0378d3db101b5cdf51ac04b8aba60d"
+    },
+    {
+      "path": "assets/ch1/office/prop-cup.png",
+      "sha256": "73e32c7a8a847dbfbb9986aaeb82d3c947785d24e8f47f12e97d4fb9900de9cc"
+    },
+    {
+      "path": "assets/ch1/office/prop-headphones.png",
+      "sha256": "138e6ac6f8830ae06be9a50a1fee851683b54e987f99f2dc802b8ac8d85869ea"
+    },
+    {
+      "path": "assets/ch1/office/prop-notes.png",
+      "sha256": "651559f5eaf16de70e5085ab2d55281bb79c107573333199f17a73ee010eac3f"
+    },
+    {
+      "path": "assets/ch1/office/prop-seal.png",
+      "sha256": "32ac25e29bb994114171cd0532f7fd25d548cfb30ebb20c3f0b16a0237fac66e"
+    },
+    {
+      "path": "assets/ch1/office/prop-snack.png",
+      "sha256": "c27b8e4c9c4f5237bb4a79d6d35f8f34a0e25ffa0c7a8b7e4981e540e5d0813c"
+    },
+    {
+      "path": "assets/ch1/office/prop-succulent.png",
+      "sha256": "4d85666276050b7c65aa5c08ac4f7bd4dd9fd2314cf3428e6ee050c98e27cfbd"
+    },
+    {
+      "path": "assets/ch1/pig-doodle.png",
+      "sha256": "cb23e1fe0dfdefacf742d9e160befb49d96d4bd2a8d8ca47c893b55184375633"
+    },
+    {
+      "path": "assets/ch1/skyline-afternoon.jpg",
+      "sha256": "5c1a6f8e3d0777fd0c781b3f3879325c4e11cedf37e9c60e7d51d7820171e815"
+    },
+    {
+      "path": "assets/ch1/takeout-bag.png",
+      "sha256": "1142b6c2e2fc15f92f690384b87e88c4ff0d93b3ceeb7d4a2d89e7aa8d88b56d"
+    },
+    {
+      "path": "assets/ch1/window-afternoon.jpg",
+      "sha256": "44d3efa1f48e1fa213465255e588a35c0b622527a769e32b6d11cb2193f6448d"
+    },
+    {
+      "path": "assets/title/fx.png",
+      "sha256": "311ea581345e7e4b6f85cf748d349b807149e5a9997534a1ecf9c4164acbfab5"
+    },
+    {
+      "path": "assets/title/pig.png",
+      "sha256": "50563a1e983370e8174290f941f73ee94ea75120c049b0ca9cf7a6041172b0e7"
+    },
+    {
+      "path": "assets/title/plate_flat.jpg",
+      "sha256": "d4f5cf279af1f7078eb4a5780120932b58999a6d47523b10e43274f7429124fe"
+    },
+    {
+      "path": "assets/title/plate_sketch.jpg",
+      "sha256": "17bb36b23ea4bd54ee629fbedf7d2f3355fdfbc1eaad9f07e36dd6eb28ff2f32"
+    },
+    {
+      "path": "assets/title/sprites.png",
+      "sha256": "eb139641b7fcf72ac8b996a0447f6f61893df856ae6df38e18c3aed8a01f6f36"
+    },
+    {
+      "path": "assets/pig-atlas-normi-round.png",
+      "sha256": "87845862dd6f5fd767ccb61220fd2a308cc83031d166377f2c36430996bd02f9"
+    },
+    {
+      "path": "assets/pig-atlas-eight.png",
+      "sha256": "96f8a013c528704903b4d6f8dd62b7820f8095795fa99e263d4baa9a8c081db1"
+    },
+    {
+      "path": "assets/c0/normi-motion-atlas.png",
+      "sha256": "e46062d719483eebe630ab9b806034b0609317dc5bfb549109e9012287896ab5"
+    },
+    {
+      "path": "assets/c0/normi-motion-atlas.json",
+      "sha256": "caa23187c9d5ee817b1e0f0cce0aa3016ff67b78ea625371662f332760d39e62"
+    },
+    {
+      "path": "assets/fonts/LXGWWenKai-subset.ttf",
+      "sha256": "067dcab938e9311e6b21f04baafee3efc332daae991920f4cfd54cb79aa6abcb"
+    },
+    {
+      "path": "assets/config/store-tuning.json",
+      "sha256": "c762cfdb231376a2b37f23158e8ee47c1a4dd654d79db844860366b372397d09"
+    },
+    {
+      "path": "assets/config/ch1-tuning.json",
+      "sha256": "1dae5f70540d5606ba113498d202bf45175721f817c8ef983669adf0ef8101a9"
+    },
+    {
+      "path": "assets/c0/colleague-a.png",
+      "sha256": "56076d9d6d9caab0dac2f67e2e4719701d52b12a8b63defd568e9b83fed78c5e"
+    },
+    {
+      "path": "assets/c0/colleague-b.png",
+      "sha256": "14d9b1f6a496748da41db93ddb592aaf42b4877bde9812c878ab979218d9d32f"
+    },
+    {
+      "path": "assets/c0/colleague-c.png",
+      "sha256": "722ce6c684b64d622f03deb8e2c8aaa05c9c41069a8d2254dbbb49e28a31ac3f"
+    },
+    {
+      "path": "assets/c0/leader.png",
+      "sha256": "52f0a8236f26f3adc076856364de24599da9f691b2ce1d8f17e39f0b80cb6dac"
+    },
+    {
+      "path": "assets/c0/obj-chat.png",
+      "sha256": "bfcd058c22bcb78840700421d843b602c84e1ab3e3f2f8de6d5d268aa8e10496"
+    },
+    {
+      "path": "assets/c0/obj-ddl.png",
+      "sha256": "1a4dcecc4595400525fa226991bc304f5e94fafb6e6a5a49d9ea4f2a34568d2a"
+    },
+    {
+      "path": "assets/c0/obj-error.png",
+      "sha256": "a3d63a73944f4c28dc3b5f7bee15648c2e55a1556848ff2673cda282cd59711d"
+    },
+    {
+      "path": "assets/c0/obj-folder.png",
+      "sha256": "076cfa7eff17cf107e526d90e0d4fc458f287024b2f7bda26c38e230f1ba2296"
+    },
+    {
+      "path": "assets/c0/obj-idcard.png",
+      "sha256": "c6f2d639732fb343ac8f62cda01bd1a747c1a20b81e3c5c515ad6f0618de70e0"
+    },
+    {
+      "path": "assets/c0/obj-marked.png",
+      "sha256": "5543e275e92e7c2e649ea8a0e8297c4a4dcd0ce47a34cf458dde00fe4057bc04"
+    },
+    {
+      "path": "assets/c0/obj-notify.png",
+      "sha256": "f8c2279fb1271e183f2ef0407a12aa35ef9c04809eca9fc815b508fb43617f86"
+    },
+    {
+      "path": "assets/c0/obj-plan.png",
+      "sha256": "a73565b95b9267701999177ea1b5c01f3d30c4cfc5c307279ee20001437a5e8d"
+    },
+    {
+      "path": "assets/c0/obj-ppt.png",
+      "sha256": "7fc3ede06eb4d1fe2381810a30a66aa247fa4cba8e0900a59f9337332116c5fc"
+    },
+    {
+      "path": "assets/c0/obj-todo.png",
+      "sha256": "828da31e8d92474fbb3c4348620416d03ffbb32af26067ead95d5d29ff86514c"
+    }
+  ],
+  "status": "DATA_IMPORTED_ONLY_ENGINE_AND_VISUAL_VALIDATION_PENDING"
+}

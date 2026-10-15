@@ -1,0 +1,19 @@
+{
+  "result": "PASS",
+  "differentialFrames": 1800,
+  "source": "frozen src/pig.js with actual Three.js vector math",
+  "covers": [
+    "camera-relative movement",
+    "diagonal normalization",
+    "charge and cooldown",
+    "input-disabled deceleration",
+    "reverse spin and eight-way frames",
+    "squash and walking pose",
+    "ghost spawn/lifetime/pose"
+  ],
+  "notCovered": [
+    "engine rendering",
+    "device input",
+    "full playthrough"
+  ]
+}

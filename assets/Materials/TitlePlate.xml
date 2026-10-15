@@ -1,0 +1,7 @@
+<material>
+  <surfaceshader name="Shaders/BLGL/TitlePlate.shader" />
+  <surfacetexture name="uFlat" texture="title/plate_flat.jpg" />
+  <surfacetexture name="uSketch" texture="title/plate_sketch.jpg" />
+  <surfacetexture name="uFx" texture="title/fx.png" />
+  <renderorder value="0" />
+</material>

@@ -1,0 +1,23 @@
+{
+  "hemiIntensity": 2.07,
+  "hemiSky": "#5189d2",
+  "hemiGround": "#081d3f",
+  "sunIntensity": 2.5,
+  "sunColor": "#fff0d4",
+  "lamp": 5,
+  "fogColor": "#c9def5",
+  "drape": "#7fa3cf",
+  "saturation": 1.35,
+  "gradeR": 0.96,
+  "gradeG": 1,
+  "gradeB": 1.13,
+  "exposure": 1.1,
+  "bloomStrength": 0.33,
+  "bloomThreshold": 1.29,
+  "wobbleAmp": 0.35,
+  "lineScale": 1,
+  "paper": false,
+  "dofFar": 4,
+  "dofNear": 12,
+  "frozenDesat": 0.3
+}

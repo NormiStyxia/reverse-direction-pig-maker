@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+const source=fs.readFileSync('reference/h5-source/src/title-screen.js','utf8');
+const ops=JSON.parse(fs.readFileSync(0,'utf8'));
+const constants=source.slice(source.indexOf('const FW'),source.indexOf('// 两个 pass'));
+const particles=source.slice(source.indexOf('    const feathers ='),source.indexOf('    // ---- 状态'));
+const pig=source.slice(source.indexOf('      const a = st.pigA'),source.indexOf('      gl.bufferSubData'));
+const ctx=vm.createContext({globalThis:{},Float32Array,Math});
+vm.runInContext(constants+'\nconst MAXQ=64,FPV=7,sprData=new Float32Array(MAXQ*6*FPV);'+particles+'\nglobalThis.sample=(st)=>{q=0;buildParticles(st.world);const tex={pig:{w:st.aspect,h:1}};'+pig+';return Array.from(sprData.slice(0,q*6*FPV))};',ctx);
+console.log(JSON.stringify(ops.map(op=>ctx.globalThis.sample(op))));

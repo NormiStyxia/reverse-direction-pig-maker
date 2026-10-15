@@ -1,0 +1,6 @@
+<material>
+  <surfaceshader name="Shaders/BLGL/TitleSprite.shader" />
+  <surfacetexture name="uTex" texture="title/sprites-premult.png" />
+  <surfacetexture name="uFx" texture="title/fx.png" />
+  <renderorder value="1" />
+</material>

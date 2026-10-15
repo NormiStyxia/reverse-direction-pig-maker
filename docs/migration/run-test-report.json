@@ -1,0 +1,16 @@
+{
+  "result": "PASS",
+  "inputFrames": 2086,
+  "runs": [
+    "prologue level 1 -> level 2 -> restart",
+    "chapter1 level 1 -> level 2"
+  ],
+  "usesDebugTeleportOrLevelJump": false,
+  "runtime": "Lua 5.4",
+  "notCovered": [
+    "remaining 9 level solutions",
+    "UrhoX runtime",
+    "full story",
+    "visuals"
+  ]
+}

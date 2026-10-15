@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-16",
+  "result": "PASS_ERRORS_ZERO",
+  "tool": "maker-lua-lsp 0.22.2 watch / EmmyLuaLS",
+  "errorLog": "Lua Errors: 0 | Dir: /Users/xd/Desktop/maker反方向的猪/scripts | Time: 2026-10-16 03:03:41\nEmmyLua Types: /Users/xd/Desktop/maker反方向的猪/.emmylua\n---\n✅ No errors\n",
+  "warnings": "Retained in validation/lsp/lua_diagnostics.log; not suppressed.",
+  "singleCheckMode": "unavailable: bundled emmylua_check absent; used supported watch diagnostics"
+}

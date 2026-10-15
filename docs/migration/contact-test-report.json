@@ -1,0 +1,20 @@
+{
+  "result": "PASS",
+  "fixtures": 12,
+  "contactSteps": 1527,
+  "source": "frozen hitTest/faceKey/collidePig",
+  "covers": [
+    "all 11 level collision shapes",
+    "charge face alignment",
+    "sideways glances rejected",
+    "walking cannot push",
+    "stable target priority",
+    "cabinet tips",
+    "charge-hit dedup",
+    "room bounds"
+  ],
+  "notCovered": [
+    "engine input",
+    "end-to-end playthrough"
+  ]
+}
