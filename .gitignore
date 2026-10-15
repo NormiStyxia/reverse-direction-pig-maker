@@ -36,3 +36,19 @@ templates/
 tools/
 urhox-libs/
 # <<< TapTap Maker AI dev kit (local only) <<<
+
+# Maker 默认忽略规则（自动补充；平台内容不应提交）
+.build/
+dist/
+logs/
+*.log
+logs/.nfs*
+.sce/logs/
+.sce/build/build_steps/__pycache__/
+.tmp/
+*.crswap
+.org.chromium.Chromium.??????
+.ossutil_checkpoint/
+ossutil_output/
+.vscode/
+lua-tools/

@@ -7,17 +7,27 @@
   "entry": "preview/title.lua",
   "version": "1.0.0",
   "taptap_publish": {
-    "title": "",
+    "title": "反方向的猪",
     "description": "",
-    "category": "",
+    "category": "casual",
     "screen_orientation": "landscape",
     "collection_type": "sce",
     "trial_note": "",
-    "app_platforms": "1,2"
+    "app_platforms": "1,2",
+    "developer_id": 411438,
+    "app_id": 978268,
+    "miniapp_id": "tapmcgih7ba0db3wom"
   },
   "assets": {
     "icon": "",
     "screenshots": [],
     "promotional_image": ""
+  },
+  "metadata": {
+    "updated_at": "2026-10-15T19:19:58.505Z"
+  },
+  "test_qrcode": {
+    "url": "https://tapcode-sce.spark.xd.com/qrcode/m_8gmf_1792091998370.png",
+    "generated_at": "2026-10-15T19:19:58.505Z"
   }
 }
