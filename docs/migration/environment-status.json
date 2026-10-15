@@ -13,9 +13,25 @@
   "runnable": false,
   "visualAcceptance": "NOT_TESTED",
   "fullPlaythrough": "NOT_TESTED",
-  "submittedOrBuilt": false,
+  "submittedOrBuilt": true,
   "goalTaskReceived": true,
   "goalSwitchToolInvoked": false,
   "devKitInstalledVersion": "20261015-132558",
-  "recoveryReceipt": "maker_init: AI dev kit prepared; installed_at 2026-10-15T18:44:23.878Z"
+  "recoveryReceipt": "maker_init: AI dev kit prepared; installed_at 2026-10-15T18:44:23.878Z",
+  "renderProbeEntry": "preview/title.lua",
+  "submittedCommit": "b9a32cd",
+  "remoteBuild": "SUCCESS",
+  "previewRefresh": "ok (HTTP 200)",
+  "previewUrl": "https://maker.taptap.cn/app/1a737f5b-265f-4977-abf1-a9721b9582e6?localDev=1&hide_chat=1",
+  "runtimeExecution": "UNVERIFIED: no runtime.log received",
+  "lastBuildElapsedMs": 55326,
+  "lspErrors": 0,
+  "lspMode": "watch (bundled single-check executable absent)",
+  "knownLimitations": [
+    "Local .project/project.json and .project/settings.json still absent after successful remote build; no rebuild just to obtain them.",
+    "Native title overlay now includes dial, vector logotype, menus and pointer/touch input; engine rendering remains unverified.",
+    "Title probe still does not integrate story scenes; font parity, backdrop blur and glow remain unverified/incomplete."
+  ],
+  "runtimeLogWatcher": "Recovered: consecutiveFailures=0, lastWrittenLogs=0 at 2026-10-16 03:23:46 +08:00; runtime.log still absent",
+  "interface": "raw NanoVG only; no Yoga UI in scripts"
 }

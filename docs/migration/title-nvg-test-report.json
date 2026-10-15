@@ -1,0 +1,29 @@
+{
+  "result": "PASS",
+  "viewportDprCombinations": 24,
+  "checks": [
+    "intro press consumed across idle transition",
+    "locked continue/floors",
+    "panel blocks underlying menu",
+    "drag/release cancellation",
+    "settings",
+    "stationary hover vs keyboard",
+    "touch capture and multi-finger isolation",
+    "resize/focus cancellation",
+    "physical input round trips and frame DPR",
+    "fan flip and plane transform",
+    "continue expansion gap and saved floor",
+    "single start event",
+    "NVG frame/save lifecycle and resources",
+    "CSS curve reversal continuity",
+    "120 ticks / 6 paths / 4 blueprint labels",
+    "no Yoga or UI widget dependencies"
+  ],
+  "notCovered": [
+    "native engine API execution",
+    "SVG rendered pixels",
+    "font parity and blur/glow",
+    "mobile ergonomics",
+    "story callback integration"
+  ]
+}
