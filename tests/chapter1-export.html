@@ -1,0 +1,75 @@
+<!doctype html><meta charset="utf-8">
+<style>@font-face{font-family:'LXGW WenKai';src:url('/assets/fonts/LXGWWenKai-subset.ttf')}body{margin:0}canvas{display:block}#store-interaction,#ch1-clock,.br-layer{display:none}</style>
+<script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {Ch1Meeting,Ch1Morning,paintTitleSlide} from '/src/ch1-scenes.js';
+import {CH1_TUNE_DEFAULTS} from '/src/ch1-tuning.js';
+import {asPaperFigure} from '/src/store.js';
+import {Normi} from '/src/normi.js';
+import {Pig} from '/src/pig.js';
+import {serialize} from '/export-scene.js';
+try {
+ await document.fonts.load('20px "LXGW WenKai"');await document.fonts.ready;
+ const seed=0x6a316e84;let rng=seed;Math.random=()=>{rng=(Math.imul(rng,1664525)+1013904223)>>>0;return rng/4294967296;};
+ const load=async path=>{const i=new Image();i.src=path;await i.decode();return i};
+ const imgs={};for(const [key,file] of Object.entries({colleagueA:'colleague-a',colleagueB:'colleague-b',colleagueC:'colleague-c',leader:'leader'}))imgs[key]=await load('/assets/c0/'+file+'.png');
+ const art={office:{}};
+ for(const [key,file] of Object.entries({doodle:'pig-doodle.png',bag:'takeout-bag.png',window:'window-afternoon.jpg',skyline:'skyline-afternoon.jpg',faces:'normi-faces.png'}))art[key]=await load('/assets/ch1/'+file);
+ for(const key of ['coworker-headphones','coworker-bun','coworker-coffee','coworker-glasses','prop-succulent','prop-seal','prop-cup','prop-snack','prop-headphones','prop-notes','desk-mug','desk-pothos','desk-files','desk-dino','desk-drinks','desk-tissue'])art.office[key]=await load('/assets/ch1/office/'+key+'.png');
+ const atlas=await load('/assets/c0/normi-motion-atlas.png'),farAtlas=await load('/assets/pig-atlas-eight.png');
+ const layout=await(await fetch('/assets/c0/normi-motion-atlas.json')).json();
+ const tune={...CH1_TUNE_DEFAULTS,...await(await fetch('/config/ch1-tuning.json')).json()};
+ const scenes=[];window.referenceScenes=[];
+ for(const mode of ['meeting','morning']){
+  const scene=new THREE.Scene();scene.background=new THREE.Color(tune.fogColor);scene.fog=new THREE.Fog(tune.fogColor,34,150);
+  const camera=new THREE.PerspectiveCamera(24,1920/1080,1,1400);
+  const normi=new Normi(scene,atlas,layout);normi.stick.visible=false;asPaperFigure(normi.mesh);
+  const sun=new THREE.DirectionalLight(0xffffff,1),hemi=new THREE.HemisphereLight();sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+  Object.assign(sun.shadow.camera,{left:-20,right:20,top:20,bottom:-20,near:.5,far:70});scene.add(sun,sun.target,hemi);
+  const audio=new Proxy({},{get:()=>()=>{}});
+  const options={scene,camera,normi,imgs,art,audio,world:{rooms:[],rocks:[],island:{},sky:{},lights:{sun,hemi}},hooks:{shake(){},flash(){},puff(){}},caption(){},clearCaptions(){},ui:{title(){},hint(){}}};
+  if(mode==='meeting')options.tablePig=new Pig(scene,farAtlas);else options.answer='same';
+  const ch=new (mode==='meeting'?Ch1Meeting:Ch1Morning)(options);ch.applyTune(tune);
+  ch.update(0,{camYaw:0,time:0});
+  const extras=[],tonight=[];
+  if(mode==='meeting'){
+   for(const answer of ['same','late','done']){
+    if(answer!=='same')ch.makeTonight(answer);
+    tonight.push({answer,h:ch.tonightHolo});
+   }
+   for(const v of tonight){ch.office.group.add(v.h.group);v.h.group.visible=false}
+   ch.tonightHolo=tonight[0].h;ch.tonight=tonight[0].h.group;
+   const slide=ch.meeting.screen.clone();slide.material=slide.material.clone();slide.material.map=slide.material.emissiveMap=paintTitleSlide();slide.visible=false;extras.push(slide);
+  }
+  const baseNormi=normi.mesh.clone();baseNormi.material=normi.mat.clone();baseNormi.material.map=baseNormi.material.emissiveMap=normi.tex;baseNormi.visible=false;extras.push(baseNormi);
+  scene.updateMatrixWorld(true);
+  const roots=[ch.meeting.group,normi.mesh,...(options.tablePig?[options.tablePig.mesh]:[]),...extras];
+  const data=serialize(roots,(nm,mm)=>({root:nm.get(ch.meeting.group),normi:nm.get(normi.mesh),normiBaseMaterial:mm.get(baseNormi.material),
+   normiFaceMaterial:mm.get(normi.mat),tablePig:options.tablePig?nm.get(options.tablePig.mesh):0,
+   box:ch.box?nm.get(ch.box):0,deskBox:ch.deskBox?nm.get(ch.deskBox):0,empty:ch.empty?nm.get(ch.empty):0,
+   screen:nm.get(ch.meeting.screen),titleSlideMaterial:mode==='meeting'?mm.get(extras[0].material):0,
+   clockHands:ch.meeting.clockHands.map(n=>nm.get(n)),people:ch.meeting.people.map(p=>({id:nm.get(p.mesh),flat:nm.get(p.flat),kind:p.kind})),
+   officePeople:ch.office.people.map(p=>({id:nm.get(p.mesh),home:p.home.toArray(),phase:p.phase})),billboards:ch.office.billboards.map(n=>nm.get(n)),
+   doorPanes:ch.meeting.officeDoor.panels.map(p=>({id:nm.get(p.g),z:p.z,side:p.side})),
+   lamp:nm.get(ch.meeting.lights.lamp),deskLamp:nm.get(ch.meeting.lights.desk),drape:mm.get(ch.drape.material),
+   skyViews:ch.skyViews.map(n=>({material:mm.get(n.material),base:n.userData.skyline.toArray()})),
+   duskPlanes:(ch.duskPlanes||[]).map(n=>mm.get(n.material)),sunGlow:ch.sunGlow?{id:nm.get(ch.sunGlow),material:mm.get(ch.sunGlow.material)}:null,
+   tonight:tonight.map(v=>({answer:v.answer,id:nm.get(v.h.group),seed:v.h.seed,mats:v.h.mats.map(m=>mm.get(m)),
+    edge:mm.get(v.h.group.children[1].material),scan:mm.get(v.h.group.children[2].material),base:mm.get(v.h.group.children[3].material),baseNode:nm.get(v.h.group.children[3])}))
+  }));
+  Object.assign(data,{schema:1,seed,chapter:mode,tune,normiLayout:layout,coordinates:'Three RH; native renderer flips Z once'});
+  scenes.push(data);window.referenceScenes.push({scene,camera,ch,normi});
+ }
+ window.chapterExport=scenes;
+ const renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true});renderer.setSize(1920,1080);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;
+ renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1;document.body.appendChild(renderer.domElement);
+ window.renderReference=index=>{
+  const {scene,camera,ch}=window.referenceScenes[index];const n=ch.normi.pos;
+  const look=ch.cam?.target?.clone()||new THREE.Vector3(THREE.MathUtils.clamp(n.x,-4,4)*.7,2.05,n.z*.45-1.1);
+  const pitch=16*Math.PI/180;camera.position.copy(look).add(new THREE.Vector3(0,Math.sin(pitch)*22,Math.cos(pitch)*22));camera.lookAt(look);camera.updateMatrixWorld();
+  renderer.render(scene,camera);return {position:camera.position.toArray(),look:look.toArray(),fov:24};
+ };
+ window.renderReference(0);window.exportReady=true;
+}catch(e){window.exportError=e.stack;console.error(e)}
+</script>

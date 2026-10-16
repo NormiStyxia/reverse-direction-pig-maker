@@ -1,0 +1,69 @@
+{
+  "scope": "Echo6 t=5, fixed camera, production source light shadow bounds and ACES/sRGB after linear blend; no full post/world/UI",
+  "threshold": "RGB mean < 42/255 in explicit floor-only rectangles, excluding actor and crate bodies",
+  "images": {
+    "source": {
+      "path": "validation/transparency/h5-production-alpha-source.png",
+      "sha256": "957266a08af238d6fe0e81124b64f77ac6a513021d92cbf6267e744768285036"
+    },
+    "rectangularZeroBias": {
+      "path": "validation/echo/native-shadow-zero-bias.png",
+      "sha256": "1d13c13f0d14d0b768e9a915b9e4c197850dff805cfb119510fcf6470b3c65d9"
+    },
+    "final": {
+      "path": "validation/echo/native-shadow-final.png",
+      "sha256": "bbae46f24386d5fccb0dfe7514a72ba9cdd401fb21e0bf31600f0d53dc879aa0"
+    }
+  },
+  "regions": {
+    "pigCast": {
+      "rect": [
+        1040,
+        613,
+        1140,
+        650
+      ],
+      "sourceShadowPixels": 850,
+      "rectangularZeroBias": {
+        "maskIoU": 0.3341194968553459,
+        "mae255": 27.14162162162162,
+        "nativeShadowPixels": 2544
+      },
+      "final": {
+        "maskIoU": 0.9660818713450292,
+        "mae255": 2.024864864864865,
+        "nativeShadowPixels": 831
+      }
+    },
+    "boxCast": {
+      "rect": [
+        468,
+        604,
+        540,
+        674
+      ],
+      "sourceShadowPixels": 1317,
+      "rectangularZeroBias": {
+        "maskIoU": 0.8952312138728323,
+        "mae255": 2.1633597883597884,
+        "nativeShadowPixels": 1306
+      },
+      "final": {
+        "maskIoU": 0.8952312138728323,
+        "mae255": 2.1633597883597884,
+        "nativeShadowPixels": 1306
+      }
+    }
+  },
+  "wholeGameSimilarity": null,
+  "visualAccepted": false,
+  "limitations": [
+    "Box edge mismatch remains (IoU below .95); not hidden behind pig improvement.",
+    "Zero-bias baseline isolates rectangular cutout defect, not the earlier missing-floor-shadow state.",
+    "Store roof/leaves shadow-only objects and receiveShadow=false are not resolved.",
+    "Shadow map sampling/filter differs between engines; other levels and moving camera need verification."
+  ],
+  "entry": "direct debug echo entry with world.js shadow defaults",
+  "fullStoryRouteComparison": "docs/migration/echo-shadow-story-comparison.json",
+  "notFullStoryAcceptance": true
+}

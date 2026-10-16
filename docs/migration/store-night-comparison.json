@@ -1,0 +1,77 @@
+{
+  "source": "Frozen StoreChapter; linear HDR target then source FINAL ACES/sRGB, without full post",
+  "candidate": {
+    "sessionId": "82c1a14d-1ddb-45a9-96dc-fe0bfd61178b",
+    "reloadId": 4,
+    "runtimePid": 85191
+  },
+  "images": [
+    "h5-shadow-both",
+    "native-bias-baseline",
+    "native-night-halos"
+  ],
+  "visualAccepted": false,
+  "wholeGameSimilarity": null,
+  "regions": {
+    "outside_road": {
+      "rect": [
+        756,
+        418,
+        910,
+        434
+      ],
+      "beforeMAE255": 64.9142316017316,
+      "afterMAE255": 2.7729978354978355,
+      "changedPixels": 2327
+    },
+    "outside_right_road": {
+      "rect": [
+        1000,
+        419,
+        1160,
+        432
+      ],
+      "beforeMAE255": 67.16153846153846,
+      "afterMAE255": 3.700641025641026,
+      "changedPixels": 1971
+    },
+    "lamp_halo": {
+      "rect": [
+        690,
+        215,
+        750,
+        270
+      ],
+      "beforeMAE255": 13.012323232323233,
+      "afterMAE255": 12.948080808080809,
+      "changedPixels": 67
+    },
+    "interior_floor_control": {
+      "rect": [
+        600,
+        900,
+        1200,
+        1000
+      ],
+      "beforeMAE255": 1.5637444444444444,
+      "afterMAE255": 1.5637444444444444,
+      "changedPixels": 0
+    },
+    "right_wall_control": {
+      "rect": [
+        1720,
+        180,
+        1850,
+        420
+      ],
+      "beforeMAE255": 1.033130341880342,
+      "afterMAE255": 1.033130341880342,
+      "changedPixels": 0
+    }
+  },
+  "limitations": [
+    "Raw-scene regional evidence only.",
+    "Shadow offset/filter, texture filtering and full post still differ.",
+    "Halo screenshot precedes geometry55 interleaved-attribute correction; only night ground grading is visually verified here. Corrected quad pending runtime capture."
+  ]
+}

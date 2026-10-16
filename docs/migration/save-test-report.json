@@ -1,0 +1,13 @@
+{
+  "result": "PASS",
+  "sourceMergeComparisons": 14,
+  "resumeProgressCases": 7,
+  "lockedLevelComparisons": 49,
+  "faultCases": 5,
+  "diskReload": "PASS",
+  "notCovered": [
+    "native file API",
+    "Web persistence",
+    "visual parity"
+  ]
+}

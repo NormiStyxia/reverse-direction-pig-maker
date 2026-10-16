@@ -1,0 +1,109 @@
+{
+  "date": "2026-10-16",
+  "sessionId": "fa6bf3f4-f069-471e-b264-2c39c9194da0",
+  "reloadId": 7,
+  "runtimePid": 70841,
+  "officialCheck": "FAIL",
+  "errors": [
+    "[2026-10-16 04_27_36_128][0] ERROR: Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds"
+  ],
+  "logs": {
+    "game": {
+      "file": "/Users/xd/.taptap-maker/runtime/runtime-49696d14-a3c6-40fe-9808-2e28bb0d0045/logs/game/urhox_runtime-2026-10-16 04_27_35_401.log",
+      "errors": [
+        {
+          "t": "2026-10-16 04_27_36_128",
+          "f": 0,
+          "l": "ERROR",
+          "m": "Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds"
+        }
+      ],
+      "receipts": []
+    },
+    "lua": {
+      "file": "/Users/xd/.taptap-maker/runtime/runtime-49696d14-a3c6-40fe-9808-2e28bb0d0045/logs/lua/lua-2026-10-16 04_27_36_535.log",
+      "errors": [],
+      "receipts": [
+        "[2026-10-16 04_27_37_445][97][Script] PROLOGUE_MODEL_SMOKE: PASS; 3060 frames; 7 incoming messages; intro/play/dark/pig/fold/done; visuals not tested",
+        "[2026-10-16 04_27_37_493][97][Script] STORY_PANEL_PROBE: 群聊; frozen fixture; F7 next, F8 title; not playable story",
+        "[2026-10-16 04_27_37_527][98][Script] STORY_FONT_READY: digit 12.0; first message 358.0",
+        "[2026-10-16 04_29_10_492][13971][Script] STORY_PANEL_PROBE: 发送失败; frozen fixture; F7 next, F8 title",
+        "[2026-10-16 04_29_11_646][14110][Script] STORY_PANEL_PROBE: 饭团; frozen fixture; F7 next, F8 title",
+        "[2026-10-16 04_29_12_948][14271][Script] STORY_PANEL_PROBE: 瓶盖; frozen fixture; F7 next, F8 title",
+        "[2026-10-16 04_29_14_280][14461][Script] STORY_PANEL_PROBE: 关东煮; frozen fixture; F7 next, F8 title",
+        "[2026-10-16 04_29_15_560][14615][Script] STORY_PANEL_PROBE: 锁屏; frozen fixture; F7 next, F8 title",
+        "[2026-10-16 04_29_16_849][14769][Script] STORY_PANEL_PROBE: 群聊; frozen fixture; F7 next, F8 title"
+      ]
+    }
+  },
+  "captures": [
+    {
+      "fixture": 2,
+      "raw": "validation/panels/native-fixture-2-window.png",
+      "crop": "validation/panels/native-fixture-2.png",
+      "cropRect": [
+        0,
+        32,
+        1920,
+        1112
+      ]
+    },
+    {
+      "fixture": 3,
+      "raw": "validation/panels/native-fixture-3-window.png",
+      "crop": "validation/panels/native-fixture-3.png",
+      "cropRect": [
+        0,
+        32,
+        1920,
+        1112
+      ]
+    },
+    {
+      "fixture": 4,
+      "raw": "validation/panels/native-fixture-4-window.png",
+      "crop": "validation/panels/native-fixture-4.png",
+      "cropRect": [
+        0,
+        32,
+        1920,
+        1112
+      ]
+    },
+    {
+      "fixture": 5,
+      "raw": "validation/panels/native-fixture-5-window.png",
+      "crop": "validation/panels/native-fixture-5.png",
+      "cropRect": [
+        0,
+        32,
+        1920,
+        1112
+      ]
+    },
+    {
+      "fixture": 6,
+      "raw": "validation/panels/native-fixture-6-window.png",
+      "crop": "validation/panels/native-fixture-6.png",
+      "cropRect": [
+        0,
+        32,
+        1920,
+        1112
+      ]
+    },
+    {
+      "fixture": 1,
+      "raw": "validation/panels/native-fixture-1-window.png",
+      "crop": "validation/panels/native-fixture-1.png",
+      "cropRect": [
+        0,
+        32,
+        1920,
+        1112
+      ]
+    }
+  ],
+  "visualAcceptance": false,
+  "fullStoryPlayable": false
+}

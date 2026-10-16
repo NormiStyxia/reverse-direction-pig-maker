@@ -1,0 +1,116 @@
+{
+  "scope": "Echo 6, fixed time 5, exact camera 1920x1080; isolated linear blend and rain checks only",
+  "reference": "validation/transparency/h5-linear-alpha-source.png",
+  "candidate": "validation/echo/native-rain-fixed.png",
+  "referenceCorrection": "The original direct-to-canvas ACES captures blend after tone mapping. Production H5 uses linear HalfFloat main target then post.js FINAL. Direct captures cannot validate production transparency.",
+  "productionMaterialChanged": false,
+  "opacitySamples": [
+    {
+      "opacityCase": "zero",
+      "pixel": [
+        850,
+        230
+      ],
+      "h5Linear": [
+        25,
+        37,
+        64
+      ],
+      "native": [
+        20,
+        35,
+        60
+      ],
+      "maxChannelError": 5
+    },
+    {
+      "opacityCase": "source",
+      "pixel": [
+        850,
+        230
+      ],
+      "h5Linear": [
+        216,
+        213,
+        199
+      ],
+      "native": [
+        216,
+        213,
+        198
+      ],
+      "maxChannelError": 1
+    },
+    {
+      "opacityCase": "point2",
+      "pixel": [
+        850,
+        230
+      ],
+      "h5Linear": [
+        225,
+        222,
+        209
+      ],
+      "native": [
+        225,
+        222,
+        209
+      ],
+      "maxChannelError": 0
+    },
+    {
+      "opacityCase": "one",
+      "pixel": [
+        850,
+        230
+      ],
+      "h5Linear": [
+        246,
+        245,
+        239
+      ],
+      "native": [
+        246,
+        245,
+        239
+      ],
+      "maxChannelError": 0
+    }
+  ],
+  "regions": [
+    {
+      "region": "exitInterior",
+      "box": [
+        820,
+        185,
+        890,
+        315
+      ],
+      "meanAbsoluteChannelError_0_255": 0.33787545787545786,
+      "p95AbsoluteChannelError_0_255": 1.0
+    },
+    {
+      "region": "rainAgainstSky",
+      "box": [
+        1050,
+        0,
+        1900,
+        300
+      ],
+      "meanAbsoluteChannelError_0_255": 3.6821555555555556,
+      "p95AbsoluteChannelError_0_255": 5.0,
+      "sourceLinePixels": 2773,
+      "nativeLinePixels": 2778,
+      "lineMaskIntersectionOverUnion": 0.9663478568898335,
+      "maskRule": "min(R,G,B)>80 within empty-sky ROI"
+    }
+  ],
+  "wholeGameSimilarity": null,
+  "visualAccepted": false,
+  "limitations": [
+    "Source final grading, vignette, DOF, outlines and world are excluded",
+    "Lighting/shadows and background still differ",
+    "One fixed view does not establish frame-rate or all-level visual parity"
+  ]
+}

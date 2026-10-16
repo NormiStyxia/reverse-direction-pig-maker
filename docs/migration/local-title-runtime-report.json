@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-16",
+  "sessionId": "fa6bf3f4-f069-471e-b264-2c39c9194da0",
+  "reloadId": 2,
+  "entry": "preview/title.lua",
+  "processAlive": true,
+  "cliCheckResult": "FAIL",
+  "engineErrors": [
+    {
+      "t": "2026-10-16 03_41_14_759",
+      "f": 0,
+      "l": "ERROR",
+      "m": "Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds"
+    }
+  ],
+  "compiledTitlePixelShaders": [
+    {
+      "t": "2026-10-16 03_41_27_827",
+      "f": 1016,
+      "l": "INFO",
+      "m": "Loaded pixel shader Generated/Surface/surface_unlit_Ew08EUWVa4nu7bgV6sTXPgCG_f6b6b5d3_EB286983(CLOUD_SHADOW ENVCUBE RENDER_QUALITY=2)"
+    },
+    {
+      "t": "2026-10-16 03_41_27_827",
+      "f": 1016,
+      "l": "INFO",
+      "m": "Loaded pixel shader Generated/Surface/surface_unlit_FcrJ2YhSUl39OuSUYUtluO1R_71438003_CF8A0802(CLOUD_SHADOW ENVCUBE RENDER_QUALITY=2)"
+    }
+  ],
+  "resolvedErrors": [
+    "nvgSvgCreate unavailable (replaced by raw NVG paths)",
+    "two-argument atan backend overload",
+    "sampler alias in silhouette helper",
+    "empty geometry/forward path configuration"
+  ],
+  "screenshots": {
+    "method": "macOS screencapture of verified local Runtime window only",
+    "windowId": 20293,
+    "runtimePid": 98079,
+    "files": [
+      "validation/local-title/title-runtime-04.png",
+      "validation/local-title/time-samples.jpg",
+      "validation/local-title/finished-comparison.jpg"
+    ]
+  },
+  "visualAssessment": "Native title, menus and transitions are visible. Not accepted: typography/glow differ, animation time is unsynchronized, story not integrated.",
+  "similarityScore": null,
+  "fullPlaythrough": "NOT_TESTED"
+}

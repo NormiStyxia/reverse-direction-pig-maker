@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-16",
+  "sessionId": "fa6bf3f4-f069-471e-b264-2c39c9194da0",
+  "reloadId": 23,
+  "runtimePid": 55617,
+  "entry": "preview/title.lua",
+  "nativeModelSmoke": {
+    "result": "PASS",
+    "frames": 4778,
+    "completedModelRuns": 6,
+    "answers": [
+      "same",
+      "late",
+      "done"
+    ],
+    "paper": false
+  },
+  "nativePanels": [
+    "question",
+    "done-answer",
+    "zhou-recall",
+    "morning-done"
+  ],
+  "officialCheck": "FAIL",
+  "startupErrors": [
+    "[2026-10-16 06_29_18_132][0] ERROR: Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds"
+  ],
+  "scope": "Chapter1 model and isolated raw NVG only; no native chapter scene or player end-to-end acceptance",
+  "visualAcceptance": false,
+  "similarityPercentage": null
+}

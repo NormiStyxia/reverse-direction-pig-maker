@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-16",
+  "sessionId": "fa6bf3f4-f069-471e-b264-2c39c9194da0",
+  "reloads": [
+    29,
+    30,
+    31
+  ],
+  "nativeSameProcessFileReopen": "PASS",
+  "nativeContinueLevel": 4,
+  "nativeChapterSelectLevel": 2,
+  "nativeLockedLevelsAtReached4": [
+    5,
+    6
+  ],
+  "nativeSixLevelInputRoute": {
+    "result": "PASS",
+    "reload": 30,
+    "inputFrames": 6452,
+    "levels": 6,
+    "naturalTransitionToMeeting": true
+  },
+  "progressAfterSix": {
+    "reached": 6,
+    "done": true
+  },
+  "nativeCrossRefresh": "FAIL: CLI removes the per-port resource cache containing savedata",
+  "webPersistence": "NOT_IMPLEMENTED: native file API is documented as memory-only on WASM",
+  "playerSaveModified": false,
+  "officialCheck": "FAIL",
+  "runtimeErrors": [
+    "Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds"
+  ],
+  "visualAcceptance": false
+}

@@ -1,0 +1,24 @@
+<!doctype html><meta charset="utf-8"><title>Frozen H5 panels reference</title>
+<link rel="stylesheet" href="/style.css">
+<style>@font-face{font-family:'LXGW WenKai';src:url('/assets/fonts/LXGWWenKai-subset.ttf')}body{background:#1d1a24}#fixture-note{position:fixed;left:20px;top:20px;color:#f0eddf;font-size:16px;pointer-events:none}</style>
+<div id="fixture-note">NVG 界面校验 · 非剧情场景</div>
+<script type="module">
+import {PhoneOverlay} from '/src/phone.js';
+import {BrowseOverlay} from '/src/browse.js';
+const index=Number(new URLSearchParams(location.search).get('fixture')||2)-1;
+const fixtures=await (await fetch('/fixtures.json')).json();const fixture=fixtures[index];
+await document.fonts.load('20px "LXGW WenKai"');
+await document.fonts.ready;
+const phone=new PhoneOverlay(()=>{}),browse=new BrowseOverlay(()=>{}),p=fixture.phone,b=fixture.browse;
+phone.config({contact:p.contact,subtitle:p.subtitle,lockLabel:p.lockLabel,previewName:p.previewName,previewAvatar:p.previewAvatar,themAvatar:'./assets/ch1/avatar-leader.png',failText:p.failText});
+phone.set({history:p.history,msgs:p.msgs,draft:p.draft,time:p.time,preview:p.preview,battery:p.battery,view:p.view});
+phone.setButtons(p.buttons);
+if(p.open){phone.show();phone.place(.2,.4);phone.update(1)}
+if(b.open){browse.show(b.title,b.sub);browse.setClock(b.clock);browse.setCloseLabel(b.closeLabel);for(const e of b.entries)browse.render(e);browse.setChoices(b.choices);browse.place(.2,.4);browse.update(1)}
+document.body.classList.add('phone-open');
+await Promise.all([...document.images].map(im=>im.decode().catch(()=>{})));
+await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+document.getAnimations().forEach(a=>{if(a.effect.getTiming().iterations!==Infinity)a.finish()});
+const thread=(p.open?phone:browse).el.thread;thread.scrollTo({top:thread.scrollHeight,behavior:'instant'});
+window.panelReference={fixture:index+1,name:fixture.name,phone,browse,metrics:()=>[...document.querySelectorAll('.ph-panel,.ph-header,.ph-thread,.ph-composer,.ph-msg,.ph-bubble,.br-card,.ph-choices button')].filter(e=>e.getBoundingClientRect().width&&e.getBoundingClientRect().height).map(e=>({class:e.className,text:e.textContent.slice(0,80),rect:JSON.parse(JSON.stringify(e.getBoundingClientRect())),font:getComputedStyle(e).fontFamily,fontSize:getComputedStyle(e).fontSize,lineHeight:getComputedStyle(e).lineHeight}))};
+</script>

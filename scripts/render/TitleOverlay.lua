@@ -2,6 +2,7 @@
 -- Mode A: 2560 x 1152 contain; physical input uses the same transform.
 local P=require('game.TitlePresentation')
 local Metrics=require('game.data.TitleVectorMetrics')
+local Vectors=require('render.TitleVectors')
 local Levels=require('game.data.Levels').prologue
 local Overlay={}
 Overlay.__index=Overlay
@@ -27,13 +28,12 @@ function Overlay:init(title)
     self.vg=nvgCreate(1);assert(self.vg,'TITLE_NVG_CONTEXT_FAILED')
     assert(nvgCreateFont(self.vg,'title-sans','Fonts/NotoSansSC-Regular.ttf')~=-1,'TITLE_FONT_FAILED')
     assert(nvgCreateFont(self.vg,'title-bold','Fonts/NotoSansSC-Bold.ttf')~=-1,'TITLE_BOLD_FONT_FAILED')
-    self.dial=nvgSvgCreate(self.vg);assert(self.dial:Load('title/ui/dial.svg'),self.dial:GetError())
-    self.logo=nvgSvgCreate(self.vg);assert(self.logo:Load('title/ui/logotype.svg'),self.logo:GetError())
     self.pig=nvgCreateImage(self.vg,'title/pig.png',0);assert(self.pig>0,'TITLE_CURSOR_IMAGE_FAILED')
     local iw,ih=nvgImageSize(self.vg,self.pig);self.pigHeight=62*ih/iw
     self.uiAt=math.huge;self.blueprintAt=math.huge
     self.panelKind=false;self.panelTrack=P.channel(798);self.panelX=798
     self.mirrorTrack=P.channel(1);self.cursorTrack=P.channel(4)
+    self.mirror=1
     self.cursorY=4;self.cursorSpinAt=-10;self.lastMenuSel=0
     self.rowTracks={};self.rowAmounts={};self.marginTrack=P.channel(0);self.menuMargin=0
     for i=1,4 do self.rowTracks[i]=P.channel(i==1 and 1 or 0);self.rowAmounts[i]=i==1 and 1 or 0 end
@@ -105,19 +105,7 @@ function Overlay:update()
     if v.uiIn and self.uiAt==math.huge then self.uiAt=t end
     if v.blueprintDrawn and self.blueprintAt==math.huge then self.blueprintAt=t end
     if v.glitch then self.glitchAt=self.glitchAt or t else self.glitchAt=false end
-    local mirror=P.track(self.mirrorTrack,v.held and -1 or 1,t,.45,P.mirror)
-    for _,id in ipairs({'fan-ink','fan-shadow'}) do
-        local e=self.logo:GetElementById(id);e:SetTransformOrigin(Metrics.fanCenter,0);e:SetScale(mirror,1)
-    end
-    local plane=self.dial:GetElementById('plane')
-    plane:SetTransformOverride(st.zoom,0,0,st.zoom,1280-(st.cam.x-st.par.x*.004)*2560*st.zoom,576-(st.cam.y-st.par.y*.003)*1152*st.zoom)
-    plane.opacity=v.planeOpacity
-    local ticks=self.dial:GetElementById('ticks');ticks:SetTransformOrigin(784.8,435.4);ticks.rotate=st.dial
-    local arc=self.dial:GetElementById('arc');arc:SetTransformOrigin(784.8,435.4);arc.rotate=st.dial*2.4-90
-    self.dial:GetElementById('blueprint').opacity=v.blueprintOpacity
-    for i,length in ipairs(Metrics.blueprintLengths) do
-        self.dial:GetElementById('bp'..i).strokeDashoffset=length*(1-P.blueprint((t-self.blueprintAt)/1.4))
-    end
+    self.mirror=P.track(self.mirrorTrack,v.held and -1 or 1,t,.45,P.mirror)
     if title.menuSel~=self.lastMenuSel then self.lastMenuSel=title.menuSel;self.cursorSpinAt=t end
     self.menuMargin=P.track(self.marginTrack,title.menuSel==1 and 26 or 0,t,.3,P.ease)
     self.cursorY=P.track(self.cursorTrack,title.menuSel*66+4,t,.35,P.slide)
@@ -180,7 +168,7 @@ function Overlay:render()
     nvgBeginFrame(vg,self.logicalW,self.logicalH,self.dpr)
     nvgScale(vg,self.scale,self.scale);nvgTranslate(vg,self.offsetX,self.offsetY)
     nvgIntersectScissor(vg,0,0,2560,1152);nvgGlobalAlpha(vg,rootAlpha)
-    nvgSvgRender(vg,self.dial)
+    Vectors.dial(vg,title,P.blueprint((st.t-self.blueprintAt)/1.4),rootAlpha)
     nvgSave(vg);nvgGlobalAlpha(vg,fade);nvgTranslate(vg,0,14*(1-P.slide(uiT/.9)))
     text(vg,'TEMPUS',55,590.8,30,INK,nil,2.4)
     text(vg,'REDIT',55,630.4,30,INK,nil,2.4)
@@ -216,7 +204,7 @@ function Overlay:render()
     nvgTranslate(vg,Metrics.width/2,Metrics.height/2);nvgSkewX(vg,skew)
     nvgTranslate(vg,-Metrics.width/2,-Metrics.height/2)
     nvgIntersectScissor(vg,clipped,0,Metrics.width-clipped,Metrics.height)
-    nvgSvgRender(vg,self.logo);nvgRestore(vg)
+    Vectors.logo(vg,self.mirror);nvgRestore(vg)
     self:drawPanel(rootAlpha)
     local wash=st.phase=='leaving' and P.ease((st.leaveT-.5)/.6)*rootAlpha or 0
     nvgGlobalAlpha(vg,wash);rect(vg,0,0,2560,1152,PAPER)
@@ -228,7 +216,7 @@ function Overlay:render()
 end
 function Overlay:dispose()
     if self.disposed then return end
-    self:cancelPointer();self.dial:Unload();self.logo:Unload()
+    self:cancelPointer()
     nvgDeleteImage(self.vg,self.pig);nvgDelete(self.vg);self.disposed=true
 end
 return Overlay

@@ -21,7 +21,7 @@
   ],
   "notCovered": [
     "native engine API execution",
-    "SVG rendered pixels",
+    "NVG rendered pixels",
     "font parity and blur/glow",
     "mobile ergonomics",
     "story callback integration"

@@ -35,6 +35,10 @@ end
 local function geometry(scene,name,material,dynamic)
     local node=scene:CreateChild(name)
     local mesh=node:CreateComponent('CustomGeometry')
+    -- Material assignment requires an existing geometry slot. Keep the drawable
+    -- hidden until its first Commit so Start cannot submit an empty vertex buffer.
+    mesh.enabled=false
+    mesh:SetNumGeometries(1)
     mesh.dynamic=dynamic
     mesh:SetMaterial(material)
     mesh.castShadows=false
@@ -63,11 +67,17 @@ function Renderer:init()
     self.camera.orthographic=true
     self.camera.nearClip=.1; self.camera.farClip=30
     self.viewport=Viewport:new(self.scene,self.camera)
+    -- fog_disabled SurfaceShaders have no deferred pass. Use the documented
+    -- forward path; the default deferred post chain also expects DepthResolve.
+    local forward=self.viewport:GetRenderPath():Clone()
+    assert(forward:Load(assert(cache:GetResource('XMLFile','RenderPaths/Forward.xml'))))
+    self.viewport:SetRenderPath(forward)
     renderer:SetViewport(0,self.viewport)
     renderer.hdrRendering=false
     self.plate=assert(cache:GetResource('Material','Materials/TitlePlate.xml'),'Missing TitlePlate material')
     local plateGeometry=geometry(self.scene,'TitlePlate',self.plate,false)
     writeQuad(plateGeometry,{{-ASPECT,1,0,0},{ASPECT,1,1,0},{ASPECT,-1,1,1},{-ASPECT,-1,0,1}},0)
+    plateGeometry.enabled=true
     self.sprites={}
     for i=1,11 do
         local path=i==11 and 'Materials/TitlePig.xml' or 'Materials/TitleParticles.xml'
@@ -80,6 +90,7 @@ function Renderer:init()
     self:resize(graphics:GetWidth(),graphics:GetHeight())
 end
 function Renderer:resize(width,height)
+    width=math.max(1,width);height=math.max(1,height)
     local frame=Title.layout(width,height)
     self.camera.orthoSize=2*height/frame.height
 end
@@ -107,7 +118,6 @@ function Renderer:update(title)
     for i,q in ipairs(quads) do
         ---@type TitleSpriteDrawable
         local sprite=self.sprites[i]
-        sprite.geometry.enabled=i==11 or opts.motion
         local vertices={}
         local offX=st.par.x*(-.004-.007*q.depth)
         local offY=st.par.y*(-.003-.005*q.depth)
@@ -117,6 +127,7 @@ function Renderer:update(title)
             vertices[j]={(x*2-1)*ASPECT,1-y*2,v[3],v[4]}
         end
         writeQuad(sprite.geometry,vertices,-.01-i*.001)
+        sprite.geometry.enabled=i==11 or opts.motion
         common(sprite.material,st)
         sprite.material:SetShaderParameter('uShow',Variant(st.reveal))
         sprite.material:SetShaderParameter('uMeta',Variant(Vector3(q.alpha,q.depth,q.occlude)))

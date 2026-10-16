@@ -1,0 +1,139 @@
+{
+  "result": "PASS",
+  "differentialFrames": 13700,
+  "stateChecks": 2750396,
+  "completedModelRuns": [
+    "meeting-same",
+    "morning-same-timeout",
+    "morning-same-inspect",
+    "meeting-late",
+    "morning-late-timeout",
+    "morning-late-inspect",
+    "meeting-done",
+    "morning-done-timeout",
+    "morning-done-inspect"
+  ],
+  "phases": [
+    "meeting:ask",
+    "meeting:desk",
+    "meeting:done",
+    "meeting:fold",
+    "meeting:intro",
+    "meeting:leave",
+    "meeting:msg",
+    "meeting:pig",
+    "meeting:play",
+    "meeting:walk",
+    "morning:done",
+    "morning:intro",
+    "morning:msg",
+    "morning:play"
+  ],
+  "scenarios": [
+    {
+      "name": "meeting-same",
+      "mode": "meeting",
+      "frames": 2200,
+      "finalPhase": "done",
+      "answer": "same",
+      "randomCalls": 249
+    },
+    {
+      "name": "morning-same-timeout",
+      "mode": "morning",
+      "frames": 600,
+      "finalPhase": "done",
+      "answer": "same",
+      "randomCalls": 371
+    },
+    {
+      "name": "morning-same-inspect",
+      "mode": "morning",
+      "frames": 600,
+      "finalPhase": "done",
+      "answer": "same",
+      "randomCalls": 362
+    },
+    {
+      "name": "meeting-late",
+      "mode": "meeting",
+      "frames": 2200,
+      "finalPhase": "done",
+      "answer": "late",
+      "randomCalls": 249
+    },
+    {
+      "name": "morning-late-timeout",
+      "mode": "morning",
+      "frames": 600,
+      "finalPhase": "done",
+      "answer": "late",
+      "randomCalls": 371
+    },
+    {
+      "name": "morning-late-inspect",
+      "mode": "morning",
+      "frames": 600,
+      "finalPhase": "done",
+      "answer": "late",
+      "randomCalls": 362
+    },
+    {
+      "name": "meeting-done",
+      "mode": "meeting",
+      "frames": 2200,
+      "finalPhase": "done",
+      "answer": "done",
+      "randomCalls": 249
+    },
+    {
+      "name": "morning-done-timeout",
+      "mode": "morning",
+      "frames": 600,
+      "finalPhase": "done",
+      "answer": "done",
+      "randomCalls": 371
+    },
+    {
+      "name": "morning-done-inspect",
+      "mode": "morning",
+      "frames": 600,
+      "finalPhase": "done",
+      "answer": "done",
+      "randomCalls": 362
+    },
+    {
+      "name": "meeting-auto-question",
+      "mode": "meeting",
+      "frames": 1100,
+      "finalPhase": "ask",
+      "answer": false,
+      "randomCalls": 49
+    },
+    {
+      "name": "meeting-variable-delta",
+      "mode": "meeting",
+      "frames": 2400,
+      "finalPhase": "ask",
+      "answer": false,
+      "randomCalls": 11
+    }
+  ],
+  "source": "Frozen Ch1Meeting/Ch1Morning/Normi/BrowseOverlay executed directly with real THREE scene builders, inert art/audio/DOM",
+  "covers": [
+    "all three answers and duplicate-answer guard",
+    "Zhou reply/recall and single reply",
+    "optional phone and unclosable required panel",
+    "archive inspections, carry, door gating, optional desk props",
+    "auto-walk, freeze, one-minute rewind, hologram, pig fold",
+    "09:58 message variants and both triggers",
+    "movement/collision, reverse timers, seeded random call order, FX numeric state"
+  ],
+  "notCovered": [
+    "native scene rendering and NVG integration",
+    "player-only end-to-end route",
+    "audio playback",
+    "visual similarity",
+    "save/load"
+  ]
+}

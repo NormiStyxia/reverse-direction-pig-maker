@@ -1,0 +1,31 @@
+{
+  "result": "PASS",
+  "reload": 40,
+  "floorShadowSample": {
+    "xy": [
+      1070,
+      627
+    ],
+    "on": [
+      14.0,
+      24.0,
+      34.0
+    ],
+    "off": [
+      58.0,
+      83.0,
+      104.0
+    ]
+  },
+  "changedPixelsAbove3": 12971,
+  "exactRoundTrip": true,
+  "wallAndSkyUnchanged": true,
+  "unsupportedModeProbe": {
+    "reload": 39,
+    "shaderAccepted": true,
+    "changedPixelsAbove3": 1,
+    "floorSampleUnchanged": true
+  },
+  "scope": "Receiver toggle behavior only; does not verify whole-game visual equivalence",
+  "visualAccepted": false
+}

@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-16",
+  "sessionId": "fa6bf3f4-f069-471e-b264-2c39c9194da0",
+  "reloadId": 4,
+  "runtimePid": 33100,
+  "entry": "preview/title.lua",
+  "sourceMode": "official local preview managed build, no upload",
+  "nativeLuaModelSmoke": "PASS",
+  "nativeModelFrames": 3060,
+  "incomingMessages": 7,
+  "nativeModelFinishEvents": 1,
+  "titleStarted": true,
+  "gameLog": "/Users/xd/.taptap-maker/runtime/runtime-49696d14-a3c6-40fe-9808-2e28bb0d0045/logs/game/urhox_runtime-2026-10-16 04_02_50_752.log",
+  "luaLog": "/Users/xd/.taptap-maker/runtime/runtime-49696d14-a3c6-40fe-9808-2e28bb0d0045/logs/lua/lua-2026-10-16 04_03_24_576.log",
+  "cliCheck": "FAIL",
+  "failure": "Startup missing Cube/Day/DaySpecularHDR_QualityLow.dds",
+  "visualAcceptance": "NOT_TESTED for story",
+  "warnings": [
+    "Preparation cannot map frozen logical ./assets/ch1/avatar-leader.png and ./assets/ch1/avatar-zhou.jpg references; future NVG adapter must map them to native resource paths.",
+    "Preparation scanner treats compressed empty-string assignments in BrowseState as resource paths; no associated Lua runtime failure."
+  ],
+  "limitations": [
+    "This is model execution inside UrhoX, not a playable rendered prologue.",
+    "Title start still logs pending scene integration.",
+    "No 95% similarity result or end-to-end acceptance."
+  ],
+  "titleScreenshot": "validation/local-title/after-prologue-model.png",
+  "titleScreenshotInspected": true
+}

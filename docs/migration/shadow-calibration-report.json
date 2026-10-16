@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-16",
+  "acceptedParameterChange": false,
+  "defaultBias": [
+    5e-05,
+    0,
+    0
+  ],
+  "defaultMapSize": 2048,
+  "regions": {
+    "leaf_floor": [
+      585,
+      740,
+      815,
+      860
+    ],
+    "leaf_back_wall": [
+      235,
+      145,
+      435,
+      375
+    ],
+    "left_wall": [
+      0,
+      145,
+      210,
+      740
+    ],
+    "right_wall": [
+      1710,
+      145,
+      1910,
+      490
+    ],
+    "table": [
+      680,
+      520,
+      820,
+      565
+    ]
+  },
+  "cases": {
+    "native-normal-baseline": {
+      "leaf_floor": 33.98897342995169,
+      "leaf_back_wall": 2.654268115942029,
+      "left_wall": 15.269638522075496,
+      "right_wall": 1.0282753623188405,
+      "table": 23.704391534391533
+    },
+    "native-normal008": {
+      "leaf_floor": 29.70485507246377,
+      "leaf_back_wall": 13.416688405797101,
+      "left_wall": 2.0226784046952115,
+      "right_wall": 1.0282753623188405,
+      "table": 28.216402116402115
+    },
+    "native-normal003": {
+      "leaf_floor": 19.658743961352656,
+      "leaf_back_wall": 13.416688405797101,
+      "left_wall": 1.9409363745498198,
+      "right_wall": 1.0282753623188405,
+      "table": 17.69005291005291
+    },
+    "native-map4096": {
+      "leaf_floor": 36.93496376811594,
+      "leaf_back_wall": 2.7732101449275364,
+      "left_wall": 17.950742963852207,
+      "right_wall": 1.0282753623188405,
+      "table": 26.130793650793652
+    },
+    "native-map1024": {
+      "leaf_floor": 24.75487922705314,
+      "leaf_back_wall": 2.571239130434783,
+      "left_wall": 14.02392690409497,
+      "right_wall": 1.0282753623188405,
+      "table": 18.570740740740742
+    }
+  },
+  "conclusions": [
+    "Focus off does not remove left-wall leak.",
+    "Native negative constant -.0002 hides leak but also shadows lit back wall and table: rejected.",
+    "Native normalOffset .03/.08 shifts floor shadows and incorrectly darkens back wall: rejected.",
+    "4096 map is sharper but worsens measured floor/back-wall error; not adopted.",
+    "LIGHT_VERTEX unsupported; removed; reload2 captures under unsupported-light-vertex are invalid.",
+    "renderer.shadowSoftness=0 did not resolve filter mismatch."
+  ]
+}

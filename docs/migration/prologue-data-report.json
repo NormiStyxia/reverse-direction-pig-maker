@@ -1,0 +1,12 @@
+{
+  "source": "frozen chapter1 6a316e84907d8bc94ab59f20796685172b3535b5 + preserved tuning",
+  "output": "scripts/game/data/PrologueData.lua",
+  "hashes": {
+    "store-prologue.js": "4f4f3460603a17529c947b26e811e4db3cad2dd5f2f4222919fc1eac69a76a5c",
+    "store-chapter.js": "abe5ee03ff6c43c1512ba78182600c0726d9be467ccab9ff1cd97a5623dfe942",
+    "store.js": "92ba55cd09dbc77e7f40f4586042c07449aabad774a420eaf4635e6abe32584a"
+  },
+  "activities": 6,
+  "nodes": 12,
+  "workMessages": 6
+}

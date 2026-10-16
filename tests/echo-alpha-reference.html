@@ -1,0 +1,52 @@
+<!doctype html><meta charset="utf-8"><style>@font-face{font-family:'LXGW WenKai';src:url('/assets/fonts/LXGWWenKai-subset.ttf')}body{margin:0}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {exportBuildLevel,LEVELS,RewindLevels} from '/src/rewind-levels.js';
+import {Pig} from '/src/pig.js';
+import {Post} from '/src/post.js';
+try{
+ await document.fonts.load('20px "LXGW WenKai"');
+ let rng=0x6a316e84;Math.random=()=>{rng=(Math.imul(rng,1664525)+1013904223)>>>0;return rng/4294967296;};
+ const atlas=new Image();atlas.src='/assets/pig-atlas-normi-round.png';await atlas.decode();
+ let room,pig,scene;const rainSeeds=[];
+ for(let i=0;i<6;i++){scene=new THREE.Scene();room=exportBuildLevel(LEVELS[i],i);rainSeeds.push(room.rainSeed.map(p=>p.slice()));pig=new Pig(scene,atlas);pig.pos.set(...[LEVELS[i].start[0],0,LEVELS[i].start[1]]);pig.facing=0;pig.update(0,{},0,false);scene.add(room.group);}
+ window.rainSeeds=rainSeeds;
+ scene.fog=new THREE.Fog(0x262f42,34,150);scene.background=new THREE.Color(0x262f42);
+ const sun=new THREE.DirectionalLight(),hemi=new THREE.HemisphereLight();scene.add(sun,hemi);
+ sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-20,right:20,top:20,bottom:-20,near:.5,far:70});
+ room.doorOpen=0;room.doorTimer=0;
+ const o=Object.create(RewindLevels.prototype);Object.assign(o,{room,levels:LEVELS,index:5,theme:'store',t:5,rwK:0,handBack:0,rewinding:false,pivot:pig.pos.clone(),audio:{},fx:{},scene,world:{lights:{sun,hemi}}});
+ o.unfold(1);o.applyRoom(0,{camYaw:0});
+ const look=new THREE.Vector3(1.7,.8,2.5),camera=new THREE.PerspectiveCamera(24,1920/1080,1,1400),pitch=16*Math.PI/180;
+ camera.position.copy(look).add(new THREE.Vector3(0,Math.sin(pitch)*22,Math.cos(pitch)*22));camera.lookAt(look);
+ const renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true});renderer.setSize(1920,1080);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;document.body.appendChild(renderer.domElement);
+ // The production renderer blends into a linear HalfFloat target before FINAL.
+ // Direct ACES rendering is retained only to expose the different composition order.
+ const post=new Post(renderer,scene,camera);post.setSize(1920,1080);
+ Object.assign(post.settings,{dof:false,lines:false,paper:false,wobble:false,bloom:false});
+ const rawFinal=post.m.final.clone();
+ rawFinal.fragmentShader=rawFinal.fragmentShader.split('  vec2 p = vUv - 0.5;')[0]+'gl_FragColor=vec4(c,1.0); }';
+ window.alphaReference={set(a,pipeline='direct'){
+   room.exitMat.opacity=a;
+   if(pipeline==='production'||pipeline==='story'){
+     // Frozen world.js:185-188, shared by the actual prologue echo scene.
+     Object.assign(sun.shadow.camera,{left:-11,right:11,top:11,bottom:-11,near:1,far:40});
+     sun.shadow.camera.updateProjectionMatrix();sun.shadow.bias=-.0008;sun.shadow.normalBias=.03;
+     // Full title -> store -> echo flow inherits StoreChapter overrides; dispose
+     // restores shadowStep but does not restore the world's shadow bias/radius.
+     if(pipeline==='story'){sun.shadow.bias=-.003;sun.shadow.normalBias=.08;sun.shadow.radius=1.4;}
+   }
+   if(pipeline==='direct'){renderer.setRenderTarget(null);renderer.render(scene,camera);}
+   else {
+     renderer.setRenderTarget(post.targets.main);renderer.render(scene,camera);
+     rawFinal.uniforms.tColor.value=post.targets.main.texture;
+     rawFinal.uniforms.tBloomA.value=post.targets.main.texture;rawFinal.uniforms.tBloomB.value=post.targets.main.texture;
+     rawFinal.uniforms.bloom.value=0;rawFinal.uniforms.paperOn.value=0;
+     post.pass(rawFinal,null);
+   }
+   return {alpha:a,pipeline,look:look.toArray(),camera:camera.position.toArray(),time:5,level:6,shadow:{bias:sun.shadow.bias,normalBias:sun.shadow.normalBias,bounds:[sun.shadow.camera.left,sun.shadow.camera.right,sun.shadow.camera.top,sun.shadow.camera.bottom,sun.shadow.camera.near,sun.shadow.camera.far]}}
+ },source:room.exitMat.opacity};
+ renderer.render(scene,camera);window.exportReady=true;
+}catch(e){window.exportError=e.stack;console.error(e);}
+</script>

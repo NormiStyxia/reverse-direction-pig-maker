@@ -1,0 +1,41 @@
+{
+  "result": "PASS",
+  "fixtureRenders": 42,
+  "chapter1FixtureRenders": 70,
+  "fixtures": 16,
+  "viewportDprCombinations": 7,
+  "imagesVerified": [
+    "ch1/avatar-leader.png",
+    "ch1/avatar-zhou.jpg",
+    "store/avatar-me.png",
+    "store/goods/cap.png",
+    "store/goods/iced-tea.png",
+    "store/goods/oden.png",
+    "store/goods/onigiri.png"
+  ],
+  "frozenBrowserGeometryChecks": 300,
+  "browserOracle": "validation/panels/h5-metrics.json",
+  "checks": [
+    "raw NVG lifecycle",
+    "source WenKai font",
+    "physical/logical input transforms",
+    "portrait controls remain on screen",
+    "typing gates send",
+    "matching pointer capture",
+    "drag cancellation",
+    "resize cancellation",
+    "scroll clamp",
+    "browse choice reveal delays",
+    "layout side hysteresis",
+    "Unicode typing",
+    "cold font load blocks placeholder metrics",
+    "late resource callbacks after disposal",
+    "source outgoing animation keyframes"
+  ],
+  "notCovered": [
+    "real GPU output",
+    "source screenshot similarity",
+    "full scene frost blur",
+    "end-to-end story gameplay"
+  ]
+}

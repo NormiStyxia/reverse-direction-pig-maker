@@ -1,0 +1,129 @@
+{
+  "date": "2026-10-16",
+  "sessionId": "fa6bf3f4-f069-471e-b264-2c39c9194da0",
+  "reloadId": 20,
+  "runtimePid": 99920,
+  "ui": "raw NVG; no Yoga",
+  "sourceCommit": "6a316e84907d8bc94ab59f20796685172b3535b5",
+  "sourceNodes": 441,
+  "nativeMeshes": 1169,
+  "runtimeStages": [
+    "blackout power=0",
+    "table pig visible and cold point light",
+    "fold 0.522",
+    "fold 1"
+  ],
+  "stageEvidenceReload": 19,
+  "stageEvidenceType": "Real story model replay, intermediate GPU frames skipped; not full playthrough",
+  "interactionEvidence": "reload 19: resume pig fixture with F6, F interaction -> STORE_PROBE_DONE; echo transition still pending",
+  "finalReloadEvidence": "reload 20: source reference and pig-stage capture; same runtime logic with corrected Lua annotation",
+  "officialCheck": "FAIL",
+  "officialErrors": [
+    "[2026-10-16 05_50_32_916][0] ERROR: Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds"
+  ],
+  "logs": {
+    "game": {
+      "path": "/Users/xd/.taptap-maker/runtime/runtime-49696d14-a3c6-40fe-9808-2e28bb0d0045/logs/game/urhox_runtime-2026-10-16 05_50_32_205.log",
+      "rows": 322,
+      "evidence": [
+        {
+          "t": "2026-10-16 05_50_32_916",
+          "f": 0,
+          "l": "ERROR",
+          "m": "Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds"
+        }
+      ]
+    },
+    "lua": {
+      "path": "/Users/xd/.taptap-maker/runtime/runtime-49696d14-a3c6-40fe-9808-2e28bb0d0045/logs/lua/lua-2026-10-16 05_50_33_324.log",
+      "rows": 13,
+      "evidence": [
+        {
+          "t": "2026-10-16 05_50_34_406",
+          "f": 155,
+          "l": "RAW",
+          "m": "[2026-10-16 05_50_34_406][155][Script] PROLOGUE_MODEL_SMOKE: PASS; 3060 frames; 7 incoming messages; intro/play/dark/pig/fold/done; visuals not tested\n"
+        },
+        {
+          "t": "2026-10-16 05_51_05_247",
+          "f": 6036,
+          "l": "RAW",
+          "m": "[2026-10-16 05_51_05_247][6036][Script] STORE_PROBE: native source geometry; WASD/arrows move, J/Space phone, F interact, Tab select; F6 pause, F8 title\n"
+        },
+        {
+          "t": "2026-10-16 05_51_06_210",
+          "f": 6037,
+          "l": "RAW",
+          "m": "[2026-10-16 05_51_06_210][6037][Script] STORE_NATIVE_READY: 441 source nodes, 1169 native meshes; 6 particle/billboard objects pending\n"
+        },
+        {
+          "t": "2026-10-16 05_51_24_411",
+          "f": 8577,
+          "l": "RAW",
+          "m": "[2026-10-16 05_51_24_411][8577][Script] STORE_REFERENCE_FRAME: source camera, idle actor, t=0, 1920x1080; no post parity claimed\n"
+        },
+        {
+          "t": "2026-10-16 05_52_20_519",
+          "f": 16527,
+          "l": "RAW",
+          "m": "[2026-10-16 05_52_20_519][16527][Script] STORE_STAGE_FIXTURE: 1 phase=dark power=0 fold=0; model replay, not full playthrough\n"
+        },
+        {
+          "t": "2026-10-16 05_52_21_702",
+          "f": 16677,
+          "l": "RAW",
+          "m": "[2026-10-16 05_52_21_702][16677][Script] STORE_STAGE_FIXTURE: 2 phase=pig power=0 fold=0; model replay, not full playthrough\n"
+        }
+      ]
+    }
+  },
+  "currentGameScriptFailures": [],
+  "screenshots": [
+    "validation/store/native-store-blackout.png",
+    "validation/store/native-store-table-pig.png",
+    "validation/store/native-store-fold-mid.png",
+    "validation/store/native-store-fold-end.png",
+    "validation/store/native-store-input-done-2560.png",
+    "validation/store/native-store-dynamics-final-reference.png",
+    "validation/store/native-store-dynamics-final-pig.png"
+  ],
+  "sourceDifferential": {
+    "frames": 720,
+    "scalarChecks": 70560,
+    "result": "PASS"
+  },
+  "prologueRegression": {
+    "frames": 22325,
+    "result": "PASS"
+  },
+  "visualAccepted": false,
+  "similarity": null,
+  "fullPlaythrough": false,
+  "unsupportedAttempt": {
+    "reload": 17,
+    "feature": "IN_SHADOW_PASS",
+    "error": "built-in 'IN_SHADOW_PASS' is recognized but unsupported in UrhoX Surface Shader v1.",
+    "action": "reverted; no engine/backend/Technique edits"
+  },
+  "remaining": [
+    "source shadow-only roof/leaf and blind shadows",
+    "ink veil/haze/post/scene clear-color parity",
+    "rider/steam/rain/glows",
+    "audio/captions",
+    "echo renderer and chapter1",
+    "save/menu/touch and full resolution acceptance"
+  ],
+  "resolutionObservation": {
+    "reload": 19,
+    "from": [
+      1920,
+      1080
+    ],
+    "to": [
+      2560,
+      1440
+    ],
+    "cause": "unconfirmed; occurred around directed F interaction",
+    "comparisonPolicy": "capture real content size; do not rescale into fixed-frame scoring"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "result": "PASS",
+  "frames": 120,
+  "drawables": 12,
+  "checks": [
+    "forward render path selected",
+    "material slots allocated before assignment",
+    "first-frame drawables committed before enable",
+    "moving quads have six vertices",
+    "motion setting preserves pig",
+    "zero-sized viewport remains finite"
+  ],
+  "notCovered": [
+    "GPU/shader execution",
+    "native CustomGeometry implementation",
+    "runtime warning resolution",
+    "visual parity"
+  ]
+}

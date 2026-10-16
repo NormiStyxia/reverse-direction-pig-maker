@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "frames": 600,
+  "scalarChecks": 12480,
+  "merges": 4,
+  "levels": 5,
+  "tolerance": 1e-09,
+  "scope": "Frozen source merge/applyRoom: shrink, disappear, now-crate spawn, hologram plate alpha, curtain scale/alpha/UV",
+  "notCovered": [
+    "GPU blend/light/shadows",
+    "full player route",
+    "95% visual acceptance"
+  ]
+}

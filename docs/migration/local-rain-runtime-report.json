@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-16",
+  "sessionId": "fa6bf3f4-f069-471e-b264-2c39c9194da0",
+  "reloadId": 33,
+  "runtimePid": 76401,
+  "entry": "preview/title.lua",
+  "localOnly": true,
+  "renderEvidence": {
+    "fixed": "validation/echo/native-rain-fixed.png",
+    "motion": "validation/echo/rain-motion/native-rain-motion.gif",
+    "motionFrames": 40,
+    "observed": "Rain is rendered and changes across real keyboard down/rewind/recover captures; native Lua remains error-free."
+  },
+  "sourceDifferential": {
+    "result": "PASS",
+    "levels": 6,
+    "frames": 1440,
+    "dropsPerLevel": 600,
+    "scalarChecks": 392832,
+    "randomCalls": 15022,
+    "source": "Exact frozen rewind-levels.js rain update block executed in Node VM",
+    "covered": [
+      "downward rain",
+      "rewind interpolation",
+      "upward rain",
+      "both boundary wraps",
+      "Float32 segment endpoints",
+      "seed immutability"
+    ],
+    "notCovered": [
+      "GPU line rasterization",
+      "frame-rate visual parity",
+      "full game acceptance"
+    ]
+  },
+  "comparison": "docs/migration/echo-transparency-comparison.json",
+  "nativeLuaErrors": [],
+  "officialCheckResult": "FAIL",
+  "officialCheckErrors": [
+    "[2026-10-16 07_48_12_114][0] ERROR: Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds"
+  ],
+  "luaSyntaxFiles": 73,
+  "lspErrors": 0,
+  "visualAccepted": false,
+  "wholeGameSimilarity": null,
+  "limitations": [
+    "No new full playthrough in this reload; F7/F5 are diagnostics",
+    "No whole-game or final-post visual acceptance",
+    "Motion GIF is low-rate evidence, not a performance benchmark",
+    "Cross-refresh save persistence remains unresolved"
+  ],
+  "next": [
+    "Source-correct shadow/cutout rendering",
+    "Full source post/world composition and regional comparisons",
+    "Remaining branches, pointer/touch/resolutions, persistence and all-flow acceptance"
+  ]
+}

@@ -1,0 +1,250 @@
+{
+  "date": "2026-10-16",
+  "method": "Aligned raw RGB absolute differences; no registration, rescale, blur or tolerance alignment; screenshot title bar cropped only",
+  "scope": "Six isolated UI fixtures on a solid backdrop, 1920x1080 DPR1; not actual story rendering",
+  "accepted": false,
+  "similarityPercentage": null,
+  "limitations": [
+    "Solid empty background cannot be used to claim 95% parity",
+    "Text weight and baseline differ",
+    "Avatars still alias under strong minification",
+    "Lock clock differs in baseline and tracking",
+    "Scene frost, animated integration and full gameplay not tested"
+  ],
+  "fixtures": [
+    {
+      "fixture": 1,
+      "comparison": "validation/panels/comparison-1.png",
+      "regions": {
+        "header": {
+          "rect": [
+            1000,
+            60,
+            1895,
+            135
+          ],
+          "meanAbsoluteChannelError0To255": 2.1236,
+          "pixelsWithChannelDifferenceOver24": 1175,
+          "pixelCount": 67125
+        },
+        "content": {
+          "rect": [
+            1000,
+            145,
+            1895,
+            895
+          ],
+          "meanAbsoluteChannelError0To255": 3.0155,
+          "pixelsWithChannelDifferenceOver24": 13184,
+          "pixelCount": 671250
+        },
+        "composer": {
+          "rect": [
+            1000,
+            905,
+            1895,
+            990
+          ],
+          "meanAbsoluteChannelError0To255": 0.9833,
+          "pixelsWithChannelDifferenceOver24": 760,
+          "pixelCount": 76075
+        }
+      }
+    },
+    {
+      "fixture": 2,
+      "comparison": "validation/panels/comparison-2.png",
+      "regions": {
+        "header": {
+          "rect": [
+            1000,
+            60,
+            1895,
+            135
+          ],
+          "meanAbsoluteChannelError0To255": 4.3034,
+          "pixelsWithChannelDifferenceOver24": 2364,
+          "pixelCount": 67125
+        },
+        "content": {
+          "rect": [
+            1000,
+            145,
+            1895,
+            895
+          ],
+          "meanAbsoluteChannelError0To255": 2.2412,
+          "pixelsWithChannelDifferenceOver24": 14787,
+          "pixelCount": 671250
+        },
+        "composer": {
+          "rect": [
+            1000,
+            905,
+            1895,
+            990
+          ],
+          "meanAbsoluteChannelError0To255": 3.1001,
+          "pixelsWithChannelDifferenceOver24": 2825,
+          "pixelCount": 76075
+        }
+      }
+    },
+    {
+      "fixture": 3,
+      "comparison": "validation/panels/comparison-3.png",
+      "regions": {
+        "header": {
+          "rect": [
+            1000,
+            60,
+            1895,
+            135
+          ],
+          "meanAbsoluteChannelError0To255": 4.3314,
+          "pixelsWithChannelDifferenceOver24": 2368,
+          "pixelCount": 67125
+        },
+        "content": {
+          "rect": [
+            1000,
+            145,
+            1895,
+            895
+          ],
+          "meanAbsoluteChannelError0To255": 4.4201,
+          "pixelsWithChannelDifferenceOver24": 30094,
+          "pixelCount": 671250
+        },
+        "composer": {
+          "rect": [
+            1000,
+            905,
+            1895,
+            990
+          ],
+          "meanAbsoluteChannelError0To255": 3.1001,
+          "pixelsWithChannelDifferenceOver24": 2825,
+          "pixelCount": 76075
+        }
+      }
+    },
+    {
+      "fixture": 4,
+      "comparison": "validation/panels/comparison-4.png",
+      "regions": {
+        "header": {
+          "rect": [
+            1000,
+            60,
+            1895,
+            135
+          ],
+          "meanAbsoluteChannelError0To255": 2.5412,
+          "pixelsWithChannelDifferenceOver24": 1402,
+          "pixelCount": 67125
+        },
+        "content": {
+          "rect": [
+            1000,
+            145,
+            1895,
+            895
+          ],
+          "meanAbsoluteChannelError0To255": 0.8562,
+          "pixelsWithChannelDifferenceOver24": 5648,
+          "pixelCount": 671250
+        },
+        "composer": {
+          "rect": [
+            1000,
+            905,
+            1895,
+            990
+          ],
+          "meanAbsoluteChannelError0To255": 2.2006,
+          "pixelsWithChannelDifferenceOver24": 1887,
+          "pixelCount": 76075
+        }
+      }
+    },
+    {
+      "fixture": 5,
+      "comparison": "validation/panels/comparison-5.png",
+      "regions": {
+        "header": {
+          "rect": [
+            1000,
+            60,
+            1895,
+            135
+          ],
+          "meanAbsoluteChannelError0To255": 2.8594,
+          "pixelsWithChannelDifferenceOver24": 1609,
+          "pixelCount": 67125
+        },
+        "content": {
+          "rect": [
+            1000,
+            145,
+            1895,
+            895
+          ],
+          "meanAbsoluteChannelError0To255": 1.0181,
+          "pixelsWithChannelDifferenceOver24": 7270,
+          "pixelCount": 671250
+        },
+        "composer": {
+          "rect": [
+            1000,
+            905,
+            1895,
+            990
+          ],
+          "meanAbsoluteChannelError0To255": 1.8807,
+          "pixelsWithChannelDifferenceOver24": 1612,
+          "pixelCount": 76075
+        }
+      }
+    },
+    {
+      "fixture": 6,
+      "comparison": "validation/panels/comparison-6.png",
+      "regions": {
+        "header": {
+          "rect": [
+            1000,
+            60,
+            1895,
+            135
+          ],
+          "meanAbsoluteChannelError0To255": 2.9191,
+          "pixelsWithChannelDifferenceOver24": 1591,
+          "pixelCount": 67125
+        },
+        "content": {
+          "rect": [
+            1000,
+            145,
+            1895,
+            895
+          ],
+          "meanAbsoluteChannelError0To255": 1.2138,
+          "pixelsWithChannelDifferenceOver24": 8356,
+          "pixelCount": 671250
+        },
+        "composer": {
+          "rect": [
+            1000,
+            905,
+            1895,
+            990
+          ],
+          "meanAbsoluteChannelError0To255": 1.9735,
+          "pixelsWithChannelDifferenceOver24": 1732,
+          "pixelCount": 76075
+        }
+      }
+    }
+  ]
+}

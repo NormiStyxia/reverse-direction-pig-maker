@@ -1,0 +1,47 @@
+{
+  "result": "PASS",
+  "frames": 6477,
+  "scalarChecks": 38862,
+  "levelsSolved": 6,
+  "exits": [
+    {
+      "frame": 979,
+      "from": 1,
+      "to": 2
+    },
+    {
+      "frame": 1773,
+      "from": 2,
+      "to": 3
+    },
+    {
+      "frame": 2884,
+      "from": 3,
+      "to": 4
+    },
+    {
+      "frame": 3905,
+      "from": 4,
+      "to": 5
+    },
+    {
+      "frame": 5026,
+      "from": 5,
+      "to": 6
+    },
+    {
+      "frame": 6452,
+      "from": 6,
+      "to": "done"
+    }
+  ],
+  "source": "frozen Pig.update + RewindLevels.update and their original collision/timeline/load methods",
+  "stubs": [
+    "procedural artwork",
+    "audio/captions",
+    "presentation",
+    "deferred UI hints",
+    "dead-end hints"
+  ],
+  "visualAcceptance": false
+}

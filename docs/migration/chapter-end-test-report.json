@@ -1,0 +1,11 @@
+{
+  "result": "PASS",
+  "viewports": 3,
+  "frozenDomButtonComparisons": 12,
+  "inputCases": 15,
+  "scope": "DPR hit coordinates, drag cancellation, pointer id, focus cancellation, outside presses, valid replay",
+  "notCovered": [
+    "font weight and text raster parity",
+    "complete visual score"
+  ]
+}

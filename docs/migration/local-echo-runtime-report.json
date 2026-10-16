@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-16",
+  "status": "partial, NOT visual acceptance",
+  "sourceCommit": "6a316e84907d8bc94ab59f20796685172b3535b5",
+  "ch1TuningSha256": "1dae5f70540d5606ba113498d202bf45175721f817c8ef983669adf0ef8101a9",
+  "ui": "raw NanoVG; no Yoga UI",
+  "runtime": "local; no remote upload/build",
+  "sessionId": "fa6bf3f4-f069-471e-b264-2c39c9194da0",
+  "reload": 22,
+  "pid": 31619,
+  "sourceNodes": 749,
+  "sourceGeometries": 642,
+  "productInstances": 2020,
+  "tests": {
+    "allSixMeshes": "PASS 636 model variants / 30,492 vertices",
+    "presentation": "PASS 720 frames / 18,960 scalars",
+    "sixLevelInputRoute": "PASS 6,477 frames, no teleports or diagnostic jumps",
+    "sameInputsInFrozenSource": "PASS 38,862 state checks",
+    "physicsRegression": "PASS 14 fixtures / 5,755 steps",
+    "storeVisibilityRegression": "PASS 5,733 nodes / 15,197 drawables",
+    "luaLsp": "0 errors at 2026-10-16 06:13:07",
+    "gitDiffCheck": "PASS"
+  },
+  "nativeEvidence": [
+    "Reload21: external K/D/W input solved level1, loaded level2, R restarted level2.",
+    "Reload21: F7 diagnostic selection loaded levels3-6; this is not a native six-level playthrough.",
+    "Reload22: prologue model replayed to pig stage, then actual F input and live fold produced finish -> Echo level1 -> levelPlayable.",
+    "Reload22: F10 confirms level1/play at (-5.6,3.4), door1.0."
+  ],
+  "officialCheck": {
+    "exitCode": 1,
+    "errors": [
+      "[2026-10-16 06_13_11_834][0] ERROR: Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds"
+    ],
+    "accepted": false
+  },
+  "logs": {
+    "lua": "/Users/xd/.taptap-maker/runtime/runtime-49696d14-a3c6-40fe-9808-2e28bb0d0045/logs/lua/lua-2026-10-16 06_13_12_241.log",
+    "game": "/Users/xd/.taptap-maker/runtime/runtime-49696d14-a3c6-40fe-9808-2e28bb0d0045/logs/game/urhox_runtime-2026-10-16 06_13_11_165.log"
+  },
+  "screenshots": [
+    "validation/echo/native-six-room-smoke.png",
+    "validation/echo/native-store-to-echo.png",
+    "validation/store/native-echo-level-two.png"
+  ],
+  "remaining": [
+    "native realtime six-level playthrough and alternative routes",
+    "far helix world/sky/island/particles/rain",
+    "ink veil, blue rewind pass and exclusion mask, final post/DOF/paper/bloom",
+    "native shadow and glow/transparency equivalence",
+    "source echo captions and dead-end hints",
+    "chapter1 story/rendering and five echo scenes",
+    "save/menu/audio/touch/resolutions",
+    "complete end-to-end and per-scene >=95% visual acceptance"
+  ],
+  "visualSimilarity": null
+}

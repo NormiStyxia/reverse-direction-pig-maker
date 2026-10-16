@@ -1,0 +1,15 @@
+{
+  "result": "PASS",
+  "transitions": 19,
+  "nodeVisibilityChecks": 8379,
+  "drawableVisibilityChecks": 22306,
+  "cases": [
+    "archive initially hidden",
+    "archive revealed/hidden",
+    "hidden ancestor",
+    "revealing child under hidden parent",
+    "child visibility survives parent toggle",
+    "lamp halo respects hidden parent and whole-scene visibility"
+  ],
+  "scope": "Three ancestor visibility semantics; native GPU captured separately"
+}

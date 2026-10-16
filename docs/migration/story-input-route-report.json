@@ -1,0 +1,36 @@
+{
+  "result": "PASS",
+  "routes": [
+    {
+      "kind": "store",
+      "frames": 8994,
+      "seconds": 149.9,
+      "finalPhase": "done",
+      "result": "PASS"
+    },
+    {
+      "kind": "same",
+      "frames": 3325,
+      "seconds": 55.416666666666664,
+      "finalPhase": "done",
+      "result": "PASS"
+    },
+    {
+      "kind": "late",
+      "frames": 3325,
+      "seconds": 55.416666666666664,
+      "finalPhase": "done",
+      "result": "PASS"
+    },
+    {
+      "kind": "done",
+      "frames": 3462,
+      "seconds": 57.7,
+      "finalPhase": "done",
+      "result": "PASS"
+    }
+  ],
+  "checks": 211309,
+  "positionOrClockAssignments": false,
+  "scope": "input-only story routes vs frozen H5; GPU and full native route not covered"
+}

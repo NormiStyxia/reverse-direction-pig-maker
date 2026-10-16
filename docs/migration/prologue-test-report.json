@@ -1,0 +1,141 @@
+{
+  "result": "PASS",
+  "source": "actual frozen StoreChapter/PrologueStore/Normi/BrowseOverlay methods executed in Node with inert rendering adapters",
+  "differentialFrames": 22325,
+  "scenarios": [
+    {
+      "name": "natural-timeline-and-fold",
+      "frames": 3060,
+      "phase": "done"
+    },
+    {
+      "name": "messages-drafts-and-send-before-cut",
+      "frames": 3020,
+      "phase": "done"
+    },
+    {
+      "name": "offline-draft-failure",
+      "frames": 3040,
+      "phase": "done"
+    },
+    {
+      "name": "browse-shelf",
+      "frames": 506,
+      "phase": "play"
+    },
+    {
+      "name": "browse-fridge",
+      "frames": 425,
+      "phase": "play"
+    },
+    {
+      "name": "browse-food",
+      "frames": 587,
+      "phase": "play"
+    },
+    {
+      "name": "browse-more-and-sauce-first-choice",
+      "frames": 385,
+      "phase": "play"
+    },
+    {
+      "name": "browse-terminal-0-shelf",
+      "frames": 423,
+      "phase": "play"
+    },
+    {
+      "name": "browse-terminal-1-shelf",
+      "frames": 342,
+      "phase": "play"
+    },
+    {
+      "name": "browse-terminal-2-shelf",
+      "frames": 425,
+      "phase": "play"
+    },
+    {
+      "name": "browse-terminal-3-shelf",
+      "frames": 344,
+      "phase": "play"
+    },
+    {
+      "name": "browse-terminal-4-fridge",
+      "frames": 423,
+      "phase": "play"
+    },
+    {
+      "name": "browse-terminal-5-fridge",
+      "frames": 342,
+      "phase": "play"
+    },
+    {
+      "name": "browse-terminal-6-fridge",
+      "frames": 344,
+      "phase": "play"
+    },
+    {
+      "name": "browse-terminal-7-food",
+      "frames": 504,
+      "phase": "play"
+    },
+    {
+      "name": "browse-terminal-8-food",
+      "frames": 504,
+      "phase": "play"
+    },
+    {
+      "name": "browse-terminal-9-food",
+      "frames": 342,
+      "phase": "play"
+    },
+    {
+      "name": "browse-terminal-10-food",
+      "frames": 425,
+      "phase": "play"
+    },
+    {
+      "name": "browse-terminal-11-food",
+      "frames": 344,
+      "phase": "play"
+    },
+    {
+      "name": "interactions-movement-rider",
+      "frames": 840,
+      "phase": "play"
+    },
+    {
+      "name": "variable-frame-time",
+      "frames": 5700,
+      "phase": "pig"
+    }
+  ],
+  "phases": [
+    "dark",
+    "done",
+    "fold",
+    "intro",
+    "pig",
+    "play"
+  ],
+  "finishedRuns": 3,
+  "terminalBrowsePaths": 12,
+  "covers": [
+    "6 work messages + blackout cutoff",
+    "draft/send/clear/later/read/unread and delayed captions",
+    "offline at send time",
+    "all 6 activities and 12 nodes",
+    "both sauce choices and more/close",
+    "browse reveal queue timing",
+    "character motion/collision/poses",
+    "sit/stand/door/interact cooldown",
+    "dark/pig/fold timing and handoff result",
+    "reverse callback ordering and varying delta"
+  ],
+  "notCovered": [
+    "native story renderer and NVG phone/browse",
+    "GPU pixels/audio",
+    "end-to-end player playthrough",
+    "chapter1 story",
+    "save/load"
+  ]
+}

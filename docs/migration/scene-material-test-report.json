@@ -1,0 +1,24 @@
+{
+  "result": "PASS",
+  "scenes": 24,
+  "materials": 1433,
+  "categories": {
+    "opaque": 851,
+    "cutout": 124,
+    "blend": 384,
+    "add": 74
+  },
+  "perNodeReceiverChecks": 3020,
+  "checks": [
+    "frozen opacity and alpha cutoff",
+    "shader category for every material",
+    "opaque-depth cutout separated from blended effects",
+    "actual Lua material selection versus every frozen node receiveShadow flag",
+    "Three PCF opposite-side caster culling",
+    "shadow-only material dispatch"
+  ],
+  "notCovered": [
+    "GPU auxiliary passes",
+    "whole game visual similarity"
+  ]
+}

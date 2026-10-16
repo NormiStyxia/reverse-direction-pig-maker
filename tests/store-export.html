@@ -1,0 +1,152 @@
+<!doctype html><meta charset="utf-8">
+<style>@font-face{font-family:'LXGW WenKai';src:url('/assets/fonts/LXGWWenKai-subset.ttf')}body{margin:0;background:#161c24}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
+<script type="module">
+// Build-time source execution only. None of Three/DOM ships in the native game.
+import * as THREE from 'three';
+import {buildStore,asPaperFigure} from '/src/store.js';
+import {setShadowStep} from '/src/store-props.js';
+import {Normi} from '/src/normi.js';
+import {Pig} from '/src/pig.js';
+import {Post} from '/src/post.js';
+const seed=0x6a316e84;let randomState=seed;
+Math.random=()=>{randomState=(Math.imul(randomState,1664525)+1013904223)>>>0;return randomState/4294967296;};
+try {
+  await document.fonts.load('20px "LXGW WenKai"');
+  const load=async path=>{const i=new Image();i.src=path;await i.decode();return i;};
+  const images={};
+  for(const key of ['clerk','worker','rider','stranger','foliage-canopy','foliage-hedge'])images[key]=await load('/assets/store/'+key+'.png');
+  images['pig-doodle']=await load('/assets/ch1/pig-doodle.png');
+  const tune=await (await fetch('/config/store-tuning.json')).json();
+  const scene=new THREE.Scene(),store=buildStore(scene,images);
+  store.applyTune(tune);store.update(0,0,0,0,new THREE.Vector3(4.3,0,-4.85));store.setClock(0,23*60+38);setShadowStep(.08);
+  store.setSun(new THREE.Vector3(-2.2,7.2,-14),new THREE.Vector3(-.6,0,-2.4));
+  const layout=await(await fetch('/assets/c0/normi-motion-atlas.json')).json();
+  const normi=new Normi(scene,await load('/assets/c0/normi-motion-atlas.png'),layout);
+  normi.stick.visible=false;normi.setPosition(4.3,0,-4.85);normi.side=-1;normi.update(0,0,false,0);asPaperFigure(normi.mesh);
+  const tablePig=new Pig(scene,await load('/assets/pig-atlas-eight.png'));
+  tablePig.mesh.visible=false;tablePig.mat.emissiveIntensity=1.0;
+  scene.updateMatrixWorld(true);
+  const geometries=[],materials=[],textures=[],nodes=[];
+  const gm=new Map(),mm=new Map(),tm=new Map(),nm=new Map();
+  function texture(t){
+    if(!t)return 0;if(tm.has(t))return tm.get(t);
+    const id=textures.length+1;tm.set(t,id);
+    const im=t.image,c=document.createElement('canvas');c.width=im.width;c.height=im.height;
+    const ctx=c.getContext('2d');
+    if(im.data){
+      if(!(im.data instanceof Uint8Array))throw Error('Unsupported texture buffer '+im.data.constructor.name);
+      const channels=im.data.length/im.width/im.height,bytes=new Uint8ClampedArray(im.width*im.height*4);
+      for(let i=0;i<im.width*im.height;i++)for(let j=0;j<4;j++)bytes[i*4+j]=j<channels?im.data[i*channels+j]:(j===3?255:im.data[i*channels]);
+      ctx.putImageData(new ImageData(bytes,im.width,im.height),0,0);
+    }else ctx.drawImage(im,0,0);
+    textures.push({id,width:im.width,height:im.height,png:c.toDataURL('image/png').split(',')[1],
+      source:im.src?new URL(im.src).pathname:null,colorSpace:t.colorSpace,flipY:t.flipY,repeat:t.repeat.toArray(),offset:t.offset.toArray(),
+      center:t.center.toArray(),rotation:t.rotation,wrapS:t.wrapS,wrapT:t.wrapT,minFilter:t.minFilter,magFilter:t.magFilter});
+    return id;
+  }
+  function material(m){
+    if(mm.has(m))return mm.get(m);const id=materials.length+1;mm.set(m,id);
+    materials.push({id,type:m.type,color:m.color?.toArray()||[1,1,1],emissive:m.emissive?.toArray()||[0,0,0],emissiveIntensity:m.emissiveIntensity||0,
+      opacity:m.opacity,alphaTest:m.alphaTest,transparent:m.transparent,depthWrite:m.depthWrite,depthTest:m.depthTest,colorWrite:m.colorWrite,
+      side:m.side,blending:m.blending,fog:m.fog,map:texture(m.map),alphaMap:texture(m.alphaMap),emissiveMap:texture(m.emissiveMap),gradientMap:texture(m.gradientMap),
+      programKey:m.customProgramCacheKey(),customShader:m.onBeforeCompile.toString()});return id;
+  }
+  function geometry(g){
+    if(gm.has(g))return gm.get(g);const id=geometries.length+1;gm.set(g,id);
+    const attrs={};for(const [name,a]of Object.entries(g.attributes)){
+      if(!['position','normal','uv','color'].includes(name))throw Error('Unexpected geometry attribute '+name);
+      const getters=['getX','getY','getZ','getW'];
+      const array=a.isInterleavedBufferAttribute
+        ? Array.from({length:a.count*a.itemSize},(_,i)=>a[getters[i%a.itemSize]](Math.floor(i/a.itemSize)))
+        : Array.from(a.array);
+      attrs[name]={size:a.itemSize,array};
+    }
+    geometries.push({id,type:g.type,attributes:attrs,index:g.index?Array.from(g.index.array):null,groups:g.groups,drawRange:{start:g.drawRange.start,count:Number.isFinite(g.drawRange.count)?g.drawRange.count:null}});return id;
+  }
+  function visit(o,parent){
+    const id=nodes.length+1;nm.set(o,id);
+    const n={id,parent,name:o.name,type:o.type,position:o.position.toArray(),quaternion:o.quaternion.toArray(),scale:o.scale.toArray(),visible:o.visible,
+      castShadow:o.castShadow,receiveShadow:o.receiveShadow,renderOrder:o.renderOrder};nodes.push(n);
+    if(o.geometry)n.geometry=geometry(o.geometry);
+    if(o.material)n.materials=(Array.isArray(o.material)?o.material:[o.material]).map(material);
+    if(o.isLight)n.light={type:o.type,color:o.color.toArray(),intensity:o.intensity,distance:o.distance,decay:o.decay};
+    if(o.isInstancedMesh){
+      const matrix=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),s=new THREE.Vector3(),c=new THREE.Color();
+      n.instances=[];
+      for(let i=0;i<o.count;i++){o.getMatrixAt(i,matrix);matrix.decompose(p,q,s);if(o.instanceColor)o.getColorAt(i,c);n.instances.push({matrix:matrix.toArray(),position:p.toArray(),quaternion:q.toArray(),scale:s.toArray(),color:c.toArray()});}
+    }
+    for(const child of o.children)visit(child,id);
+  }
+  visit(store.group,0);visit(normi.mesh,0);visit(tablePig.mesh,0);
+  const handles={normi:nm.get(normi.mesh),archive:nm.get(store.archive),clerk:nm.get(store.clerk.mesh),emptyChair:nm.get(store.emptyChair),
+    clockHands:store.clockHands.map(n=>nm.get(n)),flats:Object.fromEntries(store.flats.map(n=>[n.name,nm.get(n)])),
+    tubes:store.lights.tubes.map(n=>nm.get(n)),ceiling:store.lights.lights.map(n=>nm.get(n)),fridge:nm.get(store.lights.fridgeLight),
+    bounce:store.lights.bounce.map(b=>({id:nm.get(b.l),base:b.base})),leaves:nm.get(store.leaves),trees:store.trees.map(n=>nm.get(n.mesh))};
+  const panes=store.back.children.filter(o=>o.isGroup&&Math.abs(o.position.z+5.67)<1e-6);
+  if(panes.length!==2||panes.some(o=>o.children.length!==5))throw Error('Door hierarchy changed');
+  handles.doorPanes=panes.map(o=>({id:nm.get(o),home:o.position.x,side:Math.sign(o.position.x-4.3)}));
+  handles.foodLights=store.food.lights.map(o=>nm.get(o));
+  handles.foodSpin=store.furniture.children.filter(o=>o.geometry?.type==='CapsuleGeometry').map(o=>nm.get(o));
+  handles.doodle=nm.get(store.archive.children.find(o=>o.geometry?.type==='PlaneGeometry'));
+  handles.tablePig=nm.get(tablePig.mesh);
+  const dynamics={door:store.door,emptyHome:store.emptyHome.toArray(),leavesHome:[-1,3.7,-7.2],table:store.table};
+  window.storeExport={schema:1,seed,coordinates:'Three.js RH Y-up; renderer converts once',nodes,geometries,materials,textures,handles,tune,normiLayout:layout};
+  window.storeExport.dynamics=JSON.parse(JSON.stringify(dynamics));
+  // Independent raw reference: exact source meshes, shadows and night shader, no post.
+  const sun=new THREE.DirectionalLight(0xffa354,2.3);sun.position.set(-2.2,7.2,-14);sun.target.position.set(-.6,0,-2.4);
+  sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-20,right:20,top:20,bottom:-20,near:.5,far:70});
+  scene.add(sun,sun.target,new THREE.HemisphereLight(0x9aaabb,0x343a3c,.72));scene.background=new THREE.Color(0x161c24);scene.fog=new THREE.Fog(0x161c24,34,150);
+  const camera=new THREE.PerspectiveCamera(24,1920/1080,1,1400),look=new THREE.Vector3(0,2.05,-1.1),pitch=16*Math.PI/180;
+  camera.position.set(look.x,look.y+Math.sin(pitch)*22,look.z+Math.cos(pitch)*22);camera.lookAt(look);
+  const renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true});renderer.setSize(1920,1080);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;document.body.appendChild(renderer.domElement);renderer.render(scene,camera);
+  window.referenceCamera={position:camera.position.toArray(),look:look.toArray(),fov:24,near:1,far:1400};
+  window.sampleStoreDynamics=()=>{
+    let state=731,randomCalls=0;Math.random=()=>{randomCalls++;state=(Math.imul(state,1664525)+1013904223)>>>0;return state/4294967296;};
+    store.flickT=0;store.leafT=0;store.door.open=0;store.door.force=0;store.door.wasOpen=false;
+    let time=0;const frames=[];
+    for(let i=0;i<720;i++){
+      const dt=[1/60,1/30,.05,.016][i%4];time+=dt;
+      const power=i<270?1:0,boost=i>=200&&i<270?1:0,stress=i<380?i/500:.92;
+      const fold=i<500?0:Math.min(1,(i-500)/180);
+      const pos=i<100?[4.3,0,-4.7]:[0,0,0];
+      if(i===155)store.door.force=2.2;
+      store.power=power;store.flickBoost=boost;store.fold(fold,new THREE.Vector3(store.table.x,store.table.y,store.table.z));
+      store.update(dt,stress,time,0,new THREE.Vector3(...pos));
+      frames.push({input:{dt,time,power,flickBoost:boost,stress,fold,pos,force:i===155?2.2:0},expected:{
+        door:{open:store.door.open,target:store.door.target,force:store.door.force,wasOpen:store.door.wasOpen},
+        panes:panes.map(o=>o.position.x),flickT:store.flickT,leafT:store.leafT,leaves:store.leaves.position.toArray(),
+        chairPosition:store.emptyChair.position.toArray(),chairScale:store.emptyChair.scale.x,
+        clerkAngle:store.clerk.mesh.rotation.z,clerkVisible:store.clerk.mesh.visible,
+        tubeColors:store.lights.tubes.map(o=>o.material.color.toArray()),
+        ceiling:store.lights.lights.map(o=>o.intensity),bounce:store.lights.bounce.map(o=>o.l.intensity),
+        fridge:store.lights.fridgeLight.intensity,food:store.food.lights.map(o=>o.intensity),
+        flats:store.flats.map(o=>({name:o.name,position:o.position.toArray(),quaternion:o.quaternion.toArray(),scale:o.scale.x})),randomCalls}});
+    }
+    return {seed:731,frames};
+  };
+  let shadowPost,shadowFinal;
+  window.storeShadowReference=(mode,diagnostic)=>{
+    if(!shadowPost){
+      shadowPost=new Post(renderer,scene,camera);shadowPost.setSize(1920,1080);
+      shadowFinal=shadowPost.m.final.clone();
+      shadowFinal.fragmentShader=shadowFinal.fragmentShader.split('  vec2 p = vUv - 0.5;')[0]+'gl_FragColor=vec4(c,1.0); }';
+    }
+    // world.js bounds, then the actual StoreChapter constructor overrides.
+    Object.assign(sun.shadow.camera,{left:-11,right:11,top:11,bottom:-11,near:1,far:40});
+    sun.shadow.camera.updateProjectionMatrix();sun.shadow.bias=-.003;sun.shadow.normalBias=.08;sun.shadow.radius=1.4;
+    sun.castShadow=diagnostic!=='disabled';
+    if(diagnostic==='zero-bias'){sun.shadow.bias=0;sun.shadow.normalBias=0;}
+    scene.traverse(o=>{if(o.isMesh&&o.material.colorWrite===false){
+      o.castShadow=mode==='both'||(o===store.leaves?mode==='leaves':mode==='roof');
+    }});
+    renderer.setRenderTarget(shadowPost.targets.main);renderer.render(scene,camera);
+    shadowFinal.uniforms.tColor.value=shadowPost.targets.main.texture;
+    shadowFinal.uniforms.tBloomA.value=shadowPost.targets.main.texture;shadowFinal.uniforms.tBloomB.value=shadowPost.targets.main.texture;
+    shadowFinal.uniforms.bloom.value=0;shadowFinal.uniforms.paperOn.value=0;shadowPost.pass(shadowFinal,null);
+    return {mode,diagnostic,camera:window.referenceCamera,shadow:{enabled:sun.castShadow,bias:sun.shadow.bias,normalBias:sun.shadow.normalBias,radius:sun.shadow.radius},pipeline:'linear HalfFloat then source FINAL ACES/sRGB only'};
+  };
+  window.exportReady=true;
+}catch(e){window.exportError=e.stack||String(e);console.error(e);}
+</script>

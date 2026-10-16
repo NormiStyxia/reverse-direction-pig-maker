@@ -1,0 +1,23 @@
+{
+  "result": "PASS",
+  "nativeModelVariants": 91,
+  "materialGroups": 91,
+  "triangles": 1488,
+  "verticesCompared": 4464,
+  "sourceNodes": 109,
+  "productInstances": 298,
+  "checks": [
+    "all mesh vertices/normals/UVs versus source",
+    "single Z reflection and reversed triangle order",
+    "multi-material slots",
+    "shared native model reuse",
+    "finite coordinates",
+    "frozen tuning hash"
+  ],
+  "notCovered": [
+    "GPU winding/culling",
+    "light/shadow equivalence",
+    "95% visual acceptance",
+    "all live source scene dynamics"
+  ]
+}

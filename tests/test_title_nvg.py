@@ -8,7 +8,7 @@ lua.execute('package.path='+json.dumps(str(ROOT/'scripts/?.lua'),ensure_ascii=Fa
 # Mock only documented native boundaries. Unknown API calls remain errors.
 lua.execute('''
 graphics={GetWidth=function()return 1280 end,GetHeight=function()return 720 end,GetDPR=function()return 2 end}
-NVG_ALIGN_LEFT=1;NVG_ALIGN_CENTER=2;NVG_ALIGN_RIGHT=4;NVG_ALIGN_TOP=8
+NVG_ALIGN_LEFT=1;NVG_ALIGN_CENTER=2;NVG_ALIGN_RIGHT=4;NVG_ALIGN_TOP=8;NVG_ALIGN_BASELINE=64;NVG_BUTT=0;NVG_ROUND=1;NVG_CW=2
 draw={calls={},depth=0,fonts=0,images=0,deleted=0,svgCount=0,active=false}
 local function record(name,...)
  draw.calls[#draw.calls+1]={name=name,args={...}}
@@ -22,31 +22,15 @@ function nvgImageSize()return 700,500 end
 function nvgDeleteImage()draw.images=draw.images-1 end
 function nvgRGBA(...)return {...} end
 function nvgImagePattern(...)return {...} end
-function nvgBeginFrame(vg,w,h,dpr)assert(not draw.active);draw.active=true;record('begin',w,h,dpr) end
+function nvgBeginFrame(vg,w,h,dpr)assert(not draw.active);draw.calls={};draw.active=true;record('begin',w,h,dpr) end
 function nvgEndFrame()assert(draw.active and draw.depth==0);draw.active=false;record('end') end
 function nvgSave()assert(draw.active);draw.depth=draw.depth+1 end
 function nvgRestore()draw.depth=draw.depth-1;assert(draw.depth>=0) end
 for _,name in ipairs({'nvgScale','nvgTranslate','nvgRotate','nvgSkewX','nvgIntersectScissor','nvgGlobalAlpha',
  'nvgBeginPath','nvgRect','nvgRoundedRect','nvgFillColor','nvgFill','nvgFillPaint','nvgStrokeWidth',
- 'nvgStrokeColor','nvgStroke','nvgFontFace','nvgFontSize','nvgTextLetterSpacing','nvgTextAlign','nvgText'}) do
+ 'nvgStrokeColor','nvgStroke','nvgTransform','nvgLineCap','nvgMoveTo','nvgLineTo','nvgArc','nvgCircle','nvgBezierTo','nvgQuadTo','nvgClosePath','nvgPathWinding','nvgFontFace','nvgFontSize','nvgTextLetterSpacing','nvgTextAlign','nvgText'}) do
  _G[name]=function(vg,...)assert(draw.active);record(name,...) end
 end
-function nvgSvgCreate()
- local svg={elements={}}
- function svg:Load(path)self.path=path;return true end
- function svg:GetError()return '' end
- function svg:Unload()self.unloaded=true end
- function svg:GetElementById(id)
-  if not self.elements[id] then
-   self.elements[id]={SetTransformOrigin=function(s,x,y)s.origin={x,y} end,
-    SetScale=function(s,x,y)s.scale={x,y} end,
-    SetTransformOverride=function(s,...)s.transform={...} end}
-  end
-  return self.elements[id]
- end
- return svg
-end
-function nvgSvgRender(vg,svg)assert(draw.active and not svg.unloaded);draw.svgCount=draw.svgCount+1;return true end
 ''')
 Title=lua.eval('require("game.TitleState")')[0]
 Canvas=lua.eval('require("render.TitleOverlay")')[0]
@@ -113,10 +97,11 @@ down(2400,580,7);screen.resize(screen,1280,720,2);up(2400,580,7)
 assert title.st.phase=='idle'
 down(2400,580);screen.cancelPointer(screen);up(2400,580);assert title.st.phase=='idle'
 title.keyDown(title,'K',False);tick(45,True)
-assert screen.logo.elements['fan-ink'].scale[1]<-.999
+assert screen.mirror<-.999
 title.keyUp(title,'K');tick(45,True)
-assert screen.logo.elements['fan-ink'].scale[1]>.999
-plane=screen.dial.elements['plane'].transform
+assert screen.mirror>.999
+calls=list(lua.globals().draw.calls.values())
+plane=[c for c in calls if c.name=='nvgTransform'][-1].args
 assert math.isclose(plane[1],title.st.zoom)
 assert math.isclose(plane[5],1280-(title.st.cam.x-title.st.par.x*.004)*2560*title.st.zoom)
 # Reached save enables continue, adds margin, and selects the correct 0-based floor.
@@ -148,6 +133,6 @@ report={'result':'PASS','viewportDprCombinations':24,
  'resize/focus cancellation','physical input round trips and frame DPR','fan flip and plane transform',
  'continue expansion gap and saved floor','single start event','NVG frame/save lifecycle and resources',
  'CSS curve reversal continuity','120 ticks / 6 paths / 4 blueprint labels','no Yoga or UI widget dependencies'],
- 'notCovered':['native engine API execution','SVG rendered pixels','font parity and blur/glow','mobile ergonomics','story callback integration']}
+ 'notCovered':['native engine API execution','NVG rendered pixels','font parity and blur/glow','mobile ergonomics','story callback integration']}
 (ROOT/'docs/migration/title-nvg-test-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+chr(10))
 print(json.dumps(report,ensure_ascii=False,indent=2))

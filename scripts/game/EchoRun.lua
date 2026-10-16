@@ -46,6 +46,7 @@ function Run:update(realDt,input,camYaw,random)
     if self.phase=='done' then return end
     local dt=math.min(.05,realDt)
     if self.hitstop>0 then self.hitstop=self.hitstop-dt dt=dt*.05 end
+    self.lastDt=dt
     input=input or {}
     if input.restart then self:restart() end
     if input.charge and self.phase=='play' and not input.revealing then

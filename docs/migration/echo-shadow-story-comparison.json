@@ -1,0 +1,67 @@
+{
+  "scope": "Echo6 t=5, fixed camera, production source light shadow bounds and ACES/sRGB after linear blend; no full post/world/UI",
+  "threshold": "RGB mean < 42/255 in explicit floor-only rectangles, excluding actor and crate bodies",
+  "images": {
+    "source": {
+      "path": "validation/transparency/h5-story-alpha-source.png",
+      "sha256": "6293bb6bdf7e18a3f81103eda17b337c02ba8318e2f76a7e80e9b0d28d9162c1"
+    },
+    "rectangularZeroBias": {
+      "path": "validation/echo/native-shadow-zero-bias.png",
+      "sha256": "1d13c13f0d14d0b768e9a915b9e4c197850dff805cfb119510fcf6470b3c65d9"
+    },
+    "final": {
+      "path": "validation/echo/native-shadow-cull-final.png",
+      "sha256": "265ee634f7cd572f5d44791ba6428b1b71b58401f33422f5458af109e90e7e53"
+    }
+  },
+  "regions": {
+    "pigCast": {
+      "rect": [
+        1040,
+        613,
+        1140,
+        650
+      ],
+      "sourceShadowPixels": 784,
+      "rectangularZeroBias": {
+        "maskIoU": 0.3081761006289308,
+        "mae255": 28.044324324324325,
+        "nativeShadowPixels": 2544
+      },
+      "final": {
+        "maskIoU": 0.849942726231386,
+        "mae255": 3.404324324324324,
+        "nativeShadowPixels": 831
+      }
+    },
+    "boxCast": {
+      "rect": [
+        468,
+        604,
+        540,
+        674
+      ],
+      "sourceShadowPixels": 1179,
+      "rectangularZeroBias": {
+        "maskIoU": 0.8218475073313783,
+        "mae255": 4.03015873015873,
+        "nativeShadowPixels": 1306
+      },
+      "final": {
+        "maskIoU": 0.8350824587706147,
+        "mae255": 3.6757936507936506,
+        "nativeShadowPixels": 1269
+      }
+    }
+  },
+  "wholeGameSimilarity": null,
+  "visualAccepted": false,
+  "entry": "full store-to-echo route, inherited StoreChapter shadow settings",
+  "limitations": [
+    "Box edge mismatch remains (IoU below .95); not hidden behind pig improvement.",
+    "Zero-bias baseline isolates rectangular cutout defect, not the earlier missing-floor-shadow state.",
+    "Store roof/leaf and per-node receiveShadow are implemented; whole-scene shadow parity remains pending.",
+    "Shadow map sampling/filter differs between engines; other levels and moving camera need verification."
+  ]
+}

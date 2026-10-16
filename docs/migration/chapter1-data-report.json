@@ -1,0 +1,19 @@
+{
+  "sourceHashes": {
+    "src/ch1-scenes.js": "e9b673dc35e60c3ff67a96f38d16e32ce836a233b0d1411d041527eeae2a5fa6",
+    "src/meeting.js": "c9b64029267dce78f8193d0ff319b071374df6d4934b5a569f3aefafbe130b51",
+    "src/ch1-office.js": "8d504a4843db8f65fcac2962b7e96426517d28d73fab65dea2358033cd97055e",
+    "src/ch1-tuning.js": "5075792c36a096feb41d289a349b3b69c8b3c17cae7c7dfd1ce0b8a3e8aa0bc6",
+    "src/normi.js": "0dacd0989444e7f6a394ccb480e5298152ed12be2dd541fccbf6cc46bf0b7554",
+    "src/browse.js": "5e5134721702cf9b1b89f9def40b25e31ede03b5b779f6af65744b2be6314a22",
+    "config/ch1-tuning.json": "1dae5f70540d5606ba113498d202bf45175721f817c8ef983669adf0ef8101a9"
+  },
+  "answers": [
+    "same",
+    "late",
+    "done"
+  ],
+  "paper": false,
+  "meetingObstacles": 3,
+  "officeObstacles": 7
+}

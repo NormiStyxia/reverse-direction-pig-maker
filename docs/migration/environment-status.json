@@ -6,32 +6,128 @@
   "devKitVersionAvailable": "20261015-132558",
   "initialDevKitError": "fetch failed",
   "repairError": null,
-  "missing": [
-    ".project/project.json",
-    ".project/settings.json"
-  ],
+  "missing": [],
   "runnable": false,
-  "visualAcceptance": "NOT_TESTED",
-  "fullPlaythrough": "NOT_TESTED",
+  "visualAcceptance": "NOT_ACCEPTED: screenshots exist, parity and full game unfinished",
+  "fullPlaythrough": "ONE_NATIVE_DONE_ROUTE_PASS; other branches and manual camera-dependent routes pending",
   "submittedOrBuilt": true,
   "goalTaskReceived": true,
   "goalSwitchToolInvoked": false,
   "devKitInstalledVersion": "20261015-132558",
   "recoveryReceipt": "maker_init: AI dev kit prepared; installed_at 2026-10-15T18:44:23.878Z",
   "renderProbeEntry": "preview/title.lua",
-  "submittedCommit": "b9a32cd",
+  "submittedCommit": "82d70ad",
   "remoteBuild": "SUCCESS",
-  "previewRefresh": "ok (HTTP 200)",
+  "previewRefresh": "failed: fetch failed (remote build itself succeeded)",
   "previewUrl": "https://maker.taptap.cn/app/1a737f5b-265f-4977-abf1-a9721b9582e6?localDev=1&hide_chat=1",
-  "runtimeExecution": "UNVERIFIED: no runtime.log received",
-  "lastBuildElapsedMs": 55326,
+  "runtimeExecution": "LOCAL: title, store, six echoes, chapter1, five echoes, morning/end and keyboard replay observed; one full done route passed reload31; reload33 adds rain and correct linear transparency comparison; reload37 corrects cutout auxiliary shadow/depth and contact bias (partial visual verification)",
+  "lastBuildElapsedMs": 54937,
   "lspErrors": 0,
   "lspMode": "watch (bundled single-check executable absent)",
   "knownLimitations": [
-    "Local .project/project.json and .project/settings.json still absent after successful remote build; no rebuild just to obtain them.",
-    "Native title overlay now includes dial, vector logotype, menus and pointer/touch input; engine rendering remains unverified.",
-    "Title probe still does not integrate story scenes; font parity, backdrop blur and glow remain unverified/incomplete."
+    "Local runtime startup reports missing Cube/Day/DaySpecularHDR_QualityLow.dds before game script loads.",
+    "One full done-answer native input route passed reload31; remaining branches, touch/adaptation and persistence acceptance remain pending.",
+    "Font parity, panel blur, glow, color/alpha transitions and actual visual comparison remain incomplete.",
+    "Installed runtime lacks Material:GetShaderParameter despite dev-kit annotation; do not call it.",
+    "Shadow-only roof/leaves and opposite PCF caster side implemented reload44; left wall, floor shadow/filter, outside shading and final post still differ. Full-story source shadow settings are distinct from direct debug echo entry; 95% NOT accepted.",
+    "Installed runtime rejects IN_SHADOW_PASS although dev-kit documents it; attempted shadow-only material was reverted.",
+    "Installed runtime accepts shadows_disabled but does not apply it to custom light(); explicit receive_shadow is used for the single native directional light.",
+    "Installed runtime rejects LIGHT_VERTEX despite current docs; diagnostic removed. Sprite geometry55 has been correctly deinterleaved but awaits native visual recapture."
   ],
-  "runtimeLogWatcher": "Recovered: consecutiveFailures=0, lastWrittenLogs=0 at 2026-10-16 03:23:46 +08:00; runtime.log still absent",
-  "interface": "raw NanoVG only; no Yoga UI in scripts"
+  "runtimeLogWatcher": "Historical logs received, with previous deferred/empty-buffer errors; use local preview logs for current code",
+  "interface": "raw NanoVG only; no Yoga UI in scripts",
+  "workflow": "NVG and local runtime preferred; user explicitly authorized one remote submission/build on 2026-10-16.",
+  "localPreview": {
+    "sessionId": "1d16f694-19b5-4037-acff-bcddbead9a30",
+    "entry": "preview/title.lua",
+    "launchMode": "loopback_manifest",
+    "firstPreparationSeconds": 94.86,
+    "runtimeInstalledAt": "2026-09-29T08:15:16.783Z",
+    "renderVerified": false,
+    "reloadId": 0,
+    "runtimePid": null,
+    "displayObserved": false,
+    "cliCheckResult": "FAIL",
+    "state": "failed",
+    "reason": "Public source index download failed on authorized restart; last successful native captures are session82c1a14d reload4."
+  },
+  "prologueModel": {
+    "sourceDifferentialFrames": 22325,
+    "sourceDifferentialResult": "PASS",
+    "terminalBrowsePaths": 12,
+    "nativeSmokeFrames": 3060,
+    "nativeSmokeResult": "PASS",
+    "renderedStory": "PARTIAL: scene dynamics/blackout/pig/fold now connected; walkers/particles/post/audio/echo transition incomplete"
+  },
+  "storyPanels": {
+    "fixturesCaptured": 6,
+    "viewport": [
+      1920,
+      1080
+    ],
+    "nvgTestResult": "PASS",
+    "viewportTests": 42,
+    "frozenDomGeometryChecks": 125,
+    "fontMetricsVerified": true,
+    "visualAcceptance": "NOT_ACCEPTED",
+    "progress": "docs/migration/story-panel-progress.md"
+  },
+  "storeScene": {
+    "sourceNodes": 441,
+    "geometries": 358,
+    "nativeMeshes": 1169,
+    "textures": 50,
+    "instances": 774,
+    "geometryVerticesChecked": 37632,
+    "visualAcceptance": false,
+    "progress": "docs/migration/store-render-progress.md",
+    "lightingProgress": "Source base/emission, Lambert hemisphere, point attenuation and instance palettes implemented; shadows/post pending",
+    "visibilityChecks": 5733,
+    "dynamicsDifferentialFrames": 720,
+    "dynamicsProgress": "docs/migration/store-dynamics-progress.md"
+  },
+  "latestEchoIntegration": {
+    "reload": 22,
+    "pid": 31619,
+    "report": "docs/migration/local-echo-runtime-report.json",
+    "visualAcceptance": false
+  },
+  "latestChapterIntegration": {
+    "reload": 28,
+    "pid": 16577,
+    "report": "docs/migration/local-ch1-route-runtime-report.json",
+    "visualAcceptance": false
+  },
+  "latestRainIntegration": {
+    "reload": 33,
+    "pid": 76401,
+    "report": "docs/migration/local-rain-runtime-report.json",
+    "visualAcceptance": false
+  },
+  "latestShadowIntegration": {
+    "reload": 37,
+    "pid": 5621,
+    "report": "docs/migration/local-shadow-runtime-report.json",
+    "visualAcceptance": false
+  },
+  "latestShadowReceiverIntegration": {
+    "reload": 40,
+    "pid": 21657,
+    "report": "docs/migration/local-shadow-receiver-runtime-report.json",
+    "visualAcceptance": false
+  },
+  "latestShadowCasterIntegration": {
+    "reload": 44,
+    "pid": 42887,
+    "report": "docs/migration/local-shadow-caster-runtime-report.json",
+    "visualAcceptance": false
+  },
+  "latestNightIntegration": {
+    "sessionId": "82c1a14d-1ddb-45a9-96dc-fe0bfd61178b",
+    "reloadId": 4,
+    "report": "docs/migration/store-night-comparison.json",
+    "nightGradeVerified": true,
+    "spriteGeometryVisualRecheckPending": true,
+    "visualAcceptance": false
+  }
 }

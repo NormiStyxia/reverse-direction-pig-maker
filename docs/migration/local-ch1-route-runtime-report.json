@@ -1,0 +1,86 @@
+{
+  "date": "2026-10-16",
+  "sessionId": "fa6bf3f4-f069-471e-b264-2c39c9194da0",
+  "latestReload": 28,
+  "runtimePid": 16577,
+  "nativeFiveRoute": {
+    "result": "PASS",
+    "reload": 27,
+    "completedAtInputFrame": 5692,
+    "theme": "meeting",
+    "answer": "done",
+    "continuousLevels": 5,
+    "positionOrLevelEditsDuringRoute": false,
+    "initialEntry": "explicit F4 diagnostic input replay starting at first level"
+  },
+  "sourceRoute": {
+    "result": "PASS",
+    "frames": 5777,
+    "scalarChecks": 34662,
+    "levelsSolved": 5,
+    "exits": [
+      {
+        "frame": 583,
+        "from": 1,
+        "to": 2
+      },
+      {
+        "frame": 1412,
+        "from": 2,
+        "to": 3
+      },
+      {
+        "frame": 2844,
+        "from": 3,
+        "to": 4
+      },
+      {
+        "frame": 4427,
+        "from": 4,
+        "to": 5
+      },
+      {
+        "frame": 5692,
+        "from": 5,
+        "to": "done"
+      }
+    ],
+    "source": "frozen Pig.update + RewindLevels.update and their original collision/timeline/load methods",
+    "stubs": [
+      "procedural artwork",
+      "audio/captions",
+      "presentation",
+      "deferred UI hints",
+      "dead-end hints"
+    ],
+    "visualAcceptance": false
+  },
+  "ending": {
+    "fifthLevelToMorning": "PASS",
+    "answerPreserved": "done",
+    "morningFinish": "PASS",
+    "nvgEndCard": "OBSERVED",
+    "keyboardReplayThenNewPrologue": "PASS",
+    "nativeMouseClick": "UNDETERMINED: PID-targeted mouse events did not trigger replay; model hit tests pass",
+    "layoutTest": {
+      "result": "PASS",
+      "viewports": 3,
+      "frozenDomButtonComparisons": 12,
+      "inputCases": 15,
+      "scope": "DPR hit coordinates, drag cancellation, pointer id, focus cancellation, outside presses, valid replay",
+      "notCovered": [
+        "font weight and text raster parity",
+        "complete visual score"
+      ]
+    }
+  },
+  "lspErrors": 0,
+  "syntaxFiles": 66,
+  "runtimeErrors": [
+    "Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds"
+  ],
+  "officialCheck": "FAIL",
+  "fullTitleToEndPlayerRoute": false,
+  "visualAcceptance": false,
+  "similarityPercentage": null
+}

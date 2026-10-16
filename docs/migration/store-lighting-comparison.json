@@ -1,0 +1,107 @@
+{
+  "reference": "validation/store/h5-raw.png",
+  "candidate": "validation/store/native-store-dynamics-final-reference.png",
+  "scope": "Fixed raw camera/frame only; H5 final post/UI and full gameplay are NOT covered.",
+  "visualAccepted": false,
+  "similarity": null,
+  "aggregateScore": null,
+  "metricsMeaning": "8-bit pixel differences by region; not a percentage similarity or acceptance threshold.",
+  "regions": [
+    {
+      "region": "actor",
+      "box": [
+        1335,
+        400,
+        1455,
+        665
+      ],
+      "meanAbsoluteChannelError_0_255": 19.577,
+      "rootMeanSquaredChannelError_0_255": 33.085,
+      "fractionPixelsAnyChannelErrorAbove32": 0.2103
+    },
+    {
+      "region": "cold_drinks",
+      "box": [
+        85,
+        375,
+        380,
+        740
+      ],
+      "meanAbsoluteChannelError_0_255": 10.009,
+      "rootMeanSquaredChannelError_0_255": 15.348,
+      "fractionPixelsAnyChannelErrorAbove32": 0.0759
+    },
+    {
+      "region": "front_shelf",
+      "box": [
+        175,
+        740,
+        580,
+        925
+      ],
+      "meanAbsoluteChannelError_0_255": 11.758,
+      "rootMeanSquaredChannelError_0_255": 25.52,
+      "fractionPixelsAnyChannelErrorAbove32": 0.1171
+    },
+    {
+      "region": "counter_food",
+      "box": [
+        1360,
+        580,
+        1905,
+        870
+      ],
+      "meanAbsoluteChannelError_0_255": 8.271,
+      "rootMeanSquaredChannelError_0_255": 14.655,
+      "fractionPixelsAnyChannelErrorAbove32": 0.0293
+    },
+    {
+      "region": "blinds_and_wall",
+      "box": [
+        440,
+        140,
+        1200,
+        520
+      ],
+      "meanAbsoluteChannelError_0_255": 17.37,
+      "rootMeanSquaredChannelError_0_255": 28.238,
+      "fractionPixelsAnyChannelErrorAbove32": 0.1567
+    },
+    {
+      "region": "table_and_floor_shadows",
+      "box": [
+        430,
+        520,
+        980,
+        740
+      ],
+      "meanAbsoluteChannelError_0_255": 31.259,
+      "rootMeanSquaredChannelError_0_255": 50.077,
+      "fractionPixelsAnyChannelErrorAbove32": 0.3922
+    },
+    {
+      "region": "lower_floor",
+      "box": [
+        590,
+        880,
+        1330,
+        1035
+      ],
+      "meanAbsoluteChannelError_0_255": 9.55,
+      "rootMeanSquaredChannelError_0_255": 18.551,
+      "fractionPixelsAnyChannelErrorAbove32": 0.0484
+    },
+    {
+      "region": "outside_foliage",
+      "box": [
+        475,
+        385,
+        1185,
+        520
+      ],
+      "meanAbsoluteChannelError_0_255": 28.624,
+      "rootMeanSquaredChannelError_0_255": 43.259,
+      "fractionPixelsAnyChannelErrorAbove32": 0.3767
+    }
+  ]
+}

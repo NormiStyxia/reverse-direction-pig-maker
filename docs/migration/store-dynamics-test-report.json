@@ -1,0 +1,23 @@
+{
+  "result": "PASS",
+  "frames": 720,
+  "scalarChecks": 70560,
+  "sourceRandomCalls": 2072,
+  "covered": [
+    "door proximity/forced opening/closing",
+    "clerk sway",
+    "wind/leaves",
+    "empty-chair distortion",
+    "flicker and blackout tube colors",
+    "ceiling/fridge/food/bounce intensities",
+    "seven flat fold transforms"
+  ],
+  "notCovered": [
+    "GPU parity",
+    "walkers",
+    "steam/rain",
+    "pig rendering",
+    "audio",
+    "full game"
+  ]
+}

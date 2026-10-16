@@ -1,0 +1,15 @@
+{
+  "result": "PASS",
+  "levels": 6,
+  "frames": 720,
+  "scalarChecks": 18960,
+  "tolerance": 1e-09,
+  "source": "frozen RewindLevels.unfold/applyRoom, real Three.js transforms",
+  "notCovered": [
+    "GPU appearance",
+    "rain",
+    "world/sky",
+    "postprocessing",
+    "chapter1 presentation"
+  ]
+}

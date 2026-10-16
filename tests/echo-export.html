@@ -1,0 +1,44 @@
+<!doctype html><meta charset="utf-8">
+<style>@font-face{font-family:'LXGW WenKai';src:url('/assets/fonts/LXGWWenKai-subset.ttf')}body{margin:0}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {exportBuildLevel,LEVELS} from '/src/rewind-levels.js';
+import {Pig} from '/src/pig.js';
+import {serialize} from '/export-scene.js';
+try {
+ await document.fonts.load('20px "LXGW WenKai"');
+ const seed=0x6a316e84;let rng=seed;
+ Math.random=()=>{rng=(Math.imul(rng,1664525)+1013904223)>>>0;return rng/4294967296;};
+ const atlas=new Image();atlas.src='/assets/pig-atlas-normi-round.png';await atlas.decode();
+ const scenes=[];let first;
+ for(let index=0;index<LEVELS.length;index++){
+  const scene=new THREE.Scene(),room=exportBuildLevel(LEVELS[index],index),pig=new Pig(scene,atlas);
+  pig.pos.set(LEVELS[index].start[0],0,LEVELS[index].start[1]);pig.facing=0;pig.update(0,{x:0,y:0,spin:false},0,false);
+  scene.add(room.group);scene.updateMatrixWorld(true);
+  const data=serialize([room.group,pig.mesh,...pig.ghosts.map(g=>g.mesh)],(nm,mm)=>({
+   root:nm.get(room.group),pig:nm.get(pig.mesh),ghosts:pig.ghosts.map(g=>nm.get(g.mesh)),
+   crates:room.crates.map(c=>({id:nm.get(c.mesh),glow:c.glow.map(m=>mm.get(m))})),
+   cabinets:room.cabinets.map(k=>({pivot:nm.get(k.pivot),body:nm.get(k.body)})),
+   panes:room.panes.map(p=>({id:nm.get(p.g),side:p.side})),
+   glow:mm.get(room.glow.material),sign:mm.get(room.signMat),plates:room.plates.map(p=>mm.get(p.mat)),
+   exit:mm.get(room.exitMat),ring:nm.get(room.ring),hands:room.hands.map(h=>nm.get(h)),rain:nm.get(room.rain)
+  }));
+  Object.assign(data,{schema:1,seed,theme:'store',index,definition:LEVELS[index],coordinates:'Three RH; native renderer flips Z once'});
+  scenes.push(data);if(index===0)first={scene,room,pig};
+ }
+ window.echoExport=scenes;
+ // Raw mesh reference only: final post/world are deliberately not represented here.
+ const {scene}=first;scene.background=new THREE.Color(0x1c2330);
+ scene.fog=new THREE.Fog(0x1c2330,34,150);
+ const sun=new THREE.DirectionalLight(0x9fb3dd,.9);sun.position.set(-7,14,9);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+ Object.assign(sun.shadow.camera,{left:-20,right:20,top:20,bottom:-20,near:.5,far:70});
+ scene.add(sun,new THREE.HemisphereLight(0x5d6b88,0x1c2430,.85));
+ const camera=new THREE.PerspectiveCamera(24,1920/1080,1,1400),look=new THREE.Vector3(-3.825,.8,2.78),pitch=16*Math.PI/180;
+ camera.position.copy(look).add(new THREE.Vector3(0,Math.sin(pitch)*22,Math.cos(pitch)*22));camera.lookAt(look);
+ const renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true});renderer.setSize(1920,1080);
+ renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;
+ document.body.appendChild(renderer.domElement);renderer.render(scene,camera);
+ window.referenceCamera={position:camera.position.toArray(),look:look.toArray(),fov:24};window.exportReady=true;
+}catch(e){window.exportError=e.stack;console.error(e);}
+</script>

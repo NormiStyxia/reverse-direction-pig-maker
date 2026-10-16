@@ -1,0 +1,179 @@
+{
+  "date": "2026-10-16",
+  "scope": "Four isolated chapter1 NVG panels; actual model snapshots, not native story scenes",
+  "method": "Same viewport/DPR, only window chrome cropped; no alignment, scaling or blur",
+  "accepted": false,
+  "similarityPercentage": null,
+  "fixtures": [
+    {
+      "fixture": 8,
+      "name": "question",
+      "comparison": "validation/chapter1/comparison-question.png",
+      "regions": {
+        "header": {
+          "rect": [
+            1000,
+            60,
+            1895,
+            135
+          ],
+          "meanAbsoluteChannelError0To255": 1.9796,
+          "pixelsWithChannelDifferenceOver24": 1002,
+          "pixelCount": 67125
+        },
+        "content": {
+          "rect": [
+            1000,
+            145,
+            1895,
+            895
+          ],
+          "meanAbsoluteChannelError0To255": 0.7624,
+          "pixelsWithChannelDifferenceOver24": 5124,
+          "pixelCount": 671250
+        },
+        "composer": {
+          "rect": [
+            1000,
+            905,
+            1895,
+            990
+          ],
+          "meanAbsoluteChannelError0To255": 3.9178,
+          "pixelsWithChannelDifferenceOver24": 3322,
+          "pixelCount": 76075
+        }
+      }
+    },
+    {
+      "fixture": 11,
+      "name": "done-answer",
+      "comparison": "validation/chapter1/comparison-done-answer.png",
+      "regions": {
+        "header": {
+          "rect": [
+            1000,
+            60,
+            1895,
+            135
+          ],
+          "meanAbsoluteChannelError0To255": 1.9796,
+          "pixelsWithChannelDifferenceOver24": 1002,
+          "pixelCount": 67125
+        },
+        "content": {
+          "rect": [
+            1000,
+            145,
+            1895,
+            895
+          ],
+          "meanAbsoluteChannelError0To255": 2.4251,
+          "pixelsWithChannelDifferenceOver24": 16289,
+          "pixelCount": 671250
+        },
+        "composer": {
+          "rect": [
+            1000,
+            905,
+            1895,
+            990
+          ],
+          "meanAbsoluteChannelError0To255": 0.4028,
+          "pixelsWithChannelDifferenceOver24": 1,
+          "pixelCount": 76075
+        }
+      }
+    },
+    {
+      "fixture": 13,
+      "name": "zhou-recall",
+      "comparison": "validation/chapter1/comparison-zhou-recall.png",
+      "regions": {
+        "header": {
+          "rect": [
+            1000,
+            60,
+            1895,
+            135
+          ],
+          "meanAbsoluteChannelError0To255": 1.5972,
+          "pixelsWithChannelDifferenceOver24": 860,
+          "pixelCount": 67125
+        },
+        "content": {
+          "rect": [
+            1000,
+            145,
+            1895,
+            895
+          ],
+          "meanAbsoluteChannelError0To255": 1.592,
+          "pixelsWithChannelDifferenceOver24": 11749,
+          "pixelCount": 671250
+        },
+        "composer": {
+          "rect": [
+            1000,
+            905,
+            1895,
+            990
+          ],
+          "meanAbsoluteChannelError0To255": 0.4028,
+          "pixelsWithChannelDifferenceOver24": 1,
+          "pixelCount": 76075
+        }
+      }
+    },
+    {
+      "fixture": 16,
+      "name": "morning-done",
+      "comparison": "validation/chapter1/comparison-morning-done.png",
+      "regions": {
+        "header": {
+          "rect": [
+            1000,
+            60,
+            1895,
+            135
+          ],
+          "meanAbsoluteChannelError0To255": 1.972,
+          "pixelsWithChannelDifferenceOver24": 1042,
+          "pixelCount": 67125
+        },
+        "content": {
+          "rect": [
+            1000,
+            145,
+            1895,
+            895
+          ],
+          "meanAbsoluteChannelError0To255": 0.6362,
+          "pixelsWithChannelDifferenceOver24": 3918,
+          "pixelCount": 671250
+        },
+        "composer": {
+          "rect": [
+            1000,
+            905,
+            1895,
+            990
+          ],
+          "meanAbsoluteChannelError0To255": 0.4028,
+          "pixelsWithChannelDifferenceOver24": 1,
+          "pixelCount": 76075
+        }
+      }
+    }
+  ],
+  "knownDifferences": [
+    "Font weight/baseline",
+    "Avatar minification aliasing"
+  ],
+  "notCovered": [
+    "Scene frost blur",
+    "Native meeting/office scene",
+    "Timing of live rendered story",
+    "Whole-game 95% acceptance"
+  ]
+}

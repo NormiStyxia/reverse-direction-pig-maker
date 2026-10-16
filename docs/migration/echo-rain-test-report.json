@@ -1,0 +1,22 @@
+{
+  "result": "PASS",
+  "levels": 6,
+  "frames": 1440,
+  "dropsPerLevel": 600,
+  "scalarChecks": 392832,
+  "randomCalls": 15022,
+  "source": "Exact frozen rewind-levels.js rain update block executed in Node VM",
+  "covered": [
+    "downward rain",
+    "rewind interpolation",
+    "upward rain",
+    "both boundary wraps",
+    "Float32 segment endpoints",
+    "seed immutability"
+  ],
+  "notCovered": [
+    "GPU line rasterization",
+    "frame-rate visual parity",
+    "full game acceptance"
+  ]
+}

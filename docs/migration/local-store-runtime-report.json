@@ -1,0 +1,120 @@
+{
+  "date": "2026-10-16",
+  "sessionId": "fa6bf3f4-f069-471e-b264-2c39c9194da0",
+  "reloadId": 20,
+  "runtimePid": 99920,
+  "engine": "native UrhoX local runtime",
+  "ui": "raw NVG; no Yoga UI",
+  "sourceNodes": 441,
+  "nativeMeshes": 1169,
+  "omittedParticleOrBillboardObjects": 6,
+  "tested": [
+    "title Enter opens live store",
+    "native imported geometry actually renders",
+    "D input moves character and following camera",
+    "J opens actual story phone",
+    "F6 pauses simulation",
+    "F5 fixed source camera and exported actor transform",
+    "lit character/clock/furniture no longer black",
+    "colored product palette visible",
+    "eight source point-light terms produce fridge/food illumination",
+    "hidden archive stays absent in native reference frame",
+    "blackout, reverse table pig and seven-group fold render in native runtime",
+    "F interaction reaches prologue finish from replayed pig stage; echo pending"
+  ],
+  "screenshots": [
+    "validation/store/native-store-blackout.png",
+    "validation/store/native-store-table-pig.png",
+    "validation/store/native-store-fold-mid.png",
+    "validation/store/native-store-fold-end.png",
+    "validation/store/native-store-input-done-2560.png",
+    "validation/store/native-store-dynamics-final-reference.png",
+    "validation/store/native-store-dynamics-final-pig.png"
+  ],
+  "logs": {
+    "game": {
+      "path": "/Users/xd/.taptap-maker/runtime/runtime-49696d14-a3c6-40fe-9808-2e28bb0d0045/logs/game/urhox_runtime-2026-10-16 05_50_32_205.log",
+      "rows": 322,
+      "evidence": [
+        {
+          "t": "2026-10-16 05_50_32_916",
+          "f": 0,
+          "l": "ERROR",
+          "m": "Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds"
+        }
+      ]
+    },
+    "lua": {
+      "path": "/Users/xd/.taptap-maker/runtime/runtime-49696d14-a3c6-40fe-9808-2e28bb0d0045/logs/lua/lua-2026-10-16 05_50_33_324.log",
+      "rows": 13,
+      "evidence": [
+        {
+          "t": "2026-10-16 05_50_34_406",
+          "f": 155,
+          "l": "RAW",
+          "m": "[2026-10-16 05_50_34_406][155][Script] PROLOGUE_MODEL_SMOKE: PASS; 3060 frames; 7 incoming messages; intro/play/dark/pig/fold/done; visuals not tested\n"
+        },
+        {
+          "t": "2026-10-16 05_51_05_247",
+          "f": 6036,
+          "l": "RAW",
+          "m": "[2026-10-16 05_51_05_247][6036][Script] STORE_PROBE: native source geometry; WASD/arrows move, J/Space phone, F interact, Tab select; F6 pause, F8 title\n"
+        },
+        {
+          "t": "2026-10-16 05_51_06_210",
+          "f": 6037,
+          "l": "RAW",
+          "m": "[2026-10-16 05_51_06_210][6037][Script] STORE_NATIVE_READY: 441 source nodes, 1169 native meshes; 6 particle/billboard objects pending\n"
+        },
+        {
+          "t": "2026-10-16 05_51_24_411",
+          "f": 8577,
+          "l": "RAW",
+          "m": "[2026-10-16 05_51_24_411][8577][Script] STORE_REFERENCE_FRAME: source camera, idle actor, t=0, 1920x1080; no post parity claimed\n"
+        },
+        {
+          "t": "2026-10-16 05_52_20_519",
+          "f": 16527,
+          "l": "RAW",
+          "m": "[2026-10-16 05_52_20_519][16527][Script] STORE_STAGE_FIXTURE: 1 phase=dark power=0 fold=0; model replay, not full playthrough\n"
+        },
+        {
+          "t": "2026-10-16 05_52_21_702",
+          "f": 16677,
+          "l": "RAW",
+          "m": "[2026-10-16 05_52_21_702][16677][Script] STORE_STAGE_FIXTURE: 2 phase=pig power=0 fold=0; model replay, not full playthrough\n"
+        }
+      ]
+    }
+  },
+  "currentGameScriptFailures": [],
+  "officialCheck": "FAIL",
+  "officialErrors": [
+    "[2026-10-16 05_50_32_916][0] ERROR: Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds"
+  ],
+  "visualAccepted": false,
+  "similarity": null,
+  "majorVisualFailure": "Source leaf/blind/roof shadows are missing or different; exterior lighting and paper-figure filtering still differ. Raw regional comparison is not 95% acceptance.",
+  "unverified": [
+    "source shadow-only roof/leaf and blind shadows",
+    "ink veil/haze/post/scene clear-color parity",
+    "rider/steam/rain/glows",
+    "audio/captions",
+    "echo renderer and chapter1",
+    "save/menu/touch and full resolution acceptance"
+  ],
+  "automaticFixAttempts": 2,
+  "previousReload9Failure": "Material:GetShaderParameter is declared in dev-kit but missing in installed runtime; removed diagnostic call in reload10",
+  "renderPath": "EngineRes/RenderPaths/CEMapSSAO.xml",
+  "lightingImplementation": {
+    "basePass": "ambient_light_disabled removed; black Zone ambient retained",
+    "hemisphere": "source linear sky/ground blend with Lambert 1/pi",
+    "points": "8 scene points plus table-pig point, source attenuation; live positions/intensities update with flicker, power and fold",
+    "products": "linear per-palette uniform via cloned materials; shared geometry retained",
+    "sun": "native directional shadow/light path; shadow mismatch unresolved"
+  },
+  "visibilityTest": "PASS 5733 source-node and 15197 drawable checks",
+  "regionalComparison": "docs/migration/store-lighting-comparison.json",
+  "followupCorrectnessFix": "Node visibility inheritance fixed after screenshot exposed archive appearing before story reveal; LSP Vector3 annotation corrected.",
+  "latestDynamicsReport": "docs/migration/local-store-dynamics-runtime-report.json"
+}

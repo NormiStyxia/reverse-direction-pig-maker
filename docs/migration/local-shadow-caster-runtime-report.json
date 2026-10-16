@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-16",
+  "reloadId": 44,
+  "runtimePid": 42887,
+  "sessionId": "fa6bf3f4-f069-471e-b264-2c39c9194da0",
+  "changes": [
+    "Shadow-only roof/leaf SurfaceShader discards in perspective color/depth and retains orthographic directional shadow",
+    "PCF caster side now follows frozen Three opposite-side rule for all imported scenes",
+    "Reference shadow settings distinguish direct echo entry and full store-to-echo flow"
+  ],
+  "evidence": [
+    "validation/store/native-shadow-both.png",
+    "validation/store/native-shadow-none.png",
+    "validation/store/native-shadow-roof.png",
+    "validation/store/native-shadow-leaves.png",
+    "validation/store/native-shadow-restored.png",
+    "validation/store/native-shadow-fold.png",
+    "validation/echo/native-shadow-cull-final.png"
+  ],
+  "comparison": "docs/migration/store-shadow-comparison.json",
+  "echoStoryComparison": "docs/migration/echo-shadow-story-comparison.json",
+  "materialChecks": "docs/migration/scene-material-test-report.json",
+  "dynamicsChecks": "docs/migration/store-dynamics-test-report.json",
+  "luaSyntaxFiles": 73,
+  "lspErrors": 0,
+  "nativeErrors": {
+    "lua": [],
+    "game": [
+      {
+        "t": "2026-10-16 08_34_28_512",
+        "f": 0,
+        "l": "ERROR",
+        "m": "Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds"
+      }
+    ]
+  },
+  "officialCheckResult": "FAIL",
+  "officialCheckErrors": [
+    "[2026-10-16 08_34_28_512][0] ERROR: Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds"
+  ],
+  "visualAccepted": false,
+  "wholeGameSimilarity": null,
+  "limits": [
+    "Projection discriminator is specific to perspective game cameras and orthographic directional shadows",
+    "Left wall, floor mask edge/filter, outside shading remain visibly different",
+    "Full-flow source shadow overrides reduce previous direct-entry local match; no 95% acceptance",
+    "No new full input playthrough in this reload"
+  ]
+}

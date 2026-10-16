@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-16",
+  "sessionId": "fa6bf3f4-f069-471e-b264-2c39c9194da0",
+  "latestReload": 26,
+  "runtimePid": 97579,
+  "captureReload": 25,
+  "nativeEvidence": [
+    "meeting fold finish enters meeting echo with answer=done",
+    "level1 D/J charge fuses past and tonight into now, opens door",
+    "D/W actual controls exit level1 and load/play level2",
+    "diagnostic level3 hologram bag and level5 curtain/whiteboard rendered"
+  ],
+  "sourceGeometryVariants": 15,
+  "verticesCompared": 72252,
+  "poseDifferentialFrames": 600,
+  "poseScalarChecks": 12480,
+  "lsp": "Lua Errors: 0 | Dir: /Users/xd/Desktop/maker反方向的猪/scripts | Time: 2026-10-16 06:50:53\nEmmyLua Types: /Users/xd/Desktop/maker反方向的猪/.emmylua\n---\n✅ No errors\n",
+  "officialCheck": "FAIL",
+  "runtimeErrors": [
+    "Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds"
+  ],
+  "fullNativeRoute": false,
+  "visualAcceptance": false,
+  "similarityPercentage": null,
+  "remaining": [
+    "five chapter echo routes and native morning transition",
+    "endcard/replay",
+    "save/menu/touch/resolution",
+    "world/audio/particles/captions",
+    "lighting/shadow/post parity"
+  ]
+}

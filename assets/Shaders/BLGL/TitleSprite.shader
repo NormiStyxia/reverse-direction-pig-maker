@@ -2,6 +2,11 @@
 shader_type spatial;
 render_mode shading_model_unlit, blend_mix, cull_disabled, fog_disabled, depth_draw_never;
 
+float titleAtan2(float y, float x) {
+  if (x == 0.) return y == 0. ? 0. : (y > 0. ? 1.5707963267948966 : -1.5707963267948966);
+  float a = atan(y / x);
+  return x < 0. ? a + (y < 0. ? -3.141592653589793 : 3.141592653589793) : a;
+}
 
 
 uniform float uTime;
@@ -18,7 +23,7 @@ float fbm(vec2 p) { float s = 0., a = .5; for (int i = 0; i < 5; i++) { s += a *
 // 转场场：以表盘圆心为原点，从 0°(正上)逆时针扫一圈 —— 和原画的刻度方向一致(270° 在右)
 float field(vec2 uv) {
   vec2 d = (uv - uC) * vec2(uAspect, 1.);
-  float n = fract(atan(-d.x, -d.y) / 6.2831853 + 1.);
+  float n = fract(titleAtan2(-d.x, -d.y) / 6.2831853 + 1.);
   float smoke = fbm(uv * vec2(uAspect, 1.) * 3. + vec2(uWorld * .04, 0.));
   return n * .72 + length(d) * .16 + (smoke - .5) * .34;
 }

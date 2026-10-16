@@ -1,0 +1,68 @@
+{
+  "source": "linear target + source FINAL ACES/sRGB; world bounds and StoreChapter shadow overrides",
+  "candidate": "native reload44, projection-based shadow-only SurfaceShader and frozen opposite caster side",
+  "visualAccepted": false,
+  "wholeGameSimilarity": null,
+  "exactRoundTrip": true,
+  "regions": {
+    "leaf_left_wall": {
+      "rect": [
+        235,
+        145,
+        435,
+        375
+      ],
+      "caster": "leaves",
+      "contributionMaskIoU": 0.5352032597365678,
+      "finalPixelMAE255": 2.6546014492753622
+    },
+    "leaf_floor": {
+      "rect": [
+        585,
+        740,
+        815,
+        860
+      ],
+      "caster": "leaves",
+      "contributionMaskIoU": 0.25886268267978585,
+      "finalPixelMAE255": 33.98730676328503
+    },
+    "roof_right_wall": {
+      "rect": [
+        1710,
+        145,
+        1910,
+        490
+      ],
+      "caster": "roof",
+      "contributionMaskIoU": 0.9897069635542485,
+      "finalPixelMAE255": 1.0282753623188405
+    },
+    "left_wall_mismatch": {
+      "rect": [
+        0,
+        145,
+        210,
+        740
+      ],
+      "caster": "roof",
+      "contributionMaskIoU": 0.0,
+      "finalPixelMAE255": 15.268539415766307
+    }
+  },
+  "casterChangedPixels": {
+    "roof": {
+      "source": 59944,
+      "native": 49321
+    },
+    "leaves": {
+      "source": 39453,
+      "native": 47398
+    }
+  },
+  "limitations": [
+    "Mask metrics compare isolated caster contribution, not all shading or complete scenes.",
+    "Side wall shadow boundary, texture filtering and outside grading remain different.",
+    "No full post-processing or gameplay acceptance; no average similarity number."
+  ]
+}
