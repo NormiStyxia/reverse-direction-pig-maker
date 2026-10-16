@@ -33,6 +33,7 @@ function Probe:update(dt)
     ---@type number
     local z=(input:GetKeyDown(KEY_S) or input:GetKeyDown(KEY_DOWN)) and 1 or 0
     z=z-((input:GetKeyDown(KEY_W) or input:GetKeyDown(KEY_UP)) and 1 or 0)
+    if self.touchInput then x=x+self.touchInput.x;z=z+self.touchInput.y end
     if self.route then x,z=self.route:control(self.story) end
     local len=math.sqrt(x*x+z*z);local actor=self.story.normi
     ---@type {x:number,y:number,z:number}

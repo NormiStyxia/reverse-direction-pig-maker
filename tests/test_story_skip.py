@@ -43,4 +43,4 @@ for i,answer in ipairs({'same','late','done'}) do
     assert(m:skip() and m.phase=='done' and m.result and #m.later==0)
 end
 ''')
-print('PASS: increment 02 skip model; 3 prologue phases, 3 answers, preserved close-up/fold, morning; UI not yet enabled')
+print('PASS: increment 02 skip model; 3 prologue phases, 3 answers, preserved close-up/fold, morning; UI coverage lives in test_increment02.py')

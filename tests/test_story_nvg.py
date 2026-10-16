@@ -181,6 +181,7 @@ p,c=fresh();c.resize(c,1920,1080,1);c.render(c)
 Actions=require('render.SceneActions')
 lua.globals().sceneActionStory=p
 c.sceneActions=Actions.new(c,lua.eval('function() return sceneActionStory end'),True)
+p.phone.k=.3 # entrance is only visible before body.phone-open crosses its threshold
 buttons,_=c.sceneActions.layout(c.sceneActions)
 phone=next(b for b in buttons.values() if b.id=='phone')
 px,py=phone.x+phone.w/2,phone.y+phone.h-1

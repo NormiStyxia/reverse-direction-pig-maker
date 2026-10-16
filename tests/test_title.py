@@ -45,14 +45,15 @@ assert stages=={'wait','glitch','draft','glitchBack'}
 t=Title.new(0,lambda:.5);t.keyDown(t,'Enter',False);t.update(t,1/60)
 assert t.st.phase=='idle'
 t.keyDown(t,'ArrowDown',False);assert t.sel==2
-t.keyDown(t,'Enter',False);assert t.panel=='chapters'
+t.keyDown(t,'Enter',False);assert t.panel=='levelmode'
+t.keyDown(t,'Escape',False);t.keyDown(t,'ArrowDown',False);t.keyDown(t,'Enter',False);assert t.panel=='chapters'
 t.keyDown(t,'ArrowDown',False);assert t.sel==0
 for i in range(1,7):t.activate(t,i);assert t.st.phase=='idle'
-t.keyDown(t,'Escape',False);assert t.sel==2 and not t.panel
+t.keyDown(t,'Escape',False);assert t.sel==3 and not t.panel
 t.keyDown(t,'ArrowDown',False);t.keyDown(t,'Enter',False);assert t.panel=='options'
 for i,key in enumerate(['motion','parallax','muted']):
     before=t.opts[key];t.activate(t,i);assert t.opts[key]!=before and t.sel==i
-t.activate(t,3);assert not t.panel and t.sel==3
+t.activate(t,3);assert not t.panel and t.sel==4
 t.keyDown(t,'K',True);assert not t.st.holding
 t.keyDown(t,'K',False);assert t.st.holding
 t.blur(t);assert not t.st.holding

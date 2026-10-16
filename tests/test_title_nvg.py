@@ -21,13 +21,14 @@ function nvgCreateImage()draw.images=draw.images+1;return draw.images end
 function nvgImageSize()return 700,500 end
 function nvgDeleteImage()draw.images=draw.images-1 end
 function nvgRGBA(...)return {...} end
+function nvgTextBounds(vg,x,y,text)return utf8.len(text)*15 end
 function nvgImagePattern(...)return {...} end
 function nvgBeginFrame(vg,w,h,dpr)assert(not draw.active);draw.calls={};draw.active=true;record('begin',w,h,dpr) end
 function nvgEndFrame()assert(draw.active and draw.depth==0);draw.active=false;record('end') end
 function nvgSave()assert(draw.active);draw.depth=draw.depth+1 end
 function nvgRestore()draw.depth=draw.depth-1;assert(draw.depth>=0) end
 for _,name in ipairs({'nvgScale','nvgTranslate','nvgRotate','nvgSkewX','nvgIntersectScissor','nvgGlobalAlpha',
- 'nvgBeginPath','nvgRect','nvgRoundedRect','nvgFillColor','nvgFill','nvgFillPaint','nvgStrokeWidth',
+ 'nvgBeginPath','nvgRect','nvgRoundedRect','nvgFillColor','nvgFill','nvgFillPaint','nvgStrokeWidth','nvgResetTransform','nvgResetScissor',
  'nvgStrokeColor','nvgStroke','nvgTransform','nvgLineCap','nvgMoveTo','nvgLineTo','nvgArc','nvgCircle','nvgBezierTo','nvgQuadTo','nvgClosePath','nvgPathWinding','nvgFontFace','nvgFontSize','nvgTextLetterSpacing','nvgTextAlign','nvgText'}) do
  _G[name]=function(vg,...)assert(draw.active);record(name,...) end
 end
@@ -52,7 +53,7 @@ down(2400,580);tick();up(2400,580)
 assert title.st.phase=='idle' and title.st.choice is False
 tick(100,True)
 click(2400,650);assert title.st.phase=='idle' and title.menuSel==0
-click(2400,715);tick(40,True);assert title.panel=='chapters'
+click(2400,740);tick(40,True);assert title.panel=='chapters'
 assert screen.hitTest(screen,2400,700) is False # locked floor 6
 click(2400,700);assert title.st.phase=='idle'
 assert screen.hitTest(screen,2500,580) is False # no underlying menu hit
@@ -61,7 +62,7 @@ click(2000,1080);tick(40);assert not title.panel
 down(2400,580);up(200,580);assert title.st.phase=='idle'
 down(2400,580);move(2400,770);up(2400,770);assert not title.panel
 up(2400,580);assert title.st.phase=='idle'
-click(2400,780);tick(40,True);assert title.panel=='options'
+click(2400,800);tick(40,True);assert title.panel=='options'
 for i,key in enumerate(['motion','parallax','muted']):
     before=title.opts[key];click(2000,290+i*69);tick();assert title.opts[key]!=before
 click(2000,1080);tick(40)
@@ -81,7 +82,7 @@ for w,h in viewports:
             assert abs(dx-px)<1e-8 and abs(dy-py)<1e-8
         assert screen.hitTest(screen,-1,580) is False
         assert screen.hitTest(screen,2560,580) is False
-        click(2400,780,7);tick(40);assert title.panel=='options'
+        click(2400,800,7);tick(40);assert title.panel=='options'
         # Second finger may neither release nor redirect the first finger.
         before=title.opts.motion
         down(2000,290,7);down(2000,360,8);up(2000,290,8)
@@ -136,10 +137,10 @@ for c in calls:
     if c.name=='nvgText' and c.args[3]=='设置' and c.args[1]==80:
         assert last_color==(10,60,184,255)
 title.closePanel(title);tick(40)
-# Reached save enables continue, adds margin, and selects the correct 0-based floor.
+# Increment 02 keeps the rows fixed; continue's label is now on the left.
 title.reached=3;move(2400,650);tick(40)
-assert title.menuSel==1 and abs(screen.menuMargin-26)<1e-7
-assert screen.hitTest(screen,2400,700) is False # expansion gap, not chapters
+assert title.menuSel==1 and abs(screen.menuMargin)<1e-7
+assert screen.hitTest(screen,2400,700)[0]=='menu:2'
 click(2400,650);tick(150,True)
 assert title.st.started and not title.active and title.st.choice.level==2
 events=list(title.drainEvents(title).values());assert sum(e.kind=='start' for e in events)==1
@@ -179,7 +180,7 @@ report={'result':'PASS','viewportDprCombinations':24,
  'checks':['intro press consumed across idle transition','locked continue/floors','panel blocks underlying menu',
  'drag/release cancellation','settings','stationary hover vs keyboard','touch capture and multi-finger isolation',
  'resize/focus cancellation','physical input round trips and frame DPR','fan flip and plane transform',
- 'continue expansion gap and saved floor','single start event','NVG frame/save lifecycle and resources','paper loading cover and fade across 24 layouts',
+ 'continue fixed rows and saved floor','single start event','NVG frame/save lifecycle and resources','paper loading cover and fade across 24 layouts',
  'background hold and cancellation across 24 layouts','inverted menu/label colors and blue panel interior','CSS curve reversal continuity','120 ticks / 6 paths / 4 blueprint labels','no Yoga or UI widget dependencies'],
  'notCovered':['native engine API execution','NVG rendered pixels','font parity and blur/glow','mobile ergonomics','story callback integration']}
 (ROOT/'docs/migration/title-nvg-test-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+chr(10))

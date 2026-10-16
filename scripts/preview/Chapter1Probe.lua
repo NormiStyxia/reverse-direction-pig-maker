@@ -42,6 +42,7 @@ function Probe:update(dt)
     if not self.paused and self.focused then
         local x=((input:GetKeyDown(KEY_D) or input:GetKeyDown(KEY_RIGHT)) and 1 or 0)-((input:GetKeyDown(KEY_A) or input:GetKeyDown(KEY_LEFT)) and 1 or 0)
         local z=((input:GetKeyDown(KEY_S) or input:GetKeyDown(KEY_DOWN)) and 1 or 0)-((input:GetKeyDown(KEY_W) or input:GetKeyDown(KEY_UP)) and 1 or 0)
+        if self.touchInput then x=x+self.touchInput.x;z=z+self.touchInput.y end
         if self.route then x,z=self.route:control(self.story) end
         local length=math.sqrt(x*x+z*z);local n=self.story.normi;local p=n.pos
         if length>0 and self.story:controlEnabled() then n:moveStick({x=p.x+x/length*.8,y=0,z=p.z+z/length*.8});self.keyDriven=true

@@ -164,8 +164,8 @@ function Canvas:drawHeader(p,isBrowse)
     local subtitle=isBrowse and b.sub or phone.subtitle
     local close=isBrowse
     for _,item in ipairs(phone.buttons) do if item.id=='close' then close=true end end
-    local offset=close and (p.small and 32.8 or 40.8) or 0
-    if close then self:text('‹',p.x,p.y,35,LIGHT,true);self:addHit('close','close',p.x,p.y,26,42) end
+    local offset=close and (self.touchUI and 48 or (p.small and 32.8 or 40.8)) or 0
+    if close then self:text('‹',p.x,p.y,35,LIGHT,true);self:addHit('close','close',p.x,p.y,self.touchUI and 44 or 26,self.touchUI and 44 or 42) end
     local available=p.w-offset-48
     local lines=Layout.wrap(title,math.max(1,available),p.contactSize,function(t,s)return self:measure(t,s)end)
     -- Source is a single header flex row; reserve enough height when narrow text wraps.
@@ -181,7 +181,7 @@ function Canvas:drawHeader(p,isBrowse)
     box(self.vg,p.x,p.y+p.headerH-1,p.w,1,{65,87,63,46})
 end
 function Canvas:drawChoices(p,list,bottom,hasInput)
-    local buttons,height=Layout.choices(list,p.w,p.small,function(t,s)return self:measure(t,s)end)
+    local buttons,height=Layout.choices(list,p.w,p.small,function(t,s)return self:measure(t,s)end,self.touchUI)
     local inputH=hasInput and 54 or 0
     local top=bottom-height-inputH-13
     box(self.vg,p.x,top,p.w,1,{240,237,223,56})
@@ -315,6 +315,7 @@ function Canvas:render()
         local isBrowse=self.channel=='browse';local state=isBrowse and self.story.browse or self.story.phone
         local placement=isBrowse and self.story.browse or self.placement
         local p=Layout.panel(self.w,self.h,placement,state.k);self.panel=p
+        if self.touchUI then p.y=math.max(72,p.y) end
         nvgGlobalAlpha(vg,math.min(1,state.k*1.2));self:drawHeader(p,isBrowse)
         local list={};if isBrowse then for i,text in ipairs(state.choices) do list[#list+1]={id='choice:'..(i-1),text=text,quietReply=i==#state.choices and #state.choices>1} end else list=state.buttons end
         local footer=self:drawChoices(p,list,p.bottom,not isBrowse and state.view=='chat')
@@ -355,6 +356,7 @@ function Canvas:render()
         end
     end
     if self.sceneHUD then nvgSave(vg);nvgGlobalAlpha(vg,1);self.sceneHUD(self);nvgRestore(vg) end
+    if self.externalHUD then nvgSave(vg);nvgGlobalAlpha(vg,1);self.externalHUD(self);nvgRestore(vg) end
     nvgEndFrame(vg)
 end
 function Canvas:dispose()

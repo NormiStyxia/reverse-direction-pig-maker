@@ -8,6 +8,7 @@ function Canvas.new(run)
     local self=setmetatable({},Canvas);self:init(run);return self
 end
 function Canvas:init(run)
+    self.ending=require('render.ChapterEnd').new()
     self.run=run;self.vg=nvgCreate(1);self.metrics={};self.fontReady=false;self.disposed=false
     self.titleAt=-99;self.hintAt=math.huge;self.hint='';self.elapsed=0;self.seen={};self.loading=false
     self:resize(graphics:GetWidth(),graphics:GetHeight(),graphics:GetDPR())
@@ -19,10 +20,10 @@ function Canvas:init(run)
     return self
 end
 function Canvas:resize(w,h,dpr) self.dpr=math.max(.01,dpr);self.w=w/self.dpr;self.h=h/self.dpr;self:cancelPointer() end
-function Canvas:cancelPointer() end
-function Canvas:pointerDown() end
+function Canvas:cancelPointer() self.ending:cancel() end
+function Canvas:pointerDown(x,y,id) if self.ending.active then self.ending:down(self,x,y,id);return true end end
 function Canvas:pointerMove() end
-function Canvas:pointerUp() end
+function Canvas:pointerUp(x,y,id) if self.ending.active then self.ending:up(self,x,y,id);return true end end
 function Canvas:wheel() end
 function Canvas:event(event)
     if event.kind=='loadLevel' then self.hintAt=math.huge;self.titleAt=-99 end
@@ -39,7 +40,7 @@ function Canvas:render()
     if self.disposed or not self.fontReady then return end
     local vg=self.vg;nvgBeginFrame(vg,self.w,self.h,self.dpr)
     local light={242,232,214,255}
-    self:text('WASD 移动 · J / 空格 冲撞 · 按住 K / Shift 反方向转(倒带) · R 重来这一层',16,self.h-36,self.w<600 and 12 or 15,light,true)
+    if not self.touchUI then self:text('WASD 移动 · J / 空格 冲撞 · 按住 K / Shift 反方向转(倒带) · R 重来这一层 · Esc 暂停',16,self.h-36,self.w<600 and 12 or 15,light,true) end
     local age=self.elapsed-self.titleAt
     if age>=0 and age<3.2 then
         local opacity=math.min(1,age/.64,(3.2-age)/.96);local size=math.min(46,self.w/13)
@@ -55,6 +56,8 @@ function Canvas:render()
     end
     if self.loading then self:text('正在加载回响…',16,16,16,light,true) end
     if self.run.phase=='done' then self:text('回响结束',16,16,18,light,true) end
+    if self.ending.active then self.ending:render(self) end
+    if self.externalHUD then self.externalHUD(self) end
     nvgEndFrame(vg)
 end
 function Canvas:dispose() if self.disposed then return end;self.disposed=true;nvgDelete(self.vg) end

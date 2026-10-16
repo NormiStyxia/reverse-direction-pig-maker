@@ -46,7 +46,7 @@ function Layout.panel(w,h,placement,k)
         lineHeight=small and 1.45 or 1.55,bubblePadX=small and 10 or 13,bubblePadY=small and 8 or 10,
         threadGap=small and 15 or 22}
 end
-function Layout.choices(list,width,small,measure)
+function Layout.choices(list,width,small,measure,touch)
     local buttons={};local x,y,rowH=0,0,0
     local size=small and 14 or 16;local px,py=small and 9 or 12,small and 7 or 8
     for _,item in ipairs(list) do
@@ -55,9 +55,9 @@ function Layout.choices(list,width,small,measure)
             if item.id=='chat' then bx=24;by=10 end
             if item.terse then fontSize=18 end
             if item.quietReply then fontSize=15 end
-            local bw=math.min(width,measure(item.text,fontSize)+2*bx+2)
+            local bw=math.min(width,math.max(touch and 44 or 0,measure(item.text,fontSize)+2*bx+2))
             local lines=Layout.wrap(item.text,math.max(1,bw-2*bx-2),fontSize,measure)
-            local bh=#lines*Layout.normalHeight(fontSize)+2*by+2
+            local bh=math.max(touch and 44 or 0,#lines*Layout.normalHeight(fontSize)+2*by+2)
             if x>0 and x+bw>width then x=0;y=y+rowH+8;rowH=0 end
             buttons[#buttons+1]={id=item.id,text=item.text,x=x,y=y,w=bw,h=bh,lines=lines,size=fontSize,px=bx,py=by,quietReply=item.quietReply}
             x=x+bw+8;rowH=math.max(rowH,bh)

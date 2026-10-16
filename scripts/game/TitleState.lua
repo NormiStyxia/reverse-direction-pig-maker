@@ -35,7 +35,7 @@ function Title:drainEvents() local events=self.events; self.events={}; return ev
 function Title:skipIntro()
     if self.st.phase=='intro' and self.st.intro<5.6 then self.st.intro=5.6 end
 end
-function Title:count() return self.panel=='chapters' and 7 or 4 end
+function Title:count() return self.panel=='chapters' and 7 or (self.panel=='levelmode' and 11 or (self.panel=='options' and 4 or 5)) end
 function Title:disabled(i)
     if self.panel=='chapters' then return i>self.reached end
     return not self.panel and i==1 and self.reached==0
@@ -57,7 +57,9 @@ function Title:leave(choice) self.st.phase='leaving'; self.st.leaveT=0; self.st.
 function Title:activate(i)
     i=i or self.sel
     if self.st.phase~='idle' or self:disabled(i) then return end
-    if self.panel=='chapters' then
+    if self.panel=='levelmode' then
+        self:leave({kind='levels',set=i<6 and 'prologue' or 'ch1',level=i<6 and i or i-6})
+    elseif self.panel=='chapters' then
         self:leave(i==0 and {kind='new'} or {kind='echo',level=i-1})
     elseif self.panel=='options' then
         local keys={'motion','parallax','muted'}
@@ -68,8 +70,9 @@ function Title:activate(i)
         end
     elseif i==0 then self:leave({kind='new'})
     elseif i==1 then self:leave({kind='echo',level=self.reached-1})
-    elseif i==2 then self:openPanel('chapters')
-    elseif i==3 then self:openPanel('options') end
+    elseif i==2 then self:openPanel('levelmode')
+    elseif i==3 then self:openPanel('chapters')
+    elseif i==4 then self:openPanel('options') end
 end
 function Title:keyDown(key,repeated)
     local up=key=='ArrowUp' or key=='w' or key=='W'

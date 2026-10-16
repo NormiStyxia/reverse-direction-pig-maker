@@ -1,0 +1,20 @@
+{
+  "result": "PASS",
+  "scope": "real menu + application routing with mocked GPU/probes/storage; real multi-touch controls",
+  "checks": [
+    "77 unlocked level selections",
+    "store 6 to meeting 1 without story",
+    "meeting completion card",
+    "saved answer fallback path",
+    "no level-mode save writes",
+    "pause keyboard isolation and return to title",
+    "story persistence restored",
+    "12 touch viewport/DPR layouts",
+    "independent movement and held-rewind fingers"
+  ],
+  "notCovered": [
+    "GPU rendering",
+    "physical mobile device",
+    "actual full level playthrough"
+  ]
+}

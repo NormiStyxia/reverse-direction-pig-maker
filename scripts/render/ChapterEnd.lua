@@ -2,7 +2,7 @@
 local Ease=require('game.TitlePresentation')
 local End={};End.__index=End
 function End.new() return setmetatable({age=0,active=false,replay=false,press=false},End) end
-function End:show() self.active=true;self.age=0;self.press=false end
+function End:show(title,subtitle) self.active=true;self.age=0;self.press=false;self.title=title;self.subtitle=subtitle end
 function End:update(dt) if self.active then self.age=self.age+dt end end
 function End:cancel() self.press=false end
 function End:inside(canvas,x,y)
@@ -25,8 +25,8 @@ function End:render(canvas)
         nvgFillColor(vg,nvgRGBA(240,237,223,opacity));nvgText(vg,canvas.w/2,y,value)
     end
     local top=(canvas.h-144)/2
-    text('第一章 · 完',top,40,12,255)
-    text('反方向的猪 · 谢谢游玩',top+61,15,3,153)
+    text(self.title or '第一章 · 完',top,math.min(40,canvas.w/10),canvas.w<600 and 3 or 12,255)
+    text(self.subtitle or '反方向的猪 · 谢谢游玩',top+61,15,3,153)
     local label='再玩一次';local width=canvas:measure(label,16)+24;local h=33
     local x=(canvas.w-width)/2;local y=top+111;self.button={x=x,y=y,w=width,h=h}
     nvgBeginPath(vg);nvgRoundedRect(vg,x+2,y+2,width,h,11);nvgFillColor(vg,nvgRGBA(43,33,29,115));nvgFill(vg)

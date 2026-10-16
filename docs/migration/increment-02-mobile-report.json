@@ -1,0 +1,39 @@
+{
+  "result": "PASS",
+  "titleRows": 546,
+  "branchTaps": 36,
+  "logicalSizes": [
+    [
+      844,
+      390
+    ],
+    [
+      667,
+      375
+    ],
+    [
+      390,
+      844
+    ],
+    [
+      320,
+      568
+    ]
+  ],
+  "dprs": [
+    1,
+    2,
+    3
+  ],
+  "checks": [
+    "all three required answers via real NVG dispatch",
+    "44px touch targets",
+    "multi-finger ownership",
+    "title rows visible and hit-test aligned"
+  ],
+  "notCovered": [
+    "physical mobile browser/device",
+    "native font rendering",
+    "whole game visuals"
+  ]
+}

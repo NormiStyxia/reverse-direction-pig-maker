@@ -12,7 +12,7 @@
     "resize/focus cancellation",
     "physical input round trips and frame DPR",
     "fan flip and plane transform",
-    "continue expansion gap and saved floor",
+    "continue fixed rows and saved floor",
     "single start event",
     "NVG frame/save lifecycle and resources",
     "paper loading cover and fade across 24 layouts",

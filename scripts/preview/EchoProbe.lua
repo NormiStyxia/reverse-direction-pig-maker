@@ -18,6 +18,7 @@ function Probe:init(look,theme,answer,startLevel,onProgress)
     self.view=View.new(self.run,look);self.screen=Screen.new(self.run)
     self.bridge=require('game.SceneBridge').new()
     self.active=true;self.focused=true;self.charge=false;self.restart=false;self.paused=false
+    self.suppressed={}
     self.replay=false;self.replayFrame=0;self.replayAccumulator=0
     self.referencePending=false;self.reference=false;self.alphaStep=0
     ---@type number|false
@@ -47,7 +48,16 @@ function Probe:beginInputReplay()
     self.replayFrame=0;self.replayAccumulator=0;self.paused=false
     print('ECHO_CONTINUOUS_INPUT: natural chapter handoff; theme='..self.run.theme..'; no model reset')
 end
+function Probe:setPaused(on)
+    self.playerPaused=on;self.paused=on;self.charge=false;self.restart=false
+    for _,key in ipairs({KEY_W,KEY_A,KEY_S,KEY_D,KEY_UP,KEY_DOWN,KEY_LEFT,KEY_RIGHT,KEY_K,KEY_SHIFT,KEY_LSHIFT,KEY_RSHIFT,KEY_J,KEY_SPACE,KEY_R}) do
+        if input:GetKeyDown(key) then self.suppressed[key]=true end
+    end
+    self.screen:cancelPointer()
+end
 function Probe:update(dt)
+    if self.screen.ending.active then self.screen.ending:update(dt);return end
+    if self.playerPaused then return end -- freeze renderer randomness as well as simulation
     self.view.bridgeDistance=self.bridge.distance
     if self.run.loadId~=self.view.loadId then if self.post then self.post:dispose();self.post=nil end;self.view:load(self.run) end
     if not self.post then self.post=require('render.ScenePost').new(self.view.view);self.post:setEnabled(true) end
@@ -82,10 +92,14 @@ function Probe:update(dt)
         return
     end
     if not self.paused and self.focused then
-        local function held(key) return input:GetKeyDown(key) end
+        local function held(key)
+            if not input:GetKeyDown(key) then self.suppressed[key]=nil;return false end
+            return not self.suppressed[key]
+        end
         local x=((held(KEY_D) or held(KEY_RIGHT)) and 1 or 0)-((held(KEY_A) or held(KEY_LEFT)) and 1 or 0)
         local y=((held(KEY_S) or held(KEY_DOWN)) and 1 or 0)-((held(KEY_W) or held(KEY_UP)) and 1 or 0)
         local spin=held(KEY_K) or held(KEY_SHIFT) or held(KEY_LSHIFT) or held(KEY_RSHIFT)
+        if self.touchInput then x=x+self.touchInput.x;y=y+self.touchInput.y;spin=spin or self.touchInput.spin end
         self.run:update(dt,{x=x,y=y,spin=spin,charge=self.charge,restart=self.restart},self.view.camYaw)
         self.charge=false;self.restart=false;self:events()
         self.view:update(self.run.lastDt or 0,self.run);self.post.effects:update(self.run.lastDt or 0);self.screen:update(math.min(dt,.05))
@@ -99,6 +113,8 @@ end
 function Probe:key(key,repeated)
     if Diagnostics.blocks(key) then return end
     if repeated then return end
+    if self.screen.ending.active then if key==KEY_RETURN or key==KEY_SPACE then self.screen.ending.replay=true end;return end
+    if self.playerPaused or self.suppressed[key] then return end
     if key==KEY_F2 then self.view.view:shadowDiagnostic(true);return end
     if key==KEY_F3 then self.view.view:shadowBiasDiagnostic();return end
     if key==KEY_F11 then self.view.view:shadowFocusDiagnostic();return end

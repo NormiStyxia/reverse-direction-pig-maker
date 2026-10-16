@@ -3,7 +3,8 @@
 local P=require('game.TitlePresentation')
 local Metrics=require('game.data.TitleVectorMetrics')
 local Vectors=require('render.TitleVectors')
-local Levels=require('game.data.Levels').prologue
+local Sets=require('game.data.Levels')
+local Levels=Sets.prologue
 local Overlay={}
 Overlay.__index=Overlay
 local INK={10,60,184,255};local BLUE={1,64,196,255}
@@ -12,7 +13,7 @@ local ALT_INK={242,246,255,255}
 local function mixColor(a,b,t)
     return {a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t,a[3]+(b[3]-a[3])*t,255}
 end
-local NAMES={{'开始游戏','START'},{'继续','CONTINUE'},{'选择关卡','CHAPTERS'},{'设置','OPTIONS'}}
+local NAMES={{'开始游戏','START'},{'继续','CONTINUE'},{'关卡模式','LEVEL MODE'},{'选择关卡','CHAPTERS'},{'设置','OPTIONS'}}
 local function color(c,alpha) return nvgRGBA(math.floor(c[1]+.5),math.floor(c[2]+.5),math.floor(c[3]+.5),math.floor(c[4]*(alpha or 1)+.5)) end
 local function rect(vg,x,y,w,h,c,alpha)
     nvgBeginPath(vg);nvgRect(vg,x,y,w,h);nvgFillColor(vg,color(c,alpha));nvgFill(vg)
@@ -41,10 +42,11 @@ function Overlay:init(title)
     self.mirror=1
     self.cursorY=4;self.cursorSpinAt=-10;self.lastMenuSel=0
     self.rowTracks={};self.rowAmounts={};self.marginTrack=P.channel(0);self.menuMargin=0
-    for i=1,4 do self.rowTracks[i]=P.channel(i==1 and 1 or 0);self.rowAmounts[i]=i==1 and 1 or 0 end
+    for i=1,5 do self.rowTracks[i]=P.channel(i==1 and 1 or 0);self.rowAmounts[i]=i==1 and 1 or 0 end
     self.logoX=2560-84-(Metrics.width-10)
-    self.logoY=1152-66-31.2-12-26.4-6-146.88
+    self.logoY=1152-46-31.2-12-26.4-6-146.88
     self.pointerId=false;self.pressTarget=false
+    self.touchScroll=0;self.touchScrollMax=0;self.touchDrag=false;self.touchStartY=0;self.touchLastY=0
     self.lastX=false;self.lastY=false;self.glitchAt=false
     self.disposed=false
     self:resize(graphics:GetWidth(),graphics:GetHeight(),graphics:GetDPR())
@@ -62,21 +64,72 @@ function Overlay:designPoint(x,y) return x/self.dpr/self.scale-self.offsetX,y/se
 function Overlay:cancelPointer()
     if self.pointerHolding then self.title:keyUp('K') end
     self.pointerHolding=false;self.pointerId=false;self.pressTarget=false;self.lastX=false;self.lastY=false
+    self.touchDrag=false
 end
-function Overlay:menuY(index) return 560+index*66+(index>1 and self.menuMargin or 0) end
+function Overlay:menuY(index) return 552+index*56 end
+function Overlay:panelRow(index)
+    if (self.title.panel or self.panelKind)=='levelmode' then return 220+index*45+(index>=6 and 48 or 0),45 end
+    return 265+index*69,69
+end
+function Overlay:choiceLabel(choice)
+    if choice.kind=='new' then return '23:38' end
+    local levels=choice.set=='ch1' and Sets.chapter1 or Levels
+    return (choice.kind=='levels' and (choice.set=='ch1' and '第一章 · ' or '序章 · ') or '')..'第 '..(choice.level+1)..' 层 · '..levels[choice.level+1].name
+end
+function Overlay:touchRows()
+    local rows={};local title=self.title;local w,h=self.logicalW,self.logicalH
+    if not title.panel then
+        local bw=math.min(200,w-32);local top=math.max(12,(h-240)/2)
+        for i,n in ipairs(NAMES) do rows[#rows+1]={id='menu:'..(i-1),index=i-1,text=n[1],x=w-bw-16,y=top+(i-1)*46,w=bw,h=44} end
+        return rows
+    end
+    rows[#rows+1]={id=title.panel..':back',text='返回',x=w-90,y=12,w=76,h=44}
+    local mode=title.panel=='levelmode';local columns=mode and w>=600
+    local bw=columns and (w-48)/2 or w-32
+    for i=0,title:count()-1 do
+        local row=i;local x=16;local y=108
+        local label
+        if mode then
+            local chapter=i>=6;local index=chapter and i-6 or i
+            label=(chapter and '一' or '序')..string.format('%02d',index+1)..'  '..(chapter and Sets.chapter1 or Levels)[index+1].name
+            if columns then row=index;x=chapter and w/2+8 or 16
+            else y=chapter and 128 or 108 end
+        elseif title.panel=='chapters' then label=i==0 and '序章 · 23:38' or ('第 '..i..' 层 · '..Levels[i].name)
+        else
+            label=({'画面动态','鼠标视差','声音','返回'})[i+1]
+            if i<3 then label=label..((({title.opts.motion,title.opts.parallax,not title.opts.muted})[i+1]) and ' · 开' or ' · 关') end
+        end
+        rows[#rows+1]={id=title.panel..':'..i,index=i,text=label,x=x,y=y+row*46,w=bw,h=44}
+    end
+    local bottom=108
+    for _,r in ipairs(rows) do if r.index~=nil then bottom=math.max(bottom,r.y+r.h) end end
+    self.touchScrollMax=math.max(0,bottom-h+12);self.touchScroll=math.max(0,math.min(self.touchScroll,self.touchScrollMax))
+    for _,r in ipairs(rows) do if r.index~=nil then r.y=r.y-self.touchScroll end end
+    return rows
+end
 function Overlay:hitTest(x,y)
     local title=self.title
+    if self.touchMode then
+        if title.st.phase~='idle' then return false end
+        x=(x+self.offsetX)*self.scale;y=(y+self.offsetY)*self.scale
+        for _,r in ipairs(self:touchRows()) do
+            local inList=not title.panel or r.index==nil or (y>=108 and y<self.logicalH-12)
+            if inList and (r.index==nil or not title:disabled(r.index)) and inside(x,y,r.x,r.y,r.w,r.h) then return r.id,r.index end
+        end
+        return false
+    end
     if title.st.phase~='idle' or not inside(x,y,0,0,2560,1152) then return false end
     if title.panel then
         local left=1800+self.panelX
-        if inside(x,y,left+80,1068,590,30) then return title.panel..':back' end
+        if title.panel~='levelmode' and inside(x,y,left+80,1068,590,30) then return title.panel..':back' end
         for i=0,title:count()-1 do
-            if not title:disabled(i) and inside(x,y,left+80,265+i*69,590,69) then return title.panel..':'..i,i end
+            local rowY,rowH=self:panelRow(i)
+            if not title:disabled(i) and inside(x,y,left+80,rowY,590,rowH) then return title.panel..':'..i,i end
         end
     else
         local shift=14*(1-P.slide((title.st.t-self.uiAt)/.9))
-        for i=0,3 do
-            if not title:disabled(i) and inside(x,y,2328,self:menuY(i)+shift,232,66) then return 'menu:'..i,i end
+        for i=0,4 do
+            if not title:disabled(i) and inside(x,y,2328,self:menuY(i)+shift,232,56) then return 'menu:'..i,i end
         end
     end
     return false
@@ -84,6 +137,12 @@ end
 function Overlay:pointerMove(x,y,id)
     -- A stationary mouse must not override keyboard selection.
     if self.pointerId~=false and self.pointerId~=(id or 'mouse') then return end
+    if self.touchMode and self.title.panel and self.pointerId~=false then
+        local logicalY=y/self.dpr
+        if math.abs(logicalY-self.touchStartY)>6 then self.touchDrag=true;self.pressTarget=false end
+        if self.touchDrag then self.touchScroll=math.max(0,math.min(self.touchScrollMax,self.touchScroll+self.touchLastY-logicalY)) end
+        self.touchLastY=logicalY;return
+    end
     if self.lastX==x and self.lastY==y then return end
     self.lastX=x;self.lastY=y
     x,y=self:designPoint(x,y)
@@ -95,6 +154,7 @@ function Overlay:pointerDown(x,y,id)
     if self.pointerId~=false then return end
     self:pointerMove(x,y,id)
     self.pointerId=id or 'mouse';self.pressTarget=false
+    self.touchDrag=false;self.touchStartY=y/self.dpr;self.touchLastY=self.touchStartY
     if self.title.st.phase=='intro' then self.title:skipIntro();return end
     x,y=self:designPoint(x,y);self.pressTarget=self:hitTest(x,y)
     -- The whole panel (and disabled menu buttons) consumes a press, not just active rows.
@@ -102,9 +162,9 @@ function Overlay:pointerDown(x,y,id)
     local buttonHit=false
     if not self.title.panel then
         local shift=14*(1-P.slide((self.title.st.t-self.uiAt)/.9))
-        for i=0,3 do buttonHit=buttonHit or inside(x,y,2328,self:menuY(i)+shift,232,66) end
+        for i=0,4 do buttonHit=buttonHit or inside(x,y,2328,self:menuY(i)+shift,232,56) end
     end
-    if self.title.st.phase=='idle' and not panelHit and not buttonHit and inside(x,y,0,0,2560,1152) then
+    if self.title.st.phase=='idle' and not self.pressTarget and not (self.touchMode and self.title.panel) and not panelHit and not buttonHit and inside(x,y,0,0,2560,1152) then
         self.pointerHolding=true;self.title:keyDown('K',false)
     end
 end
@@ -129,57 +189,102 @@ function Overlay:update()
     if v.glitch then self.glitchAt=self.glitchAt or t else self.glitchAt=false end
     self.mirror=P.track(self.mirrorTrack,v.held and -1 or 1,t,.45,P.mirror)
     if title.menuSel~=self.lastMenuSel then self.lastMenuSel=title.menuSel;self.cursorSpinAt=t end
-    self.menuMargin=P.track(self.marginTrack,title.menuSel==1 and 26 or 0,t,.3,P.ease)
-    self.cursorY=P.track(self.cursorTrack,title.menuSel*66+4,t,.35,P.slide)
-    for i=1,4 do self.rowAmounts[i]=P.track(self.rowTracks[i],title.menuSel==i-1 and 1 or 0,t,.35,P.slide) end
-    if title.panel then self.panelKind=title.panel end
+    self.menuMargin=P.track(self.marginTrack,0,t,.3,P.ease)
+    self.cursorY=P.track(self.cursorTrack,title.menuSel*56+4,t,.35,P.slide)
+    for i=1,5 do self.rowAmounts[i]=P.track(self.rowTracks[i],title.menuSel==i-1 and 1 or 0,t,.35,P.slide) end
+    if title.panel then
+        if self.panelKind~=title.panel then self.touchScroll=0 end
+        self.panelKind=title.panel
+    end
     self.panelX=P.track(self.panelTrack,title.panel and 0 or 798,t,.5,P.slide)
 end
 function Overlay:drawMenu(alpha)
+    if self.touchMode then return end
     local vg,title=self.vg,self.title
     for i,n in ipairs(NAMES) do
         local selected=title.menuSel==i-1;local c=selected and mixColor(WHITE,BLUE,self.altAmount) or self.ink
         local y=self:menuY(i-1);local amount=self.rowAmounts[i]
         nvgGlobalAlpha(vg,alpha*(i==2 and title.reached==0 and .38 or 1))
-        rect(vg,2328+232*(1-amount),y+4,232*amount,58,title.view.alt and PAPER or BLUE)
-        text(vg,string.format('%02d',i),2346,y+14,17,c,nil,1.36,nil,selected and .8 or .55)
-        text(vg,n[1],2530,y+10,30,c,NVG_ALIGN_RIGHT,3.6,'title-bold')
-        text(vg,i==2 and title.reached==0 and 'NO SAVE' or n[2],2530,y+47,14,c,NVG_ALIGN_RIGHT,1.12,nil,.65)
+        rect(vg,2328+232*(1-amount),y+4,232*amount,48,title.view.alt and PAPER or BLUE)
+        text(vg,string.format('%02d',i),2346,y+12,17,c,nil,1.36,nil,selected and .8 or .55)
+        text(vg,n[1],2530,y+7,28,c,NVG_ALIGN_RIGHT,3.6,'title-bold')
+        text(vg,i==2 and title.reached==0 and 'NO SAVE' or n[2],2530,y+40,14,c,NVG_ALIGN_RIGHT,1.12,nil,.65)
     end
     nvgGlobalAlpha(vg,alpha)
     if title.menuSel==1 and title.reached>0 then
-        text(vg,'第 '..title.reached..' 层 · '..Levels[title.reached].name,2530,692,15,self.ink,NVG_ALIGN_RIGHT,0,nil,.9)
+        local label='第 '..title.reached..' 层 · '..Levels[title.reached].name
+        nvgFontFace(vg,'title-sans');nvgFontSize(vg,15);nvgTextLetterSpacing(vg,0)
+        local w=nvgTextBounds(vg,0,0,label)+20
+        rect(vg,2316-w,622,w,26,title.view.alt and PAPER or BLUE)
+        text(vg,label,2306,626,15,title.view.alt and BLUE or WHITE,NVG_ALIGN_RIGHT)
     end
     nvgSave(vg)
-    nvgTranslate(vg,2328-70+31,560+self.cursorY+self.pigHeight/2)
+    nvgTranslate(vg,2328-70+31,552+self.cursorY+self.pigHeight/2)
     nvgRotate(vg,-2*math.pi*P.mirror((title.st.t-self.cursorSpinAt)/.6))
     nvgBeginPath(vg);nvgRect(vg,-31,-self.pigHeight/2,62,self.pigHeight)
     nvgFillPaint(vg,nvgImagePattern(vg,-31,-self.pigHeight/2,62,self.pigHeight,0,self.pig,1));nvgFill(vg)
     nvgRestore(vg)
 end
 function Overlay:drawPanel(alpha)
+    if self.touchMode then return end
     if not self.panelKind then return end
     local vg,title=self.vg,self.title;local chapters=self.panelKind=='chapters'
+    local mode=self.panelKind=='levelmode'
     nvgSave(vg);nvgTranslate(vg,1800+self.panelX,0);nvgGlobalAlpha(vg,alpha)
     rect(vg,0,0,760,1152,PAPER,.9);rect(vg,0,0,8,1152,BLUE)
-    text(vg,chapters and '选择关卡' or '设置',80,110,64,INK,nil,6.4,'title-bold')
-    text(vg,chapters and 'CHAPTERS · 序章 + 6 FLOORS' or 'OPTIONS',80,197,16,INK,nil,1.28,nil,.6)
-    for index=0,(chapters and 6 or 3) do
+    text(vg,mode and '关卡模式' or (chapters and '选择关卡' or '设置'),80,mode and 80 or 110,mode and 56 or 64,INK,nil,6.4,'title-bold')
+    text(vg,mode and 'LEVEL MODE · 不走剧情，一路打下去 · ESC 返回' or (chapters and 'CHAPTERS · 序章 + 6 FLOORS' or 'OPTIONS'),80,mode and 153 or 197,16,INK,nil,1.28,nil,.6)
+    if mode then
+        text(vg,'序章 · 便利店回响',98,194,15,INK,nil,0,nil,.6)
+        text(vg,'第一章 · 会议室回响',98,512,15,INK,nil,0,nil,.6)
+    end
+    for index=0,(mode and 10 or (chapters and 6 or 3)) do
         local disabled=chapters and index>title.reached
         local selected=title.panel==self.panelKind and title.sel==index
-        local c=selected and WHITE or INK;local y=265+index*69
+        local c=selected and WHITE or INK;local y,rh=self:panelRow(index)
         nvgGlobalAlpha(vg,alpha*(disabled and .35 or 1))
-        if selected then rect(vg,80,y,590,69,BLUE) end
-        rect(vg,80,y+67,590,2,INK,.14)
-        local name=chapters and (index==0 and '序章 · 23:38' or Levels[index].name) or ({'画面动态','鼠标视差','声音','返回'})[index+1]
-        text(vg,name,chapters and 164 or 98,y+14,32,c,nil,2.56,'title-bold')
-        if chapters then text(vg,string.format('%02d',index),98,y+26,18,c,nil,1.44,nil,.6) end
+        if selected then rect(vg,80,y,590,rh,BLUE) end
+        rect(vg,80,y+rh-2,590,2,INK,.14)
+        local name=mode and (index<6 and Levels[index+1].name or Sets.chapter1[index-5].name) or chapters and (index==0 and '序章 · 23:38' or Levels[index].name) or ({'画面动态','鼠标视差','声音','返回'})[index+1]
+        text(vg,name,(chapters or mode) and 164 or 98,y+(mode and 6 or 14),mode and 26 or 32,c,nil,2.56,'title-bold')
+        if mode then text(vg,(index<6 and '序' or '一')..string.format('%02d',index<6 and index+1 or index-5),98,y+14,18,c,nil,0,nil,.6)
+        elseif chapters then text(vg,string.format('%02d',index),98,y+26,18,c,nil,1.44,nil,.6) end
         local note=''
         if chapters then note=index==0 and '公司楼下的便利店' or (index==title.reached and '上次停在这里' or (disabled and '未到达' or ''))
-        elseif index<3 then note=({title.opts.motion,title.opts.parallax,not title.opts.muted})[index+1] and '开 ON' or '关 OFF' end
+        elseif not mode and index<3 then note=({title.opts.motion,title.opts.parallax,not title.opts.muted})[index+1] and '开 ON' or '关 OFF' end
         text(vg,note,652,y+26,15,c,NVG_ALIGN_RIGHT,0,nil,.7)
     end
-    nvgGlobalAlpha(vg,alpha);text(vg,'ESC 返回',80,1068,16,INK,nil,0,nil,.7)
+    nvgGlobalAlpha(vg,alpha);if not mode then text(vg,'ESC 返回',80,1068,16,INK,nil,0,nil,.7) end
+    nvgRestore(vg)
+end
+function Overlay:drawTouch(alpha)
+    if not self.touchMode then return end
+    local vg,title=self.vg,self.title
+    nvgSave(vg);nvgResetTransform(vg);nvgResetScissor(vg);nvgGlobalAlpha(vg,alpha)
+    if title.panel then
+        rect(vg,0,0,self.logicalW,self.logicalH,PAPER,.97)
+        text(vg,title.panel=='levelmode' and '关卡模式' or (title.panel=='chapters' and '选择关卡' or '设置'),16,18,24,INK)
+        if title.panel=='levelmode' then
+            text(vg,'不走剧情，一路打下去',16,60,14,INK)
+            text(vg,'序章 · 便利店回响',16,86,14,INK)
+            if self.logicalW>=600 then text(vg,'第一章 · 会议室回响',self.logicalW/2+8,86,14,INK)
+            else
+                nvgSave(vg);nvgIntersectScissor(vg,0,108,self.logicalW,self.logicalH-120)
+                text(vg,'第一章 · 会议室回响',16,386-self.touchScroll,14,INK);nvgRestore(vg)
+            end
+        end
+    end
+    for _,r in ipairs(self:touchRows()) do
+        nvgSave(vg)
+        if title.panel and r.index~=nil then nvgIntersectScissor(vg,0,108,self.logicalW,math.max(0,self.logicalH-120)) end
+        local selected=r.index~=nil and title.sel==r.index
+        local disabled=r.index~=nil and title:disabled(r.index)
+        local bg=selected and BLUE or PAPER;local ink=selected and WHITE or INK
+        if not title.panel and title.view.alt then bg=selected and PAPER or BLUE;ink=selected and BLUE or WHITE end
+        nvgGlobalAlpha(vg,alpha*(disabled and .38 or 1));rect(vg,r.x,r.y,r.w,r.h,bg,.95)
+        text(vg,r.text,r.x+12,r.y+11,16,ink)
+        nvgRestore(vg)
+    end
     nvgRestore(vg)
 end
 function Overlay:renderBridge()
@@ -193,7 +298,7 @@ function Overlay:renderBridge()
     nvgIntersectScissor(vg,0,0,2560,1152);rect(vg,0,0,2560,1152,PAPER)
     local choice=st.choice
     if choice then
-        local label=choice.kind=='new' and '23:38' or ('第 '..(choice.level+1)..' 层 · '..Levels[choice.level+1].name)
+        local label=self:choiceLabel(choice)
         text(vg,label,1280,553,46,INK,NVG_ALIGN_CENTER,13.8)
     end
     nvgEndFrame(vg)
@@ -214,7 +319,7 @@ function Overlay:render()
     text(vg,v.clockText or 'LAT. 23:38:00',55,703,24,self.ink,nil,1.92,nil,.85)
     rect(vg,1900,self.logoY-43,576,33,BLUE)
     text(vg,'NOMI × PIG · COUNTERCLOCKWISE',2464,self.logoY-38,19,WHITE,NVG_ALIGN_RIGHT,1.52)
-    for _,line in ipairs({{'THE PIG THAT TURNS BACKWARD',self.logoY+152.88,22,1.76,.9},{'猪不会回到过去，但世界会。',1054.8,26,3.64,.92}}) do
+    for _,line in ipairs({{'THE PIG THAT TURNS BACKWARD',self.logoY+152.88,22,1.76,.9},{'猪不会回到过去，但世界会。',1074.8,26,3.64,.92}}) do
         text(vg,line[1],2481,line[2]+5,line[3],BLUE,NVG_ALIGN_RIGHT,line[4],nil,line[5])
         text(vg,line[1],2476,line[2],line[3],WHITE,NVG_ALIGN_RIGHT,line[4],nil,line[5])
     end
@@ -244,10 +349,11 @@ function Overlay:render()
     nvgIntersectScissor(vg,clipped,0,Metrics.width-clipped,Metrics.height)
     Vectors.logo(vg,self.mirror);nvgRestore(vg)
     self:drawPanel(rootAlpha)
+    self:drawTouch(fade)
     local wash=st.phase=='leaving' and P.ease((st.leaveT-.5)/.6)*rootAlpha or 0
     nvgGlobalAlpha(vg,wash);rect(vg,0,0,2560,1152,PAPER)
     if st.choice then
-        local label=st.choice.kind=='new' and '23:38' or ('第 '..(st.choice.level+1)..' 层 · '..Levels[st.choice.level+1].name)
+        local label=self:choiceLabel(st.choice)
         text(vg,label,1280,553,46,INK,NVG_ALIGN_CENTER,13.8)
     end
     nvgEndFrame(vg)

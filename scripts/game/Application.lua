@@ -11,6 +11,9 @@ local NativeSave=require('game.NativeSave')
 local SoundBank=require('game.AudioPlayback')
 local save
 local saveFixture=false
+local levelMode=false
+local controls
+local playerContext,playerAction
 ---@type {answer:string,stage:string,finished:boolean}|false
 local fullRoute=false
 local title=Title.new(0)
@@ -23,6 +26,7 @@ local echo={}
 local chapter={}
 local width,height,dpr=0,0,0
 function Start()
+    controls=require('render.PlayerControls').new(function() return playerContext() end,function(id) playerAction(id) end)
     SoundBank.get():reset()
     require('game.ScreenEffects').shared:reset()
     require('game.SpriteParticles').shared:reset()
@@ -60,7 +64,7 @@ function Start()
     print('STORY_PANEL_PROBE: 群聊; frozen fixture; F7 next, F8 title; not playable story') end
 end
 local function startStore(diagnostic)
-    if not store.demo then store.demo=StoreDemo.new();SubscribeToEvent(store.demo.screen.vg,'NanoVGRender','StorePreviewRender') end
+    if not store.demo then store.demo=StoreDemo.new();store.demo.touchInput=controls;controls:attach(store.demo.screen);SubscribeToEvent(store.demo.screen.vg,'NanoVGRender','StorePreviewRender') end
     store.demo.active=true;probe.demo.active=false;store.demo.view:activate()
     if store.demo.post then store.demo.post:setEnabled(store.demo.post.enabled) end
     store.demo.diagnostic=diagnostic or false
@@ -71,18 +75,19 @@ local function startEcho(reset,theme,answer,startLevel,diagnostic)
     if not echo.demo then
         local look=theme=='meeting' and chapter.demo and chapter.demo.view.look or store.demo and store.demo.view.look or nil
         local function progress(event)
+            if levelMode then return end
             if theme~='meeting' then
                 if event.kind=='loadLevel' then save:echoLoaded(event.level)
                 elseif event.kind=='echoFinished' then save:echoFinished() end
             end
         end
-        local demo=EchoDemo.new(look,theme,answer,startLevel,not diagnostic and progress or nil);echo.demo=demo;SubscribeToEvent(demo.screen.vg,'NanoVGRender','EchoPreviewRender')
+        local demo=EchoDemo.new(look,theme,answer,startLevel,not diagnostic and progress or nil);echo.demo=demo;demo.touchInput=controls;controls:attach(demo.screen);SubscribeToEvent(demo.screen.vg,'NanoVGRender','EchoPreviewRender')
         demo.allowFixtureProgress=saveFixture
         if fullRoute then demo:beginInputReplay();fullRoute.stage='echo-'..(theme or 'store');print('FULL_ROUTE_STAGE: '..fullRoute.stage) end
     end
     echo.demo.active=true;echo.demo:focus(true);probe.demo.active=false;echo.demo.view:activate()
     if store.demo then
-        if store.demo.finished then store.demo:dispose();store.demo=nil
+        if store.demo.finished or levelMode then store.demo:dispose();store.demo=nil
         else store.demo.active=false;store.demo.screen:cancelPointer() end
     end
     if chapter.demo then chapter.demo:dispose();chapter.demo=nil end
@@ -91,7 +96,7 @@ function EchoPreviewRender() if echo.demo and echo.demo.active then echo.demo.sc
 local function startChapter(mode,answer,diagnostic)
     local look=echo.demo and echo.demo.view.look or nil
     if chapter.demo and chapter.demo.story.mode~=(mode or 'meeting') then chapter.demo:dispose();chapter.demo=nil end
-    if not chapter.demo then local demo=ChapterDemo.new(mode or 'meeting',look,answer);chapter.demo=demo;SubscribeToEvent(demo.screen.vg,'NanoVGRender','Chapter1PreviewRender') end
+    if not chapter.demo then local demo=ChapterDemo.new(mode or 'meeting',look,answer);chapter.demo=demo;demo.touchInput=controls;controls:attach(demo.screen);SubscribeToEvent(demo.screen.vg,'NanoVGRender','Chapter1PreviewRender') end
     chapter.demo.active=true;chapter.demo:focus(true);chapter.demo.view:activate();probe.demo.active=false
     chapter.demo.post:setEnabled(chapter.demo.post.enabled)
     chapter.demo.diagnostic=diagnostic or false
@@ -111,15 +116,37 @@ local function replayFromTitle()
     SoundBank.get():reset()
     require('game.ScreenEffects').shared:reset()
     require('game.SpriteParticles').shared:reset()
-    fullRoute=false
+    fullRoute=false;levelMode=false;controls:cancel()
     if chapter.demo then chapter.demo:dispose();chapter.demo=nil end
     if echo.demo then echo.demo:dispose();echo.demo=nil end
     if store.demo then store.demo:dispose();store.demo=nil end
-    probe.demo.active=false;overlay.screen:dispose();title=Title.new(save:reached());overlay.screen=TitleCanvas.new(title)
+    probe.demo.active=false;overlay.screen:dispose();title=Title.new(save:reached());overlay.screen=TitleCanvas.new(title);overlay.screen.touchMode=controls.mobile
     audio:SetMasterGain(SOUND_MASTER,1)
     SubscribeToEvent(overlay.screen.vg,'NanoVGRender','TitlePreviewRender')
     renderer.hdrRendering=false;renderer:SetViewport(0,view.viewport)
     print('CHAPTER_REPLAY: disposed chapter state, returned to fresh title')
+end
+playerContext=function()
+    local e=echo.demo and echo.demo.active and echo.demo or nil
+    local demo=chapter.demo and chapter.demo.active and chapter.demo or store.demo and store.demo.active and store.demo or nil
+    local bridge=e and e.bridge or demo and demo.bridge
+    local covered=title.active or (bridge and bridge.on) or false
+    local ending=(e and e.screen.ending.active) or (chapter.demo and chapter.demo.active and chapter.demo.ending.active) or false
+    return {echo=e,paused=e and e.playerPaused or false,ending=ending,covered=covered,
+        canSkip=not covered and not ending and demo and demo.story:canSkip() or false,
+        movable=not covered and not ending and (e or (demo and demo.story:controlEnabled())) or false}
+end
+playerAction=function(id)
+    local c=playerContext();local e=c.echo
+    if id=='resume' and e then e:setPaused(false)
+    elseif id=='home' and e and e.paused then replayFromTitle()
+    elseif id=='pause' and e and not c.covered and not c.ending then e:setPaused(true)
+    elseif id=='skip' and c.canSkip then
+        local demo=chapter.demo and chapter.demo.active and chapter.demo or store.demo
+        demo.story:skip();demo:events();demo.screen:cancelPointer()
+    elseif e and not e.paused and not c.covered and not c.ending then
+        if id=='charge' then e.charge=true elseif id=='restart' then e.restart=true end
+    end
 end
 ---@param eventData UpdateEventData
 function TitlePreviewUpdate(eventType,eventData)
@@ -153,7 +180,13 @@ function TitlePreviewUpdate(eventType,eventData)
     end
     if echo.demo and echo.demo.active then
         echo.demo:update(eventData:GetFloat('TimeStep'))
-        if echo.demo.run.phase=='done' then startChapter(echo.demo.run.theme=='meeting' and 'morning' or 'meeting',echo.demo.run.answer,not echo.demo.onProgress) end
+        if echo.demo.screen.ending.replay then replayFromTitle();return end
+        if echo.demo.run.phase=='done' then
+            if levelMode then
+                if echo.demo.run.theme=='store' then startEcho(true,'meeting',save:answer(),1)
+                elseif not echo.demo.screen.ending.active then echo.demo.screen.ending:show('关卡模式 · 完','序章 6 层 + 第一章 5 层') end
+            else startChapter(echo.demo.run.theme=='meeting' and 'morning' or 'meeting',echo.demo.run.answer,not echo.demo.onProgress) end
+        end
         return
     end
     if store.demo and store.demo.active then
@@ -169,7 +202,11 @@ function TitlePreviewUpdate(eventType,eventData)
     for _,event in ipairs(title:drainEvents()) do
         if event.kind=='start' then
             if event.choice.kind=='new' then startStore();store.demo.bridge:start()
-            elseif event.choice.kind=='echo' then startEcho(true,'store',nil,event.choice.level+1);echo.demo.bridge:start() end
+            elseif event.choice.kind=='echo' then startEcho(true,'store',nil,event.choice.level+1);echo.demo.bridge:start()
+            elseif event.choice.kind=='levels' then
+                levelMode=true;controls:cancel()
+                startEcho(true,event.choice.set=='ch1' and 'meeting' or 'store',save:answer(),event.choice.level+1);echo.demo.bridge:start()
+            end
         elseif event.kind=='mute' then
             audio:SetMasterGain(SOUND_MASTER,event.muted and 0 or 1)
             print('TITLE_SOUND: muted='..tostring(event.muted))
@@ -181,6 +218,18 @@ function GameAudioFlush() SoundBank.get():update(0) end
 function TitlePreviewKeyDown(eventType,eventData)
     local key=eventData:GetInt('Key')
     if Diagnostics.blocks(key) then return end
+    if echo.demo and echo.demo.active and echo.demo.playerPaused then
+        if not eventData:GetBool('Repeat') then
+            if key==KEY_ESCAPE then playerAction('resume') elseif key==KEY_RETURN then playerAction('home') end
+        end
+        return
+    end
+    if title.active and title.st.started then return end
+    if key==KEY_ESCAPE and not eventData:GetBool('Repeat') then
+        local c=playerContext()
+        if c.echo then playerAction('pause') else playerAction('skip') end
+        if c.echo or store.demo or chapter.demo then return end
+    end
     if key==KEY_M and not eventData:GetBool('Repeat') and (not title.active or title.st.started) then
         title.opts.muted=not title.opts.muted;audio:SetMasterGain(SOUND_MASTER,title.opts.muted and 0 or 1);return
     end
@@ -228,6 +277,7 @@ end
 ---@param eventData KeyUpEventData
 function TitlePreviewKeyUp(eventType,eventData)
     local key=eventData:GetInt('Key')
+    if echo.demo then echo.demo.suppressed[key]=nil end
     if key==KEY_K or key==KEY_SHIFT or key==KEY_LSHIFT or key==KEY_RSHIFT then title:keyUp('K') end
 end
 ---@param eventData InputFocusEventData
@@ -256,6 +306,7 @@ function TitlePreviewMouseUp(eventType,eventData)
 end
 ---@param eventData TouchBeginEventData
 function TitlePreviewTouchBegin(eventType,eventData)
+    controls.mobile=true;overlay.screen.touchMode=true;activeScreen().touchUI=true
     activeScreen():pointerDown(eventData:GetInt('X'),eventData:GetInt('Y'),eventData:GetInt('TouchID'));if probe.demo.active then probe.demo.live=true end
 end
 ---@param eventData TouchMoveEventData
