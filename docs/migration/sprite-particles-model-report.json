@@ -1,0 +1,6 @@
+{
+  "result": "PASS",
+  "sourceFrames": 5060,
+  "scalarChecks": 399994,
+  "scope": "frozen spawnSprite/puff/burst/updateSprites random order, position, rotation, shrink/lifetime, paused stability; no GPU claim"
+}

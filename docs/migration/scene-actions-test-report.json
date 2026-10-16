@@ -1,0 +1,22 @@
+{
+  "result": "PASS",
+  "sourceLayouts": 12,
+  "dprs": [
+    1,
+    2,
+    3
+  ],
+  "checks": 2912,
+  "checksInclude": [
+    "frozen CSS button bounds and wrapping",
+    "phone icon button bounds",
+    "pointer ID ownership, drag cancellation and focus/resize cancellation hook",
+    "source cooldown disabling and hidden phone button",
+    "lock/chat/browse progress threshold and closing restoration",
+    "hidden phone has no hit region; panel opening cancels pending activation"
+  ],
+  "notCovered": [
+    "real-device touch events",
+    "complete game visual acceptance"
+  ]
+}

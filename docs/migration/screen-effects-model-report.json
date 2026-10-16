@@ -1,0 +1,6 @@
+{
+  "result": "PASS",
+  "sourceFrames": 8480,
+  "scalarChecks": 51309,
+  "scope": "Frozen JS effect hooks, camera offsets and exponential decay; paused stability and production event shapes; not full-scene visual parity"
+}

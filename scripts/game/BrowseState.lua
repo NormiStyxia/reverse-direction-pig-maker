@@ -23,6 +23,14 @@ function Browse:push(entries,choices)
     self.pendingChoices=choices;self.choicesWaiting=false;self.choices={}
     if self.nextAt<self.elapsed then self.nextAt=self.elapsed+.15 end
 end
+-- Increment 02: finish queued text without dismissing the player's choices.
+function Browse:flush()
+    for _,e in ipairs(self.queue) do self.entries[#self.entries+1]=e end
+    self.queue={}
+    if self.pendingChoices then self.choicesWaiting=self.pendingChoices;self.pendingChoices=false end
+    if self.choicesWaiting then self.choices=self.choicesWaiting;self.choicesWaiting=false end
+    self.nextAt=self.elapsed
+end
 function Browse:update(dt)
     self.elapsed=self.elapsed+dt
     local target=self.open and 1 or 0

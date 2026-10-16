@@ -1,0 +1,255 @@
+{
+  "result": "PASS",
+  "sourceSha256": "048a5dc17941b0dc8c1516a16aa5a5ae88b6e05052fca372969bbbf8f27387c8",
+  "clips": [
+    {
+      "id": "tap",
+      "frames": 4851,
+      "peak": 0.025486217811703682,
+      "rms": 0.003111819038167596,
+      "maxQuantizationError": 1.5256690858139743e-05,
+      "sha256": "b1c3bce5d4ee993c9fa51906ab5a81fb59752e58e9c53e25a2d0b598c0d6f7ef"
+    },
+    {
+      "id": "send",
+      "frames": 12349,
+      "peak": 0.04319659620523453,
+      "rms": 0.006532179657369852,
+      "maxQuantizationError": 1.5258771895263618e-05,
+      "sha256": "e5509d958ab7c940ab9b15fe0a9a185205386bc8b2275b0b7dcfbcb3766af72b"
+    },
+    {
+      "id": "buzz",
+      "frames": 27342,
+      "peak": 0.04368114471435547,
+      "rms": 0.009506992995738983,
+      "maxQuantizationError": 1.525910201394514e-05,
+      "sha256": "df3e2ef0671aac84417a4b47b0653cb36b59ef939658ef937497089e3d80d651"
+    },
+    {
+      "id": "powerCut",
+      "frames": 33516,
+      "peak": 0.16408976912498474,
+      "rms": 0.02106301113963127,
+      "maxQuantizationError": 1.5258092616994567e-05,
+      "sha256": "4359af2dabd71e63ac35269f7fb36b136cec0c3a284eb0693418e60381445bdf"
+    },
+    {
+      "id": "slide",
+      "frames": 37485,
+      "peak": 0.013339794240891933,
+      "rms": 0.0011257812147960067,
+      "maxQuantizationError": 1.5258963486524703e-05,
+      "sha256": "5a8bb16d6afc257ea95ef21abc27f45b74bb7207d8370faca8539c4e128cc9c0"
+    },
+    {
+      "id": "thunder",
+      "frames": 207270,
+      "peak": 0.0826621800661087,
+      "rms": 0.007163053844124079,
+      "maxQuantizationError": 1.5258905335708943e-05,
+      "sha256": "8555b702f7d9250543caf8a564ffdfdd21b0691f97208eb99027c304f4aa67f0"
+    },
+    {
+      "id": "chime-0.6",
+      "frames": 66150,
+      "peak": 0.05254257842898369,
+      "rms": 0.009494062513113022,
+      "maxQuantizationError": 1.5258192348707907e-05,
+      "sha256": "15d36d20bf8474ccc6d44933d8463bce5c3020a1d69b6aa21a19f9ebf5d71714"
+    },
+    {
+      "id": "chime-0.8",
+      "frames": 66150,
+      "peak": 0.06942863017320633,
+      "rms": 0.01236505527049303,
+      "maxQuantizationError": 1.5259022660553227e-05,
+      "sha256": "5d86fb30778f4228321895d09dda890c950f550afcb95e40eae68e76d615bea6"
+    },
+    {
+      "id": "chime-0.9",
+      "frames": 66150,
+      "peak": 0.07783230394124985,
+      "rms": 0.013781929388642311,
+      "maxQuantizationError": 1.5259167582831398e-05,
+      "sha256": "e7c8c95a05c4b4e17ea98118245f9cff2f4345369af7d893e859847d860b5e41"
+    },
+    {
+      "id": "chime-1",
+      "frames": 66150,
+      "peak": 0.08621470630168915,
+      "rms": 0.015188605524599552,
+      "maxQuantizationError": 1.5258867279044352e-05,
+      "sha256": "f9e29970b9e76601b28fbd7c982e6cbf580c875dc88a7b8b876ec63d697c403b"
+    },
+    {
+      "id": "chime-1.2",
+      "frames": 66150,
+      "peak": 0.10292569547891617,
+      "rms": 0.0179759431630373,
+      "maxQuantizationError": 1.5259247817101147e-05,
+      "sha256": "c913ec8136b6b1d081eb1656f9dbf836d400b44a8dfff9461d65c128b075bc5f"
+    },
+    {
+      "id": "blink",
+      "frames": 73206,
+      "peak": 0.004744810052216053,
+      "rms": 0.0008678694139234722,
+      "maxQuantizationError": 1.5259247533097424e-05,
+      "sha256": "77e5bbd3e8e142773e638b5936e02858055b3e760d088a2ab83d6a2a207505a6"
+    },
+    {
+      "id": "prologuePig",
+      "frames": 29106,
+      "peak": 0.03565368428826332,
+      "rms": 0.007007909473031759,
+      "maxQuantizationError": 1.5257384944571302e-05,
+      "sha256": "37ff6c26851f4b0e17be973ebf28696ddb0d2a1963f2d5e76bc0d5790f2c177c"
+    },
+    {
+      "id": "pig",
+      "frames": 15876,
+      "peak": 0.034706518054008484,
+      "rms": 0.005481173750013113,
+      "maxQuantizationError": 1.5259158345771497e-05,
+      "sha256": "a401f98c5c421b8b0beb73b4d34a193fcf2352a9917539f7303f39f47a76b70f"
+    },
+    {
+      "id": "tick",
+      "frames": 6175,
+      "peak": 0.04282553493976593,
+      "rms": 0.005570467561483383,
+      "maxQuantizationError": 1.5255073549567955e-05,
+      "sha256": "a177466734fa6b26eceafbc872f36351d0ad6fd0cafe9c0ea5df42773cca8f8b"
+    },
+    {
+      "id": "push",
+      "frames": 12349,
+      "peak": 0.0858185663819313,
+      "rms": 0.01256965659558773,
+      "maxQuantizationError": 1.5257158906923501e-05,
+      "sha256": "b78e9f62401b61fb2892fd4f0e14720082602b81f8d2c2f6790558090e904913"
+    },
+    {
+      "id": "autoSlide",
+      "frames": 12349,
+      "peak": 0.06875479966402054,
+      "rms": 0.01021287776529789,
+      "maxQuantizationError": 1.5258232508587669e-05,
+      "sha256": "6fd2efeeb366d171c5f2091074c9eb6847ebd56cf61708bea99bf0fe54fe1330"
+    },
+    {
+      "id": "stop",
+      "frames": 10584,
+      "peak": 0.061615120619535446,
+      "rms": 0.009502061642706394,
+      "maxQuantizationError": 1.5258892744896002e-05,
+      "sha256": "cdbe207dd40f8edc1b5058d90bc7f54735fa21b1490559ea506b626eaf93b0f6"
+    },
+    {
+      "id": "tip",
+      "frames": 24697,
+      "peak": 0.03296210244297981,
+      "rms": 0.004775783512741327,
+      "maxQuantizationError": 1.5259210982773892e-05,
+      "sha256": "9b24a30f8ca00f167750e43a793f507ec18bd66fe8eea6aeeee48822fd0cb36e"
+    },
+    {
+      "id": "fall",
+      "frames": 20286,
+      "peak": 0.11219066381454468,
+      "rms": 0.017653530463576317,
+      "maxQuantizationError": 1.5258781757896897e-05,
+      "sha256": "ada87da7fdea4823028f5fa80342e2f3d59fbfad2488d9040569e1ba255c2645"
+    },
+    {
+      "id": "merge",
+      "frames": 22491,
+      "peak": 0.06106038764119148,
+      "rms": 0.00944477692246437,
+      "maxQuantizationError": 1.5259247674988263e-05,
+      "sha256": "aedc4c9d0cf52ba626c554a2d95499ffd7dbb1b0d861624b20bbc008d6f11f94"
+    },
+    {
+      "id": "rewind",
+      "frames": 4851,
+      "peak": 0.030335834249854088,
+      "rms": 0.003585267113521695,
+      "maxQuantizationError": 1.5244821696644949e-05,
+      "sha256": "3ca151b48a16be442d7d6ae5fe937a9eb5c789f118ef8a52ec38baf19ff62275"
+    },
+    {
+      "id": "rewindEnd",
+      "frames": 4851,
+      "peak": 0.01257104892283678,
+      "rms": 0.0016609799349680543,
+      "maxQuantizationError": 1.525480172403712e-05,
+      "sha256": "525393cc2c610ef580adb7956ee3118969434650429238917fd46ff22f0c9e4d"
+    },
+    {
+      "id": "leave-0",
+      "frames": 13671,
+      "peak": 0.025928810238838196,
+      "rms": 0.004144049249589443,
+      "maxQuantizationError": 1.5258088637833817e-05,
+      "sha256": "d0c73ae68f98b5a9a44099676cea535bba54916dab9a6b355c907b258e3bfc17"
+    },
+    {
+      "id": "leave-1",
+      "frames": 13671,
+      "peak": 0.02622983232140541,
+      "rms": 0.004138338379561901,
+      "maxQuantizationError": 1.5258789375148345e-05,
+      "sha256": "9058fc2df5918448c9fe318490d1f589aebd613318d7efdcd6fa208d9acdea1a"
+    },
+    {
+      "id": "leave-2",
+      "frames": 13671,
+      "peak": 0.026527298614382744,
+      "rms": 0.004149950575083494,
+      "maxQuantizationError": 1.5257508010776098e-05,
+      "sha256": "036330ce3f1187c8bc2477536b87c4a83122bf6f5630ced9f886788a9cd4eef2"
+    },
+    {
+      "id": "leave-3",
+      "frames": 13671,
+      "peak": 0.02556459791958332,
+      "rms": 0.004155703354626894,
+      "maxQuantizationError": 1.5259251654149014e-05,
+      "sha256": "a281aa4825d85b7b82d35ad8df86742789cb741d68becdef999e2d808f987283"
+    },
+    {
+      "id": "leave-4",
+      "frames": 13671,
+      "peak": 0.025838611647486687,
+      "rms": 0.004132547881454229,
+      "maxQuantizationError": 1.5255791026892035e-05,
+      "sha256": "d9cd9e098b065ea332cea75e3a951bda969eeb3501fe7f33b86ac66031e536e3"
+    },
+    {
+      "id": "leave-5",
+      "frames": 13671,
+      "peak": 0.02611415460705757,
+      "rms": 0.004135472699999809,
+      "maxQuantizationError": 1.5257661374337532e-05,
+      "sha256": "a44c1ed392fa53b01e730a7acf0fa87d8ce8eb26e26782ffec639f2dd3480a1a"
+    },
+    {
+      "id": "leave-6",
+      "frames": 13671,
+      "peak": 0.0266276728361845,
+      "rms": 0.00417671212926507,
+      "maxQuantizationError": 1.5257071851235322e-05,
+      "sha256": "20052d0dc9ac6aafbccd5c3bb72c68df73ccbb43ad3b67c4cc8f9978f5aef2b3"
+    },
+    {
+      "id": "leave-7",
+      "frames": 13671,
+      "peak": 0.024619970470666885,
+      "rms": 0.004142365418374538,
+      "maxQuantizationError": 1.5256985335576102e-05,
+      "sha256": "72fcdddbd270f4942cb191420f21277064ca94290a69edc59fe16b2c055ade69"
+    }
+  ],
+  "scope": "source OfflineAudioContext to PCM16 waveform fidelity; not native playback or all game audio"
+}

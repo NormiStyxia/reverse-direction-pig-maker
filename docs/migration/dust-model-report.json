@@ -1,0 +1,10 @@
+{
+  "result": "PASS",
+  "scalarChecks": 1142,
+  "sourcePositionValues": 918,
+  "particles": [
+    260,
+    46
+  ],
+  "scope": "Frozen JS buildDust/rng exact float32 positions and perspective point-size math; GPU evidence separate"
+}

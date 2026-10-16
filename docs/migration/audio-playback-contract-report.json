@@ -1,0 +1,5 @@
+{
+  "result": "PASS",
+  "checks": 12,
+  "scope": "native API mock: rate reset, original gain, overlap, .12s delayed chime, old-room cancellation, late async resources, finish/replay/dispose; dynamic typing explicitly pending; not device playback"
+}

@@ -28,6 +28,15 @@ float field(vec2 uv) {
   return n * .72 + length(d) * .16 + (smoke - .5) * .34;
 }
 float stateMix(float f) { return smoothstep(f - .09, f + .09, uProg * 1.36 - .18); }
+// 反色版(look=invert)扰动后切到的那一态：原稿亮度反过来，再落回插画的几种蓝 —— 白纸变钴蓝底，蓝色块变浅，角色的深色线条变白
+// (按住 K 和开场照样是铅笔稿；uInvert 只在自动切过去的那几秒是 1)
+uniform float uInvert;
+float lum(vec3 c) { return dot(c, vec3(.3, .59, .11)); }
+vec3 invertMap(float x) {
+  vec3 c0 = vec3(.004, .25, .77), c1 = vec3(.16, .39, .88), c2 = vec3(.43, .61, .94), c3 = vec3(.8, .86, .98), c4 = vec3(.99, .995, 1.);
+  return x < .4 ? mix(c0, c1, x / .4) : x < .62 ? mix(c1, c2, (x - .4) / .22) : x < .8 ? mix(c2, c3, (x - .62) / .18) : mix(c3, c4, (x - .8) / .2);
+}
+vec3 invertBlue(vec3 c) { return invertMap(smoothstep(.04, .86, 1. - lum(c))); }
 
 uniform vec3 uMeta;
 uniform float uZoom;
@@ -47,7 +56,8 @@ void fragment() {
   float m = uProg >= 1. ? 1. : uProg <= 0. ? 0. : stateMix(field(vWorld));
   // 草稿态：偏纸色 + 斜排线，像铅笔版里的同一根羽毛
   float hatch = .5 + .5 * sin((vWorld.x * uAspect + vWorld.y) * 900.);
-  vec3 col = mix(mix(vec3(.80, .86, 1.), vec3(1.), .55 + .45 * hatch), rgb, m);
+  vec3 alt = uInvert > .5 ? invertBlue(rgb) : mix(vec3(.80, .86, 1.), vec3(1.), .55 + .45 * hatch);
+  vec3 col = mix(alt, rgb, m);
   float a = c.a * uMeta.x * mix(.8, 1., m);
   a *= 1. - uMeta.z * smoothstep(.42, .72, texture(uFx, vWorld).r); // 被诺米挡住
   a *= (1. - uWash) * uShow;

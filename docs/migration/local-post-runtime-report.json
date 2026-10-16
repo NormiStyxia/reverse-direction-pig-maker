@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-16",
+  "sessionId": "357eb4b8-f0e2-486e-a956-f5842989901e",
+  "reloadId": 13,
+  "runtimePid": 4048,
+  "feature": "App-owned linear HDR render targets, frozen four-pass frost and source ACES/sRGB; diagnostic only",
+  "defaultGameplayEnabled": false,
+  "entry": "Store: F7 fixed phone fixture and post on; F12 toggle post outside reference mode",
+  "gpuObservation": "PASS: right-half background blurred, left side clear, text sharp; no orientation flip; no shader errors",
+  "fix": "SURFACE_UPDATEVISIBLE left nested shader inputs black; explicit SURFACE_MANUALUPDATE + QueueUpdate for all owned passes resolves observed static fixture",
+  "controls": "phone/browse placement and haze priority taken from frozen main.js frostPhone",
+  "physicalSize": [
+    2880,
+    1568
+  ],
+  "logicalSize": [
+    1440,
+    784
+  ],
+  "dpr": 2,
+  "quarterTargets": [
+    720,
+    392
+  ],
+  "textureFormat": "RGBA16F",
+  "targets": 5,
+  "unitTest": "PASS: 98 checks, 5 sizes",
+  "lspErrors": 0,
+  "cliCheck": "FAIL: startup Cube/Day/DaySpecularHDR_QualityLow.dds missing",
+  "logs": {
+    "lua": {
+      "path": "/Users/xd/.taptap-maker/runtime/runtime-49696d14-a3c6-40fe-9808-2e28bb0d0045/logs/lua/lua-2026-10-16 10_21_06_184.log",
+      "errors": [],
+      "postEvents": [
+        {
+          "t": "2026-10-16 10_22_40_205",
+          "f": 5055,
+          "l": "RAW",
+          "m": "[2026-10-16 10_22_40_204][5055][Script] SCENE_POST_TARGETS: 2880.0x1568.0; frost 720x392; RGBA16F, four passes\n"
+        },
+        {
+          "t": "2026-10-16 10_22_40_205",
+          "f": 5055,
+          "l": "RAW",
+          "m": "[2026-10-16 10_22_40_205][5055][Script] SCENE_POST_ENABLED: true; frost/ACES only, not final visual acceptance\n"
+        },
+        {
+          "t": "2026-10-16 10_22_40_205",
+          "f": 5055,
+          "l": "RAW",
+          "m": "[2026-10-16 10_22_40_205][5055][Script] SCENE_POST_FIXTURE: phone k=1; edge=0.48; model replay, not live gameplay\n"
+        },
+        {
+          "t": "2026-10-16 10_22_49_127",
+          "f": 5517,
+          "l": "RAW",
+          "m": "[2026-10-16 10_22_49_127][5517][Script] SCENE_POST_ENABLED: false; frost/ACES only, not final visual acceptance\n"
+        }
+      ]
+    },
+    "game": {
+      "path": "/Users/xd/.taptap-maker/runtime/runtime-49696d14-a3c6-40fe-9808-2e28bb0d0045/logs/game/urhox_runtime-2026-10-16 10_21_04_667.log",
+      "errors": [
+        {
+          "t": "2026-10-16 10_21_05_449",
+          "f": 0,
+          "l": "ERROR",
+          "m": "Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds"
+        }
+      ],
+      "postEvents": []
+    }
+  },
+  "evidence": [
+    "validation/store/native-frost-manual-on.png",
+    "validation/store/native-frost-manual-off.png",
+    "docs/migration/frost-kernel-comparison.json"
+  ],
+  "notAccepted": [
+    "cross-frame ordering/latency while moving",
+    "left-half and haze GPU fixtures",
+    "exact source scene and all post effects",
+    "default gameplay integration",
+    "95% visual acceptance"
+  ],
+  "visualAcceptance": false
+}

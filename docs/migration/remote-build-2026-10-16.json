@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-16",
+  "request": "User explicitly requested one remote submission/build and agent retrieval of results.",
+  "commit": "128fd17c355020c71e9ec2561ce55cfb06cf3253",
+  "submit": "pushed",
+  "build": "SUCCESS",
+  "elapsedMs": 153854,
+  "entry": "preview/title.lua",
+  "previewRefreshStatus": 200,
+  "previewUrl": "https://maker.taptap.cn/app/1a737f5b-265f-4977-abf1-a9721b9582e6?localDev=1&hide_chat=1",
+  "logStartUnix": 1792113308,
+  "logsRetrieved": true,
+  "logRecordsAfterBuild": 9,
+  "currentErrors": [],
+  "currentWarnings": [
+    {
+      "t": 1792113308,
+      "topic": "engine",
+      "level": "WARNING",
+      "msg": "[2026-10-16 09_15_06_214][786] WARNING: SurfaceShader <game>/assets/Ew08EUWVa4nu7bgV6sTXPgCG-f6b6b5d3.shader: Warning: opaque material has no deferred pass because of: fog_disabled. Use a forward render path or remove these features. Deferred rendering has no automatic forward fallback; depth-only coverage may remain.",
+      "userId": 2119945932
+    }
+  ],
+  "watcher": {
+    "appId": "1a737f5b-265f-4977-abf1-a9721b9582e6",
+    "projectId": "1a737f5b-265f-4977-abf1-a9721b9582e6",
+    "nextStartTime": 1792113309,
+    "updatedAt": "2026-10-16T01:19:39.557Z",
+    "lastPollAt": "2026-10-16T01:19:39.557Z",
+    "lastSuccessAt": "2026-10-16T01:19:39.557Z",
+    "lastWrittenLogs": 0,
+    "consecutiveFailures": 0,
+    "lastError": null
+  },
+  "observedChecks": [
+    "[2026-10-16 09_15_06_047][786][Script] NATIVE_SAVE_SMOKE: PASS; isolated fixture; reached=4; answer=late; done=true; boots=1; player save untouched\n",
+    "[2026-10-16 09_15_06_116][786][Script] PROLOGUE_MODEL_SMOKE: PASS; 3060 frames; 7 incoming messages; intro/play/dark/pig/fold/done; visuals not tested\n",
+    "[2026-10-16 09_15_06_196][786][Script] CHAPTER1_MODEL_SMOKE: PASS; 4778 frames; 6 model completions; same/late/done; paper=false; visuals not tested\n"
+  ],
+  "visualAccepted": false,
+  "wholeGameSimilarity": null,
+  "limitations": [
+    "Model smoke PASS is not an input playthrough or visual acceptance.",
+    "Historical VertexBuffer/DepthResolve errors at 09:07:58 precede this build and are excluded from current error count.",
+    "New Sprite deinterleaving fix is in this remote commit; no native recapture yet because local preparation index downloads failed.",
+    "No second remote build requested or performed."
+  ],
+  "remotePull": {
+    "result": "PASS",
+    "method": "git pull --ff-only origin main",
+    "head": "001e8556456d1b87aeb96517af1a1d345beef52d",
+    "ahead": 0,
+    "behind": 0,
+    "generatedMetaFiles": 1663,
+    "localReportsPreservedBySha256": true,
+    "checkedAt": "2026-10-16T01:19:40.057771+00:00"
+  }
+}

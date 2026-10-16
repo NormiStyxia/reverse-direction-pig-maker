@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "scenes": 24,
+  "textures": 940,
+  "checks": [
+    "actual Lua configuration versus frozen min/mag filter",
+    "repeat, mirrored repeat and clamp on both axes",
+    "no double sRGB decode"
+  ],
+  "notCovered": [
+    "GPU mip generation and interpolation color space",
+    "visual similarity"
+  ]
+}

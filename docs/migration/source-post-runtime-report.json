@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-16",
+  "productionEntry": "main.lua",
+  "diagnosticsDefault": false,
+  "ui": "raw NanoVG only",
+  "remoteBuildThisTurn": false,
+  "sourceCh1TuneSha256": "1dae5f70540d5606ba113498d202bf45175721f817c8ef983669adf0ef8101a9",
+  "runtimeEvidence": [
+    {
+      "reload": 17,
+      "entry": "preview/title.lua (clean gameplay)",
+      "images": [
+        "validation/store/native-stylize-store.png",
+        "validation/store/native-stylize-phone.png"
+      ],
+      "result": "rendered and read; source-style effects visible; no game Lua/shader errors"
+    },
+    {
+      "reload": 18,
+      "entry": "main.lua",
+      "images": [
+        "validation/store/native-main-clean.png"
+      ],
+      "result": "normal title Enter to store; F2/F6/F8/F9 did not trigger diagnostic jumps or pause"
+    },
+    {
+      "reload": 19,
+      "entry": "preview/diagnostics.lua",
+      "images": [
+        "validation/chapter1/native-chapter-post.png",
+        "validation/chapter1/native-morning-post.png"
+      ],
+      "result": "meeting and morning rendered; returning to title then echo attempt crashed; NOT flow acceptance"
+    }
+  ],
+  "latestRuntimeState": "failed (process_alive=false), project restored to main.lua",
+  "staticChecks": {
+    "luaLspErrors": 0,
+    "scenePostChecks": 205,
+    "sceneActionChecks": 536,
+    "titleDifferentialFrames": 10240,
+    "frozenTimelineSteps": 2604,
+    "syntax": "PASS",
+    "gitDiffCheck": "PASS"
+  },
+  "knownRuntimeError": "Cube/Day/DaySpecularHDR_QualityLow.dds missing at startup; official preview check FAIL",
+  "nativeLifetimeFixRetested": false,
+  "visual95PercentAccepted": false,
+  "pending": [
+    "native repeat scene disposal, resize and replay after resource lifetime correction",
+    "dynamic GPU pass latency and frame performance",
+    "independent near-layer blur spill",
+    "rewind present-object mask and title-to-world sweep",
+    "shadow calibration and missing scene effects/audio",
+    "full-route branches, saves, adaptation, image/video comparisons"
+  ]
+}

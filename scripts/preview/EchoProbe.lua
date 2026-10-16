@@ -3,17 +3,20 @@ local Run=require('game.EchoRun')
 local Levels=require('game.data.Levels')
 local View=require('render.EchoRenderer')
 local Screen=require('render.EchoOverlay')
+local Diagnostics=require('game.Diagnostics')
 local Probe={}
 Probe.__index=Probe
 function Probe.new(look,theme,answer,startLevel,onProgress)
     local self=setmetatable({},Probe);self:init(look,theme,answer,startLevel,onProgress);return self
 end
 function Probe:init(look,theme,answer,startLevel,onProgress)
+    require('game.SpriteParticles').shared.puffT=0
     self.run=Run.new(theme=='meeting' and Levels.chapter1 or Levels.prologue,theme or 'store');self.run.answer=answer or 'same'
     if startLevel and startLevel>1 then self.run:drainEvents();self.run:load(startLevel) end
     self.onProgress=onProgress
     self.allowFixtureProgress=false
     self.view=View.new(self.run,look);self.screen=Screen.new(self.run)
+    self.bridge=require('game.SceneBridge').new()
     self.active=true;self.focused=true;self.charge=false;self.restart=false;self.paused=false
     self.replay=false;self.replayFrame=0;self.replayAccumulator=0
     self.referencePending=false;self.reference=false;self.alphaStep=0
@@ -24,6 +27,9 @@ function Probe:init(look,theme,answer,startLevel,onProgress)
 end
 function Probe:events()
     for _,e in ipairs(self.run:drainEvents()) do
+        require('game.AudioPlayback').get():event(e,'echo')
+        if self.post then self.post.effects:event(e) end
+        require('game.SpriteParticles').shared:event(e)
         self.screen:event(e)
         if self.onProgress then self.onProgress(e) end
         if e.kind=='merge' then self.view.pose:merge(e.data,self.run.t) end
@@ -42,7 +48,9 @@ function Probe:beginInputReplay()
     print('ECHO_CONTINUOUS_INPUT: natural chapter handoff; theme='..self.run.theme..'; no model reset')
 end
 function Probe:update(dt)
-    if self.run.loadId~=self.view.loadId then self.view:load(self.run) end
+    self.view.bridgeDistance=self.bridge.distance
+    if self.run.loadId~=self.view.loadId then if self.post then self.post:dispose();self.post=nil end;self.view:load(self.run) end
+    if not self.post then self.post=require('render.ScenePost').new(self.view.view);self.post:setEnabled(true) end
     self.screen.loading=not self.view.view.ready
     if self.screen.loading then return end
     if self.referencePending then
@@ -64,10 +72,13 @@ function Probe:update(dt)
             self.run:update(1/60,control,0,function() return .7 end);self:events()
             local e=self.replay.states[frame];local r=self.run
             assert(e.level==r.index and e.phase==r.phase and math.abs(e.x-r.pig.pos.x)<1e-7 and math.abs(e.z-r.pig.pos.z)<1e-7 and math.abs(e.door-r.sim.room.doorOpen)<1e-7 and e.timeline==#r.sim.timeline.h,'CH1 native route state mismatch frame '..frame)
-            self.view:update(r.lastDt or 0,r);self.screen:update(1/60)
+            self.view:update(r.lastDt or 0,r);self.post.effects:update(r.lastDt or 0);self.screen:update(1/60)
+            self.post.particles.model:update(r.lastDt or 0)
             if r.phase=='done' then print('ECHO_NATIVE_ROUTE: PASS; theme='..r.theme..'; '..frame..' frames; '..#r.levels..' levels; source-verified controls; no teleports; answer='..r.answer) end
             if r.loadId~=self.view.loadId or not self.view.view.ready then break end
         end
+        self.bridge:update(self.run.lastDt or math.min(dt,.05),self.view.pose.rwK*.6)
+        self.post:updateGame(self.run,nil,dt,'echo',self.view.pose,self.bridge)
         return
     end
     if not self.paused and self.focused then
@@ -77,11 +88,16 @@ function Probe:update(dt)
         local spin=held(KEY_K) or held(KEY_SHIFT) or held(KEY_LSHIFT) or held(KEY_RSHIFT)
         self.run:update(dt,{x=x,y=y,spin=spin,charge=self.charge,restart=self.restart},self.view.camYaw)
         self.charge=false;self.restart=false;self:events()
-        self.view:update(self.run.lastDt or 0,self.run);self.screen:update(math.min(dt,.05))
+        self.view:update(self.run.lastDt or 0,self.run);self.post.effects:update(self.run.lastDt or 0);self.screen:update(math.min(dt,.05))
+        self.post.particles.model:update(self.run.lastDt or 0)
     else self.view:update(0,self.run) end
+    local postDt=(self.paused or not self.focused) and 0 or (self.run.lastDt or math.min(dt,.05))
+    self.bridge:update(postDt,self.view.pose.rwK*.6)
+    self.post:updateGame(self.run,nil,postDt,'echo',self.view.pose,self.bridge)
     if self.referenceAlpha~=false then self.view:tint(self.view.data.handles.exit,self.referenceAlpha) end
 end
 function Probe:key(key,repeated)
+    if Diagnostics.blocks(key) then return end
     if repeated then return end
     if key==KEY_F2 then self.view.view:shadowDiagnostic(true);return end
     if key==KEY_F3 then self.view.view:shadowBiasDiagnostic();return end
@@ -124,5 +140,5 @@ function Probe:key(key,repeated)
     end
 end
 function Probe:focus(focused) self.focused=focused;self.charge=false;self.restart=false;self.screen:cancelPointer() end
-function Probe:dispose() self.screen:dispose();self.view:dispose() end
+function Probe:dispose() if self.post then self.post:dispose() end;self.screen:dispose();self.view:dispose() end
 return Probe

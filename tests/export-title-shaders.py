@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
-source=(ROOT/'reference/h5-source/src/title-screen.js').read_text()
+source=(ROOT/'reference/increment-01-title-invert/files/src/title-screen.js').read_text()
 def template(name):
     return re.search(r'const '+name+r' = ' + chr(96) + r'(.*?)' + chr(96) + ';',source,re.S)[1]
 common=template('COMMON').replace('precision highp float;','')
@@ -32,6 +32,18 @@ body=body.replace('return mix(', 'vec3 silhouetteColor = mix(')
 plate=re.sub(r'float silA\(vec2 uv\) \{.*?\}\nvec3 silhouette\(vec2 uv\) \{.*?\n\}', '',plate,flags=re.S)
 plate=plate.replace('  vec3 fx = texture(uFx, uv).rgb;',body+'\n  vec3 fx = texture(uFx, uv).rgb;')
 plate=plate.replace('silhouette(uv)','silhouetteColor')
+
+# As with silhouette(), the local backend's texture aliases have fragment scope.
+# Inline the increment's eight-neighbour white-line calculation at wuv.
+invert_body=re.search(r'vec3 invertAt\(vec2 uv\) \{(.*?)\n\}',plate,re.S)[1]
+invert_body=re.sub(r'\buv\b','wuv',invert_body)
+for name in ['l','b','px','i','a']:
+    invert_body=re.sub(r'\b'+name+r'\b','inv_'+name,invert_body)
+invert_body=invert_body.replace('return invertMap(', 'invertedColor = invertMap(')
+plate=re.sub(r'vec3 invertAt\(vec2 uv\) \{.*?\n\}', '',plate,flags=re.S)
+plate=plate.replace('  vec3 a = mi >= 1.', '  vec3 invertedColor = vec3(0.);\n  if (mi > 0.) {'+invert_body+'\n  }\n  vec3 a = mi >= 1.')
+plate=plate.replace('invertAt(wuv)','invertedColor')
+
 plate=header+'render_mode shading_model_unlit, cull_disabled, fog_disabled;\n'+uniforms(plate)
 sprite=template('FS_SPR').replace('#version 300 es','').replace('$'+'{COMMON}',common)
 sprite=sprite.replace('in vec2 vWorld, vTex; in vec3 vMeta; out vec4 o;', '''uniform vec3 uMeta;

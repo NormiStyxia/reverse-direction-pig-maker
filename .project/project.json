@@ -4,7 +4,7 @@
   "author": {
     "id": "1838934907"
   },
-  "entry": "preview/title.lua",
+  "entry": "main.lua",
   "version": "1.0.1",
   "taptap_publish": {
     "title": "反方向的猪",

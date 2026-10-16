@@ -1,0 +1,28 @@
+<!doctype html><meta charset="utf-8"><style>body{margin:0}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"/reference/h5-source/vendor/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {buildHotFood} from '/reference/h5-source/src/store-props.js';
+const p=new URLSearchParams(location.search),w=+p.get('w'),h=+p.get('h'),mode=+p.get('mode');
+try{
+const renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true});
+renderer.setPixelRatio(1);renderer.setSize(w,h);renderer.toneMapping=THREE.NoToneMapping;
+renderer.outputColorSpace=THREE.LinearSRGBColorSpace;renderer.setClearColor(0,0);
+const camera=new THREE.PerspectiveCamera(24,w/h,1,1400),scene=new THREE.Scene();
+camera.position.set(mode===4||mode===5?5.4:4.6,2.8,6.75);camera.lookAt(4.6,2.1,.75);camera.updateMatrixWorld();
+const parent=new THREE.Group();scene.add(parent);const food=buildHotFood(parent);
+for(const child of parent.children)child.visible=child.isPoints===true;
+const amount=mode===3?0:.64;
+for(let i=1;i<=(mode===1?0:120);i++)food.update(1/60,i/60,{steam:amount});
+food.update(0,mode===1?0:2,{steam:amount});
+if(mode===6){parent.position.set(2,1,0);parent.rotation.z=17*Math.PI/180;parent.scale.setScalar(.5)}
+const target=new THREE.WebGLRenderTarget(w,h,{type:THREE.HalfFloatType});target.depthTexture=new THREE.DepthTexture(w,h,THREE.FloatType);renderer.setRenderTarget(target);renderer.render(scene,camera);
+const outputScene=new THREE.Scene(),outputCamera=new THREE.Camera();
+outputScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.ShaderMaterial({uniforms:{t:{value:mode===7?target.depthTexture:target.texture},depthMode:{value:mode===7?1:0}},
+vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}',
+fragmentShader:'uniform sampler2D t;uniform float depthMode;varying vec2 vUv;vec3 srgb(vec3 c){return mix(12.92*c,1.055*pow(max(c,vec3(0.)),vec3(1./2.4))-.055,step(vec3(.0031308),c));}void main(){vec3 c=depthMode>0.5?vec3(1.-step(.99999,texture2D(t,vUv).r)):srgb(texture2D(t,vUv).rgb);gl_FragColor=vec4(c,1.);}'
+})));
+renderer.setRenderTarget(null);renderer.render(outputScene,outputCamera);document.body.appendChild(renderer.domElement);
+window.steamReference={png:renderer.domElement.toDataURL(),width:w,height:h,mode};
+}catch(e){window.exportError=e.stack;}
+</script>

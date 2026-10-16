@@ -1,0 +1,27 @@
+{
+  "result": "PASS",
+  "differentialFrames": 24000,
+  "oracle": "increment-01 frozen title-screen.js update executed verbatim",
+  "looks": [
+    "invert (native default)",
+    "sketch (legacy comparison)"
+  ],
+  "randomWaitValues": [
+    0.03,
+    0.37,
+    0.98
+  ],
+  "checks": [
+    "automatic hard cut with/without K",
+    "inverse hold/release speed",
+    "hold across inverted interval end",
+    "rewinding and stopped-world hint timing",
+    "intro/leave/world/clock/pig parity",
+    "alt threshold"
+  ],
+  "notCovered": [
+    "GPU execution",
+    "rendered pixel similarity",
+    "native touch"
+  ]
+}

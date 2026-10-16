@@ -1,0 +1,26 @@
+<!doctype html><meta charset="utf-8"><style>body{margin:0}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"/reference/h5-source/vendor/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {exportBuildDust} from '/reference/h5-source/src/world.js';
+const p=new URLSearchParams(location.search),w=+p.get('w'),h=+p.get('h'),mode=+p.get('mode');
+try{
+const renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true});
+renderer.setPixelRatio(1);renderer.setSize(w,h);renderer.toneMapping=THREE.NoToneMapping;
+renderer.outputColorSpace=THREE.LinearSRGBColorSpace;renderer.setClearColor(0,0);
+const camera=new THREE.PerspectiveCamera(24,w/h,1,1400),scene=new THREE.Scene();
+const near=mode<=2,dust=near?exportBuildDust(46,[6,4,4],1,.05):exportBuildDust(260,[44,12,30],0,.09);
+if(near){dust.position.set(0,-2,-6.5);camera.layers.set(1)}
+else{dust.position.set(0,0,-6);camera.position.set(...(mode>=4?[7,5,17]:[0,8,22]));camera.lookAt(mode>=4?new THREE.Vector3(0,1,0):new THREE.Vector3());}
+scene.add(dust);const target=new THREE.WebGLRenderTarget(w,h,{type:THREE.HalfFloatType});
+renderer.setRenderTarget(target);renderer.render(scene,camera);
+const outputScene=new THREE.Scene(),outputCamera=new THREE.Camera();
+outputScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.ShaderMaterial({
+ uniforms:{t:{value:target.texture},a:{value:mode===1?1:0}},
+ vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}',
+ fragmentShader:'uniform sampler2D t;uniform float a;varying vec2 vUv;vec3 srgb(vec3 c){return mix(12.92*c,1.055*pow(max(c,vec3(0.)),vec3(1./2.4))-.055,step(vec3(.0031308),c));}void main(){vec4 v=texture2D(t,vUv);gl_FragColor=vec4(mix(srgb(v.rgb),vec3(v.a),a),1.);}'
+})));
+renderer.setRenderTarget(null);renderer.render(outputScene,outputCamera);document.body.appendChild(renderer.domElement);
+window.dustReference={png:renderer.domElement.toDataURL(),dot:dust.material.map.image.toDataURL(),width:w,height:h,mode};
+}catch(e){window.exportError=e.stack;}
+</script>

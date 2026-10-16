@@ -1,0 +1,9 @@
+{
+  "result": "PASS",
+  "checks": 5029,
+  "sourceCadenceHz": 4,
+  "storeWobbleAmp": 0.17,
+  "chapterWobbleAmp": 0.35,
+  "chapterPaper": false,
+  "scope": "Lua uniforms and nearest-texel coordinates; native temporal acceptance reported separately"
+}

@@ -1,0 +1,40 @@
+{
+  "result": "PASS",
+  "routes": [
+    {
+      "theme": "store",
+      "frames": 6477,
+      "cues": 105,
+      "types": {
+        "tip": 3,
+        "fall": 3,
+        "rewindEnd": 36,
+        "rewind": 37,
+        "chime-0.9": 6,
+        "push": 6,
+        "chime-0.6": 7,
+        "stop": 7
+      },
+      "result": "PASS"
+    },
+    {
+      "theme": "meeting",
+      "frames": 5777,
+      "cues": 148,
+      "types": {
+        "push": 9,
+        "merge": 4,
+        "chime-0.6": 10,
+        "chime-0.9": 5,
+        "autoSlide": 2,
+        "stop": 9,
+        "rewindEnd": 76,
+        "rewind": 31,
+        "tip": 1,
+        "fall": 1
+      },
+      "result": "PASS"
+    }
+  ],
+  "scope": "actual frozen immediate tone/chime/tap calls versus native cues per frame; same-frame multiset; no native audio device or ambient validation"
+}

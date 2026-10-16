@@ -101,10 +101,12 @@ function Renderer:updateCamera(dt,run)
     self.fovMul=self.fovMul+(1+spin*.1-self.fovMul)*math.min(1,dt*3)
     self.camDist=self.camDist+((meeting and 1.32 or 1)-self.camDist)*math.min(1,dt*2)
     self.camPitch=self.camPitch+(math.rad(meeting and 23 or 16)-self.camPitch)*math.min(1,dt*2)
-    local pitch=self.camPitch;local dist=22*self.camDist;local yaw=self.yawOff;local v=self.view
+    local pitch=self.camPitch;local dist=22*self.camDist*(self.bridgeDistance or 1);local yaw=self.yawOff;local v=self.view
     v.camera.fov=24*self.fovMul
     v.cameraNode.position=Vector3(look.x+math.sin(yaw)*math.cos(pitch)*dist,look.y+math.sin(pitch)*dist,-(look.z+math.cos(yaw)*math.cos(pitch)*dist))
-    v.cameraNode:LookAt(Vector3(look.x,look.y,-look.z));self.camYaw=yaw
+    if v.screenEffects then local x,y=v.screenEffects:camera(dt);v.cameraNode.position=v.cameraNode.position+Vector3(x,y,0) end
+    v.cameraNode:LookAt(Vector3(look.x,look.y,-look.z))
+    self.camYaw=math.atan(v.cameraNode.position.x-look.x,-v.cameraNode.position.z-look.z)
 end
 function Renderer:update(dt,run)
     if self.loadId~=run.loadId then self:load(run) end

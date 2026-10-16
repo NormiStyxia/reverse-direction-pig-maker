@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-16",
+  "sessionId": "0e8a692e-0aa1-469c-b1ee-2135b07d6cc6",
+  "reloadId": 23,
+  "runtimePid": 88163,
+  "dimensions": [
+    2880,
+    1676
+  ],
+  "result": "PASS",
+  "comparisons": [
+    {
+      "queuedUpdates": 1,
+      "referenceUpdates": 16,
+      "changedPixels": 0,
+      "mae": 0.0,
+      "max": 0
+    },
+    {
+      "queuedUpdates": 2,
+      "referenceUpdates": 16,
+      "changedPixels": 0,
+      "mae": 0.0,
+      "max": 0
+    },
+    {
+      "queuedUpdates": 3,
+      "referenceUpdates": 16,
+      "changedPixels": 0,
+      "mae": 0.0,
+      "max": 0
+    },
+    {
+      "queuedUpdates": 4,
+      "referenceUpdates": 16,
+      "changedPixels": 0,
+      "mae": 0.0,
+      "max": 0
+    },
+    {
+      "queuedUpdates": 8,
+      "referenceUpdates": 16,
+      "changedPixels": 0,
+      "mae": 0.0,
+      "max": 0
+    }
+  ],
+  "scope": "camera and actor jump A to B; 16 warm renders of A before each sample; N manually queued offscreen updates of B; targets held for OS capture",
+  "beforeFix": "native 1920x1080 sample 2 still showed A, sample 3 showed B; mixed later sizes excluded",
+  "change": "register offscreen consumers before producers, so reverse view execution consumes current-frame results",
+  "notCovered": [
+    "input-to-display latency",
+    "all-scene motion quality",
+    "H5/native similarity",
+    "95% full-game acceptance"
+  ]
+}

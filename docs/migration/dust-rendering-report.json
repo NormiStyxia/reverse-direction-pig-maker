@@ -1,0 +1,84 @@
+{
+  "sessionId": "0e8a692e-0aa1-469c-b1ee-2135b07d6cc6",
+  "reloadId": 36,
+  "runtimePid": 35962,
+  "rows": [
+    {
+      "sample": 1,
+      "size": [
+        1920,
+        1080
+      ],
+      "sourcePixels": 144,
+      "nativePixels": 145,
+      "coverageIoU": 0.993103448275862,
+      "unionPixelMAE255": 1.7586206896551724,
+      "sourceComponents": 26,
+      "nativeComponents": 26,
+      "maxNearestCenterDistancePx": 0.2142857142857224
+    },
+    {
+      "sample": 2,
+      "size": [
+        1920,
+        1080
+      ],
+      "sourcePixels": 144,
+      "nativePixels": 145,
+      "coverageIoU": 0.993103448275862,
+      "unionPixelMAE255": 2.1862068965517243,
+      "sourceComponents": 26,
+      "nativeComponents": 26,
+      "maxNearestCenterDistancePx": 0.2142857142857224
+    },
+    {
+      "sample": 3,
+      "size": [
+        1920,
+        1080
+      ],
+      "sourcePixels": 171,
+      "nativePixels": 175,
+      "coverageIoU": 0.9116022099447514,
+      "unionPixelMAE255": 11.679558011049723,
+      "sourceComponents": 35,
+      "nativeComponents": 35,
+      "maxNearestCenterDistancePx": 0.5
+    },
+    {
+      "sample": 4,
+      "size": [
+        1920,
+        1080
+      ],
+      "sourcePixels": 222,
+      "nativePixels": 231,
+      "coverageIoU": 0.961038961038961,
+      "unionPixelMAE255": 5.73015873015873,
+      "sourceComponents": 39,
+      "nativeComponents": 39,
+      "maxNearestCenterDistancePx": 0.5
+    },
+    {
+      "sample": 5,
+      "size": [
+        1920,
+        1080
+      ],
+      "sourcePixels": 222,
+      "nativePixels": 231,
+      "coverageIoU": 0.961038961038961,
+      "unionPixelMAE255": 5.73015873015873,
+      "sourceComponents": 39,
+      "nativeComponents": 39,
+      "maxNearestCenterDistancePx": 0.5
+    }
+  ],
+  "movedFirstFrameVsStableChangedPixels": 0,
+  "nearAlphaUniqueValues": [
+    0,
+    255
+  ],
+  "originalDotMatchesFrozenCanvas": true,
+  "scope": "Isolated dust only. Source unmodified buildDust/paintDot/Three; native app-owned geometry/SurfaceShader. ICC converted to sRGB where present. No rescaling for metrics. NOT game visual acceptance."
+}

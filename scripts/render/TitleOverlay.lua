@@ -8,8 +8,12 @@ local Overlay={}
 Overlay.__index=Overlay
 local INK={10,60,184,255};local BLUE={1,64,196,255}
 local WHITE={255,255,255,255};local PAPER={248,250,253,255}
+local ALT_INK={242,246,255,255}
+local function mixColor(a,b,t)
+    return {a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t,a[3]+(b[3]-a[3])*t,255}
+end
 local NAMES={{'开始游戏','START'},{'继续','CONTINUE'},{'选择关卡','CHAPTERS'},{'设置','OPTIONS'}}
-local function color(c,alpha) return nvgRGBA(c[1],c[2],c[3],math.floor(c[4]*(alpha or 1)+.5)) end
+local function color(c,alpha) return nvgRGBA(math.floor(c[1]+.5),math.floor(c[2]+.5),math.floor(c[3]+.5),math.floor(c[4]*(alpha or 1)+.5)) end
 local function rect(vg,x,y,w,h,c,alpha)
     nvgBeginPath(vg);nvgRect(vg,x,y,w,h);nvgFillColor(vg,color(c,alpha));nvgFill(vg)
 end
@@ -31,6 +35,7 @@ function Overlay:init(title)
     self.pig=nvgCreateImage(self.vg,'title/pig.png',0);assert(self.pig>0,'TITLE_CURSOR_IMAGE_FAILED')
     local iw,ih=nvgImageSize(self.vg,self.pig);self.pigHeight=62*ih/iw
     self.uiAt=math.huge;self.blueprintAt=math.huge
+    self.altTrack=P.channel(0);self.altAmount=0;self.ink=INK;self.pointerHolding=false
     self.panelKind=false;self.panelTrack=P.channel(798);self.panelX=798
     self.mirrorTrack=P.channel(1);self.cursorTrack=P.channel(4)
     self.mirror=1
@@ -54,7 +59,10 @@ function Overlay:resize(width,height,dpr)
     self:cancelPointer()
 end
 function Overlay:designPoint(x,y) return x/self.dpr/self.scale-self.offsetX,y/self.dpr/self.scale-self.offsetY end
-function Overlay:cancelPointer() self.pointerId=false;self.pressTarget=false;self.lastX=false;self.lastY=false end
+function Overlay:cancelPointer()
+    if self.pointerHolding then self.title:keyUp('K') end
+    self.pointerHolding=false;self.pointerId=false;self.pressTarget=false;self.lastX=false;self.lastY=false
+end
 function Overlay:menuY(index) return 560+index*66+(index>1 and self.menuMargin or 0) end
 function Overlay:hitTest(x,y)
     local title=self.title
@@ -89,10 +97,22 @@ function Overlay:pointerDown(x,y,id)
     self.pointerId=id or 'mouse';self.pressTarget=false
     if self.title.st.phase=='intro' then self.title:skipIntro();return end
     x,y=self:designPoint(x,y);self.pressTarget=self:hitTest(x,y)
+    -- The whole panel (and disabled menu buttons) consumes a press, not just active rows.
+    local panelHit=self.panelKind and inside(x,y,1800+self.panelX,0,760,1152)
+    local buttonHit=false
+    if not self.title.panel then
+        local shift=14*(1-P.slide((self.title.st.t-self.uiAt)/.9))
+        for i=0,3 do buttonHit=buttonHit or inside(x,y,2328,self:menuY(i)+shift,232,66) end
+    end
+    if self.title.st.phase=='idle' and not panelHit and not buttonHit and inside(x,y,0,0,2560,1152) then
+        self.pointerHolding=true;self.title:keyDown('K',false)
+    end
 end
 function Overlay:pointerUp(x,y,id)
     if self.pointerId~=(id or 'mouse') then return end
-    local pressed=self.pressTarget;self.pointerId=false;self.pressTarget=false
+    local pressed=self.pressTarget
+    if self.pointerHolding then self.title:keyUp('K') end
+    self.pointerHolding=false;self.pointerId=false;self.pressTarget=false
     x,y=self:designPoint(x,y)
     local target,index=self:hitTest(x,y)
     if pressed and pressed==target then
@@ -102,6 +122,8 @@ function Overlay:pointerUp(x,y,id)
 end
 function Overlay:update()
     local title=self.title;local st,v=title.st,title.view;local t=st.t
+    self.altAmount=P.track(self.altTrack,v.alt and 1 or 0,t,.3,P.ease)
+    self.ink=mixColor(INK,ALT_INK,self.altAmount)
     if v.uiIn and self.uiAt==math.huge then self.uiAt=t end
     if v.blueprintDrawn and self.blueprintAt==math.huge then self.blueprintAt=t end
     if v.glitch then self.glitchAt=self.glitchAt or t else self.glitchAt=false end
@@ -116,17 +138,17 @@ end
 function Overlay:drawMenu(alpha)
     local vg,title=self.vg,self.title
     for i,n in ipairs(NAMES) do
-        local selected=title.menuSel==i-1;local c=selected and WHITE or INK
+        local selected=title.menuSel==i-1;local c=selected and mixColor(WHITE,BLUE,self.altAmount) or self.ink
         local y=self:menuY(i-1);local amount=self.rowAmounts[i]
         nvgGlobalAlpha(vg,alpha*(i==2 and title.reached==0 and .38 or 1))
-        rect(vg,2328+232*(1-amount),y+4,232*amount,58,BLUE)
+        rect(vg,2328+232*(1-amount),y+4,232*amount,58,title.view.alt and PAPER or BLUE)
         text(vg,string.format('%02d',i),2346,y+14,17,c,nil,1.36,nil,selected and .8 or .55)
         text(vg,n[1],2530,y+10,30,c,NVG_ALIGN_RIGHT,3.6,'title-bold')
         text(vg,i==2 and title.reached==0 and 'NO SAVE' or n[2],2530,y+47,14,c,NVG_ALIGN_RIGHT,1.12,nil,.65)
     end
     nvgGlobalAlpha(vg,alpha)
     if title.menuSel==1 and title.reached>0 then
-        text(vg,'第 '..title.reached..' 层 · '..Levels[title.reached].name,2530,692,15,INK,NVG_ALIGN_RIGHT,0,nil,.9)
+        text(vg,'第 '..title.reached..' 层 · '..Levels[title.reached].name,2530,692,15,self.ink,NVG_ALIGN_RIGHT,0,nil,.9)
     end
     nvgSave(vg)
     nvgTranslate(vg,2328-70+31,560+self.cursorY+self.pigHeight/2)
@@ -160,6 +182,22 @@ function Overlay:drawPanel(alpha)
     nvgGlobalAlpha(vg,alpha);text(vg,'ESC 返回',80,1068,16,INK,nil,0,nil,.7)
     nvgRestore(vg)
 end
+function Overlay:renderBridge()
+    -- onStart fires while the title is paper-white. Retain that cover during
+    -- native resource loading, then fade it with the original root opacity.
+    local vg,st=self.vg,self.title.st
+    local alpha=1-P.ease((st.leaveT-1.1)/.9)
+    nvgBeginFrame(vg,self.logicalW,self.logicalH,self.dpr)
+    nvgGlobalAlpha(vg,alpha);rect(vg,0,0,self.logicalW,self.logicalH,BLUE)
+    nvgScale(vg,self.scale,self.scale);nvgTranslate(vg,self.offsetX,self.offsetY)
+    nvgIntersectScissor(vg,0,0,2560,1152);rect(vg,0,0,2560,1152,PAPER)
+    local choice=st.choice
+    if choice then
+        local label=choice.kind=='new' and '23:38' or ('第 '..(choice.level+1)..' 层 · '..Levels[choice.level+1].name)
+        text(vg,label,1280,553,46,INK,NVG_ALIGN_CENTER,13.8)
+    end
+    nvgEndFrame(vg)
+end
 function Overlay:render()
     if self.disposed then return end
     local vg,title=self.vg,self.title;local st,v=title.st,title.view
@@ -170,10 +208,10 @@ function Overlay:render()
     nvgIntersectScissor(vg,0,0,2560,1152);nvgGlobalAlpha(vg,rootAlpha)
     Vectors.dial(vg,title,P.blueprint((st.t-self.blueprintAt)/1.4),rootAlpha)
     nvgSave(vg);nvgGlobalAlpha(vg,fade);nvgTranslate(vg,0,14*(1-P.slide(uiT/.9)))
-    text(vg,'TEMPUS',55,590.8,30,INK,nil,2.4)
-    text(vg,'REDIT',55,630.4,30,INK,nil,2.4)
-    rect(vg,55,681.2,44,4,INK)
-    text(vg,v.clockText or 'LAT. 23:38:00',55,703,24,INK,nil,1.92,nil,.85)
+    text(vg,'TEMPUS',55,590.8,30,self.ink,nil,2.4)
+    text(vg,'REDIT',55,630.4,30,self.ink,nil,2.4)
+    rect(vg,55,681.2,44,4,self.ink)
+    text(vg,v.clockText or 'LAT. 23:38:00',55,703,24,self.ink,nil,1.92,nil,.85)
     rect(vg,1900,self.logoY-43,576,33,BLUE)
     text(vg,'NOMI × PIG · COUNTERCLOCKWISE',2464,self.logoY-38,19,WHITE,NVG_ALIGN_RIGHT,1.52)
     for _,line in ipairs({{'THE PIG THAT TURNS BACKWARD',self.logoY+152.88,22,1.76,.9},{'猪不会回到过去，但世界会。',1054.8,26,3.64,.92}}) do
@@ -183,14 +221,14 @@ function Overlay:render()
     self:drawMenu(fade)
     nvgGlobalAlpha(vg,fade*(v.held and 1 or .75))
     if v.atStart then
-        text(vg,'……再往前，',56,1050,24,INK,nil,2.88)
-        text(vg,'就回不去了。',56,1090.8,24,INK,nil,2.88)
+        text(vg,'……再往前，',56,1050,24,self.ink,nil,2.88)
+        text(vg,'就回不去了。',56,1090.8,24,self.ink,nil,2.88)
     else
-        text(vg,'按住',56,1066,19,INK)
-        nvgBeginPath(vg);nvgRoundedRect(vg,99,1062,32,32,4);nvgStrokeWidth(vg,2);nvgStrokeColor(vg,color(INK));nvgStroke(vg)
-        text(vg,'K',115,1066,19,INK,NVG_ALIGN_CENTER)
-        text(vg,'倒带',140,1066,19,INK)
-        text(vg,'↑↓ 选择 · ENTER 确认',56,1098.3,19,INK)
+        text(vg,'按住',56,1066,19,self.ink)
+        nvgBeginPath(vg);nvgRoundedRect(vg,99,1062,32,32,4);nvgStrokeWidth(vg,2);nvgStrokeColor(vg,color(self.ink));nvgStroke(vg)
+        text(vg,'K',115,1066,19,self.ink,NVG_ALIGN_CENTER)
+        text(vg,'倒带',140,1066,19,self.ink)
+        text(vg,'↑↓ 选择 · ENTER 确认',56,1098.3,19,self.ink)
     end
     nvgRestore(vg)
     nvgSave(vg);nvgGlobalAlpha(vg,rootAlpha)

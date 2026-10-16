@@ -28,7 +28,7 @@ for scenario in ['intro-auto','held-options','skip-leave']:
             if i==100:op['leave']=True
         ops.append(op)
     expected=json.loads(subprocess.check_output(['node','tests/title-oracle.mjs'],input=json.dumps({'random':.37,'ops':ops}).encode(),cwd=ROOT))
-    t=Title.new(0,lambda:.37)
+    t=Title.new(0,lambda:.37,"sketch")
     for i,(op,want) in enumerate(zip(ops,expected)):
         if op.get('skip'):t.skipIntro(t)
         if 'holding' in op:t.st.holding=op['holding']

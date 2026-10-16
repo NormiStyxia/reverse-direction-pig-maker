@@ -1,0 +1,27 @@
+{
+  "result": "PASS_SCOPED",
+  "session": "0e8a692e-0aa1-469c-b1ee-2135b07d6cc6",
+  "reload": 29,
+  "pid": 7450,
+  "contentSize": [
+    1920,
+    1080
+  ],
+  "goldPreservedPixels": 22178,
+  "maxDifferenceFromOriginalOnPreservedPixels": 0,
+  "fullyOccludedChangedPixels": 0,
+  "nativeScenes": [
+    "store",
+    "prologue echo 5",
+    "chapter1 echo same 1"
+  ],
+  "sourceSelectionScenes": 21,
+  "sourceTimingFrames": 8361,
+  "screenshots": "validation/blue/native-final/",
+  "limits": [
+    "synthetic fixed poses, not a live full-game route",
+    "source-like 0.00002 depth tolerance: near-surface fixture retained a 188-pixel sliver; source edge parity pending",
+    "no 95% visual similarity claim",
+    "no all-device performance or adaptation acceptance"
+  ]
+}

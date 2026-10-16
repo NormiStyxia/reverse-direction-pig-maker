@@ -1,0 +1,18 @@
+{
+  "puff": {
+    "frozenCanvasSHA256": "6cf72aa58016b2f53ea5d2de8c27b8ad5d2f79243e6f9ec4776062c63c68f500",
+    "linearMipInputSHA256": "c68295a81baa3fee817acaeb804d702cdb0ddabd7cff7309a911557147fd9b73",
+    "size": [
+      128,
+      128
+    ]
+  },
+  "burst": {
+    "frozenCanvasSHA256": "29353c452821f899363886cac43d9a675ad5edf9b4142ae3ccbeba482578b777",
+    "linearMipInputSHA256": "cddd0250910b86799252e7d2e7fdbf7e3b65d423633bc963d42da5f9f05abad2",
+    "size": [
+      256,
+      256
+    ]
+  }
+}

@@ -25,6 +25,7 @@ function Canvas:init(story)
     self.pointerId=false;self.press=false;self.dragged=false;self.pointerY=0;self.startX=0;self.startY=0
     self.probeBackdrop=false
     self.sceneHUD=false
+    self.sceneActions=false
     self:resize(graphics:GetWidth(),graphics:GetHeight(),graphics:GetDPR())
     -- Never cache metrics from DWP's temporary font. The native NVG handle
     -- must be created only after the frozen face is available.
@@ -41,7 +42,10 @@ function Canvas:resize(w,h,dpr)
     self:cancelPointer();self.scrollBottom=true
 end
 function Canvas:place(left,right) self.actorLeft=left;self.actorRight=right end
-function Canvas:cancelPointer() self.pointerId=false;self.press=false;self.dragged=false end
+function Canvas:cancelPointer()
+    self.pointerId=false;self.press=false;self.dragged=false
+    if self.sceneActions then self.sceneActions:cancel() end
+end
 function Canvas:fontSize(size)
     nvgFontFace(self.vg,'story-wenkai');nvgFontSize(self.vg,size);nvgTextLetterSpacing(self.vg,0);nvgTextAlign(self.vg,NVG_ALIGN_LEFT+NVG_ALIGN_TOP)
 end
@@ -115,14 +119,17 @@ function Canvas:inputEnabled()
     return self.channel and p.open and p.k>=.6
 end
 function Canvas:pointerDown(x,y,id)
-    if self.pointerId or not self:inputEnabled() then return false end
+    if self.pointerId or (self.sceneActions and self.sceneActions.press) then return false end
+    if not self:inputEnabled() then return self.sceneActions and self.sceneActions:down(x,y,id or 'mouse') or false end
+    local px,py=x,y
     x=x/self.dpr;y=y/self.dpr
     local hit=self:hitTest(x,y);local inThread=self.thread and inside(x,y,self.thread)
-    if not hit and not inThread then return false end
+    if not hit and not inThread then return self.sceneActions and self.sceneActions:down(px,py,id or 'mouse') or false end
     self.pointerId=id or 'mouse';self.press=hit;self.dragged=false;self.startX=x;self.startY=y;self.pointerY=y
     return true
 end
 function Canvas:pointerMove(x,y,id)
+    if self.sceneActions then self.sceneActions:move(x,y,id or 'mouse') end
     if self.pointerId~=(id or 'mouse') then return end
     x=x/self.dpr;y=y/self.dpr
     if math.abs(x-self.startX)+math.abs(y-self.startY)>6 then self.dragged=true end
@@ -133,6 +140,7 @@ function Canvas:pointerMove(x,y,id)
     self.pointerY=y
 end
 function Canvas:pointerUp(x,y,id)
+    if self.sceneActions and self.sceneActions:up(x,y,id or 'mouse') then return true end
     if self.pointerId~=(id or 'mouse') then return false end
     local pressed=self.press;local dragged=self.dragged;self:cancelPointer()
     local hit=self:hitTest(x/self.dpr,y/self.dpr)
@@ -301,6 +309,7 @@ function Canvas:render()
     if self.disposed or not self.fontReady then return end
     local vg=self.vg;self.hits={};self.thread=false
     nvgBeginFrame(vg,self.w,self.h,self.dpr)
+    if self.sceneActions then self.sceneActions:render() end
     if self.probeBackdrop then box(vg,0,0,self.w,self.h,{29,26,36,255});self:text('NVG 界面校验 · 非剧情场景',20,20,16,LIGHT) end
     if self.channel then
         local isBrowse=self.channel=='browse';local state=isBrowse and self.story.browse or self.story.phone

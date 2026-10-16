@@ -1,0 +1,104 @@
+{
+  "date": "2026-10-16",
+  "sessionId": "357eb4b8-f0e2-486e-a956-f5842989901e",
+  "reloadId": 9,
+  "runtimePid": 67687,
+  "interface": "raw NanoVG; no Yoga UI",
+  "renderedAt": {
+    "physical": [
+      2880,
+      1566
+    ],
+    "logical": [
+      1440,
+      783
+    ],
+    "dpr": 2
+  },
+  "source": "frozen H5 #store-interaction and #phoneBtn, original icon and font",
+  "unitTests": {
+    "sceneActions": "PASS: 536 checks, 12 frozen CSS layouts, DPR 1/2/3",
+    "storyPanels": "PASS: 42 prologue + 70 chapter fixture renders, 300 browser geometry checks; shared pointer ownership including ID zero"
+  },
+  "nativeInput": {
+    "pigInteraction": "PASS: actual mouse click enters fold",
+    "phoneEntry": "PASS: actual mouse click opens chat panel",
+    "chapter1Interaction": "NOT_RUN on native GPU this change",
+    "deviceTouch": "NOT_RUN"
+  },
+  "evidence": [
+    "validation/store/native-pig-action-os.png",
+    "validation/store/native-phone-open-os.png",
+    "validation/scene-actions/h5-metrics.json"
+  ],
+  "lspErrors": 0,
+  "cliCheck": "FAIL: existing startup Cube/Day/DaySpecularHDR_QualityLow.dds missing",
+  "logs": {
+    "lua": {
+      "path": "/Users/xd/.taptap-maker/runtime/runtime-49696d14-a3c6-40fe-9808-2e28bb0d0045/logs/lua/lua-2026-10-16 09_55_52_529.log",
+      "errors": [],
+      "pointerEvents": [
+        {
+          "t": "2026-10-16 09_59_36_040",
+          "f": 14189,
+          "l": "RAW",
+          "m": "[2026-10-16 09_59_36_039][14189][Script] NATIVE_POINTER_DOWN: button=1 left=1.0 event=2768,1366 cursor=2768.0,1366.0\n"
+        },
+        {
+          "t": "2026-10-16 09_59_36_185",
+          "f": 14197,
+          "l": "RAW",
+          "m": "[2026-10-16 09_59_36_185][14197][Script] NATIVE_POINTER_UP: button=1 event=2768,1366 cursor=2768.0,1366.0\n"
+        },
+        {
+          "t": "2026-10-16 10_00_35_286",
+          "f": 17804,
+          "l": "RAW",
+          "m": "[2026-10-16 10_00_35_285][17804][Script] NATIVE_POINTER_DOWN: button=1 left=1.0 event=1440,1350 cursor=1440.0,1350.0\n"
+        },
+        {
+          "t": "2026-10-16 10_00_35_528",
+          "f": 17810,
+          "l": "RAW",
+          "m": "[2026-10-16 10_00_35_528][17810][Script] NATIVE_POINTER_UP: button=1 event=1440,1350 cursor=1440.0,1350.0\n"
+        },
+        {
+          "t": "2026-10-16 10_02_37_808",
+          "f": 27100,
+          "l": "RAW",
+          "m": "[2026-10-16 10_02_37_807][27100][Script] NATIVE_POINTER_DOWN: button=1 left=1.0 event=2768,1366 cursor=2768.0,1366.0\n"
+        },
+        {
+          "t": "2026-10-16 10_02_37_927",
+          "f": 27108,
+          "l": "RAW",
+          "m": "[2026-10-16 10_02_37_927][27108][Script] NATIVE_POINTER_UP: button=1 event=2768,1366 cursor=2768.0,1366.0\n"
+        }
+      ]
+    },
+    "game": {
+      "path": "/Users/xd/.taptap-maker/runtime/runtime-49696d14-a3c6-40fe-9808-2e28bb0d0045/logs/game/urhox_runtime-2026-10-16 09_55_51_177.log",
+      "errors": [
+        {
+          "t": "2026-10-16 09_55_52_010",
+          "f": 0,
+          "l": "ERROR",
+          "m": "Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds"
+        }
+      ]
+    }
+  },
+  "shadowExperiment": {
+    "result": "REJECTED_AND_REVERTED",
+    "reason": "Runtime Surface Shader v1 rejects POSITION",
+    "invalidScreens": "validation/shadows/unsupported-position/",
+    "shadowParityImproved": false
+  },
+  "visualAcceptance": false,
+  "remaining": [
+    "Scene action synthetic bold, inset border, icon shadow and wiggle parity",
+    "Phone frost and full post processing",
+    "Shadow receiver/filter mismatch",
+    "All branches, save persistence, mobile movement and full-resolution acceptance"
+  ]
+}

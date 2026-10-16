@@ -1,0 +1,20 @@
+{
+  "result": "PASS",
+  "checks": 261,
+  "sizes": 5,
+  "coverage": [
+    "resize releases old targets after detaching viewports and materials",
+    "188 surface wrappers collected before parent textures; zero invalid destructor accesses",
+    "scene ink and DOF color separated; shared readable depth attached and detached",
+    "present-depth linked/detached with conditional render scheduling",
+    "all frost, DOF and bloom targets explicitly queued",
+    "source bloom bright/quarter/eighth resolution with six directional passes",
+    "disabled pipeline queues no work",
+    "phone/browse/haze mask routing",
+    "source quarter resolution and blur axis order"
+  ],
+  "notCovered": [
+    "GPU pass order and image parity",
+    "95% game visual acceptance"
+  ]
+}

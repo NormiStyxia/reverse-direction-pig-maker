@@ -1,0 +1,9 @@
+{
+  "result": "PASS",
+  "frames": 1200,
+  "particles": 90,
+  "scalarChecks": 1296000,
+  "initialRandomCalls": 680,
+  "finalRandomCalls": 9960,
+  "scope": "actual frozen buildHotFood RNG/respawn/drift/Float32 position/color/amount/size plus 120 paused frames; not GPU acceptance"
+}

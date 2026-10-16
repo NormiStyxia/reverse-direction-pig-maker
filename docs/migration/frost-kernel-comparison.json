@@ -1,0 +1,81 @@
+{
+  "scope": "frozen H5 blur math on reconstructed native input, NOT full source scene comparison",
+  "size": [
+    2880,
+    1568
+  ],
+  "quarterSize": [
+    720,
+    392
+  ],
+  "samples": [
+    [
+      0,
+      0.227
+    ],
+    [
+      1.385,
+      0.316
+    ],
+    [
+      -1.385,
+      0.316
+    ],
+    [
+      3.231,
+      0.07
+    ],
+    [
+      -3.231,
+      0.07
+    ]
+  ],
+  "regions": {
+    "clear_left": {
+      "rect": [
+        200,
+        400,
+        1000,
+        1250
+      ],
+      "mae255": 1.1810313725490216,
+      "p99": 15.000000000000004
+    },
+    "actor": {
+      "rect": [
+        1000,
+        650,
+        1230,
+        1100
+      ],
+      "mae255": 2.002843800322063,
+      "p99": 34.999999999999986
+    },
+    "blur_wall_no_ui": {
+      "rect": [
+        2600,
+        350,
+        2780,
+        850
+      ],
+      "mae255": 0.27688960294709253,
+      "p99": 0.7547481604944922
+    },
+    "blur_counter_no_ui": {
+      "rect": [
+        2100,
+        1100,
+        2550,
+        1250
+      ],
+      "mae255": 1.3092671924654449,
+      "p99": 7.092955859524701
+    }
+  },
+  "limitations": [
+    "8-bit input quantization and unknown HDR at clipped highlights",
+    "native base differences across render paths",
+    "UI excluded by manually chosen ROIs; reference is not an H5 scene screenshot"
+  ],
+  "visualAcceptance": false
+}

@@ -11,6 +11,9 @@
 ---@type StoreSceneData
 local Data=require('game.data.StoreScene')
 local Dynamics=require('game.StoreDynamics')
+---@class StoreRenderer
+---@field bridgeDistance number?
+---@field screenEffects ScreenEffects?
 local Renderer={}
 Renderer.__index=Renderer
 local function vec(a) return Vector3(a[1],a[2],-a[3]) end
@@ -26,6 +29,17 @@ local function transform(node,data)
 end
 ---@param material Material
 local function parameter(material,name,value) material:SetShaderParameter(name,Variant(value)) end
+-- Source WebGL sampler modes. Sampler hints in the shader must not override
+-- these per-texture repeat/mirror/clamp and nearest/trilinear settings.
+function Renderer.configureTexture(texture,spec)
+    local address={[1000]=ADDRESS_WRAP,[1001]=ADDRESS_CLAMP,[1002]=ADDRESS_MIRROR}
+    local min=spec and spec.minFilter or 1003
+    assert(min==1003 or min==1008,'Unsupported frozen texture minification mode')
+    texture.sRGB=false -- Surface shaders decode the frozen sRGB pixels once.
+    texture.filterMode=min==1003 and FILTER_NEAREST or FILTER_TRILINEAR
+    texture:SetAddressMode(COORD_U,assert(address[spec and spec.wrapS or 1001]))
+    texture:SetAddressMode(COORD_V,assert(address[spec and spec.wrapT or 1001]))
+end
 function Renderer.new(data)
     local self=setmetatable({},Renderer);self:init(data);return self
 end
@@ -70,7 +84,12 @@ function Renderer:init(data)
     renderer.shadowMapSize=2048
     -- DWP may return placeholders synchronously. Build only when every actual texture is available.
     local paths={[Data.whitePath or 'store/generated/white.png']=true}
-    for _,t in ipairs(Data.textures) do paths[t.path]=true end
+    local textureSpecs={}
+    for _,t in ipairs(Data.textures) do
+        local previous=textureSpecs[t.path]
+        assert(not previous or (previous.wrapS==t.wrapS and previous.wrapT==t.wrapT and previous.minFilter==t.minFilter and previous.magFilter==t.magFilter),'Conflicting source samplers: '..t.path)
+        paths[t.path]=true;textureSpecs[t.path]=t
+    end
     for _ in pairs(paths) do self.pending=self.pending+1 end
     for resourcePath in pairs(paths) do
         cache:GetResourceAsync('Texture2D',resourcePath,function(resource)
@@ -78,9 +97,24 @@ function Renderer:init(data)
             assert(resource,'STORE_TEXTURE_FAILED: '..resourcePath)
             ---@type Texture2D
             local texture=resource
-            texture.sRGB=false;texture.filterMode=FILTER_TRILINEAR
-            self.textures[resourcePath]=texture;self.pending=self.pending-1
-            if self.pending==0 then self:build() end
+            local spec=textureSpecs[resourcePath]
+            local function loaded()
+                Renderer.configureTexture(texture,spec)
+                self.textures[resourcePath]=texture;self.pending=self.pending-1
+                if self.pending==0 then self:build() end
+            end
+            -- Prepared PNG resources arrive with one GPU level on this Runtime.
+            -- Re-upload their original Image with automatic mip generation; do
+            -- not resize, blur, or replace the frozen base pixels.
+            if spec and spec.minFilter==1008 and texture.levels==1 and math.max(texture.width,texture.height)>1 then
+                cache:GetResourceAsync('Image',resourcePath,function(image)
+                    if self.disposed then return end
+                    assert(image,'STORE_MIP_IMAGE_FAILED: '..resourcePath)
+                    texture:SetNumLevels(0)
+                    assert(texture:SetData(image),'STORE_MIP_UPLOAD_FAILED: '..resourcePath)
+                    loaded()
+                end)
+            else loaded() end
         end)
     end
 end
@@ -276,12 +310,18 @@ function Renderer:build()
             for i=1,#p,3 do line:DefineVertex(Vector3(p[i],p[i+1],-p[i+2]));line:DefineColor(Color(1,1,1,1));line:DefineTexCoord(Vector2(0,0)) end
             line:Commit();line:SetMaterial(0,self.materials[source.materials[1]]);line.castShadows=false
             self.drawables[#self.drawables+1]=line;self.sourceDrawables[source.id]={line}
+        elseif source.type=='Points' and Data.handles.foodSpin then
+            self.steam=require('render.HotFoodSteamRenderer').new(self,node)
         elseif source.geometry then
             -- Retain source metadata; these require their own billboard/particle renderer.
             self.omitted[#self.omitted+1]={id=source.id,type=source.type}
         end
     end
     self:setSourceVisible(0,true);self:updatePointUniforms();self:updateBillboards()
+    for _,path in ipairs({'store/foliage-hedge.png','store/foliage-canopy.png','c0/normi-motion-atlas.png'}) do
+        local t=self.textures[path]
+        if t then print('STORE_TEXTURE_SAMPLING: '..cjson.encode({path=path,width=t.width,height=t.height,levels=t.levels,filter=t.filterMode,sRGB=t.sRGB})) end
+    end
     self.ready=true
     print((self.data.theme and 'ECHO_NATIVE_READY: ' or 'STORE_NATIVE_READY: ')..#Data.nodes..' source nodes, '..#self.drawables..' native meshes; '..#self.omitted..' particle/billboard objects pending')
 end
@@ -326,6 +366,7 @@ end
 function Renderer:referenceFrame(story)
     local Data=self.data or Data
     self.dynamics=Dynamics.new(function() return .37 end)
+    if self.steam then self.steam.model=require('game.HotFoodSteam').new() end
     self.look={x=0,y=2.05,z=-1.1};self.time=0;self:update(0,story)
     -- The source exporter calls Normi.update(0), which clamps the initial Z to
     -- its constructor bounds. Use its captured transform, not the live-story bounds.
@@ -397,9 +438,11 @@ function Renderer:updateCamera(dt,story)
         self.look.y=self.look.y+(2.05-self.look.y)*k
         self.look.z=self.look.z+(p.z*.45-1.1-self.look.z)*k
     end
-    local p=self.look;local pitch=math.rad(16)
-    self.cameraNode.position=Vector3(p.x,p.y+math.sin(pitch)*22,-(p.z+math.cos(pitch)*22))
+    local p=self.look;local pitch=math.rad(16);local dist=22*(self.bridgeDistance or 1)
+    self.cameraNode.position=Vector3(p.x,p.y+math.sin(pitch)*dist,-(p.z+math.cos(pitch)*dist))
+    if self.screenEffects then local x,y=self.screenEffects:camera(dt);self.cameraNode.position=self.cameraNode.position+Vector3(x,y,0) end
     self.cameraNode:LookAt(Vector3(p.x,p.y,-p.z))
+    self.camYaw=math.atan(self.cameraNode.position.x-p.x,-self.cameraNode.position.z-p.z)
     self:updateBillboards()
 end
 function Renderer:update(dt,story)
@@ -407,6 +450,7 @@ function Renderer:update(dt,story)
     if not self.ready then return end
     self.time=self.time+dt;self:updateCamera(dt,story)
     self:updateDynamics(dt,story)
+    if self.steam then self.steam.model:update(dt,self.time,Data.tune.steam);self.steam:sync() end
     local actor=story.normi;local node=self.nodes[Data.handles.normi]
     local rock=actor.walkRock*(1-actor.collapse);local hang=actor.hang
     node.position=Vector3(actor.pos.x-math.sin(rock)*hang,actor.pos.y+hang+actor.lift+(math.cos(rock)-1)*hang,-actor.pos.z)
@@ -428,5 +472,7 @@ function Renderer:actorScreen(story)
     local b=self.camera:WorldToScreenPoint(Vector3(p.x+.65,p.y+1.3,-p.z))
     return a.x,b.x
 end
-function Renderer:dispose() self.disposed=true;self.scene:Dispose() end
+function Renderer:dispose()
+    self.disposed=true;if self.steam then self.steam:dispose() end;self.scene:Dispose()
+end
 return Renderer

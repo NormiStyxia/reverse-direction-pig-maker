@@ -1,8 +1,8 @@
 shader_type spatial;
 render_mode shading_model_unlit, cull_back;
-uniform sampler2D paint_map : filter_linear_mipmap, repeat_enable;
-uniform sampler2D alpha_map : filter_linear_mipmap, repeat_enable;
-uniform sampler2D emit_map : filter_linear_mipmap, repeat_enable;
+uniform sampler2D paint_map;
+uniform sampler2D alpha_map;
+uniform sampler2D emit_map;
 uniform vec4 tint=vec4(1.0);
 uniform vec3 instance_tint=vec3(1.0);
 uniform vec4 map_uv=vec4(1.0,1.0,0.0,0.0);

@@ -176,9 +176,25 @@ click(c,'close');assert adapter.story.phone.open and adapter.story.phase=='ask'
 click(c,'choice:2');assert adapter.story.answer=='done' and len(adapter.story.phone.queue)==5
 assert not any(item.id.startswith('choice:') for item in c.hits.values()) or not adapter.story.phone.choices[1]
 c.dispose(c)
+# A scene action and a story panel share one pointer owner, including ID zero.
+p,c=fresh();c.resize(c,1920,1080,1);c.render(c)
+Actions=require('render.SceneActions')
+lua.globals().sceneActionStory=p
+c.sceneActions=Actions.new(c,lua.eval('function() return sceneActionStory end'),True)
+buttons,_=c.sceneActions.layout(c.sceneActions)
+phone=next(b for b in buttons.values() if b.id=='phone')
+px,py=phone.x+phone.w/2,phone.y+phone.h-1
+assert c.pointerDown(c,px,py,0)
+assert c.sceneActions.press.id==0
+panel_hit=next(h for h in c.hits.values() if h.enabled)
+hx,hy=point(c,panel_hit)
+assert not c.pointerDown(c,hx,hy,2) and not c.pointerId
+assert not c.pointerUp(c,hx,hy,2) and c.sceneActions.press.id==0
+assert p.phone.open and c.pointerUp(c,px,py,0) and not p.phone.open
+c.dispose(c)
 report={'result':'PASS','fixtureRenders':renders,'chapter1FixtureRenders':chapter_renders,'fixtures':len(Fixtures.names),'viewportDprCombinations':len(viewports),'imagesVerified':sorted(assets),
  'frozenBrowserGeometryChecks':dom_checks,'browserOracle':'validation/panels/h5-metrics.json' if dom_checks else 'NOT_RUN: run capture-panels.mjs first',
- 'checks':['raw NVG lifecycle','source WenKai font','physical/logical input transforms','portrait controls remain on screen','typing gates send','matching pointer capture','drag cancellation','resize cancellation','scroll clamp','browse choice reveal delays','layout side hysteresis','Unicode typing','cold font load blocks placeholder metrics','late resource callbacks after disposal','source outgoing animation keyframes'],
+ 'checks':['raw NVG lifecycle','source WenKai font','physical/logical input transforms','portrait controls remain on screen','typing gates send','matching pointer capture','scene action and panel share pointer owner','drag cancellation','resize cancellation','scroll clamp','browse choice reveal delays','layout side hysteresis','Unicode typing','cold font load blocks placeholder metrics','late resource callbacks after disposal','source outgoing animation keyframes'],
  'notCovered':['real GPU output','source screenshot similarity','full scene frost blur','end-to-end story gameplay']}
 (ROOT/'docs/migration/story-nvg-test-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
 print(json.dumps(report,ensure_ascii=False,indent=2))

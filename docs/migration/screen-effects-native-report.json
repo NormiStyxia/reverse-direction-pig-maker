@@ -1,0 +1,47 @@
+{
+  "result": "PASS",
+  "sessionId": "0e8a692e-0aa1-469c-b1ee-2135b07d6cc6",
+  "reloadId": 40,
+  "runtimePid": 53537,
+  "rows": [
+    {
+      "case": "idle",
+      "size": [
+        2448,
+        1376
+      ],
+      "firstVs24PausedFramesChangedPixels": 0
+    },
+    {
+      "case": "flash",
+      "size": [
+        2448,
+        1376
+      ],
+      "firstVs24PausedFramesChangedPixels": 0
+    },
+    {
+      "case": "shake",
+      "size": [
+        2448,
+        1376
+      ],
+      "firstVs24PausedFramesChangedPixels": 0
+    },
+    {
+      "case": "settled",
+      "size": [
+        2448,
+        1376
+      ],
+      "firstVs24PausedFramesChangedPixels": 0
+    }
+  ],
+  "shakeChangedPixelsVsIdle": 2531906,
+  "settledVsIdleMaxDelta255": 2.0,
+  "flashAmountAfterOne60HzFrame": 0.5286084287987274,
+  "flashMathMAE255": 0.37762442211699815,
+  "flashMathP99Delta255": 1.5134210704057978,
+  "comparisonSpace": "sRGB after screenshot ICC conversion; no resizing",
+  "scope": "Native event fixture stability and single-pass flash arithmetic; source full-scene image parity, live event timing and gameplay route checked separately; NOT 95% visual acceptance."
+}

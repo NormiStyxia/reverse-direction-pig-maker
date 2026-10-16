@@ -15,7 +15,7 @@ end
 ---@param levels {start:number[],exit:number[]}[]
 function Run:init(levels,theme)
     self.levels=levels; self.theme=theme or 'store'; self.pig=Pig.new()
-    self.events={}; self.hitstop=0; self.loadId=0
+    self.events={}; self.hitstop=0; self.loadId=0;self.audioTick=0
     self.pig.spinDir=-1 self.pig.spinFrame=.05
     self:load(1)
 end
@@ -40,6 +40,7 @@ function Run:leave(nextIndex,duration)
 end
 function Run:restart()
     if self.phase~='play' then return false end
+    self:emit('sound',{name='tap'})
     self:leave(self.index,.7) return true
 end
 function Run:update(realDt,input,camYaw,random)
@@ -50,7 +51,10 @@ function Run:update(realDt,input,camYaw,random)
     input=input or {}
     if input.restart then self:restart() end
     if input.charge and self.phase=='play' and not input.revealing then
-        if self.pig:tryCharge() then self:emit('playerCharge',self.pig.pos) end
+        if self.pig:tryCharge() then
+            self:emit('playerCharge',self.pig.pos)
+            self:emit('puff',{x=self.pig.pos.x,y=self.pig.pos.y,z=self.pig.pos.z,count=3})
+        end
     end
     local live=self.phase=='play' and not input.revealing
     self.pig:update(dt,live and input or {x=0,y=0,spin=false},input.revealing and 0 or (camYaw or 0),live)
@@ -67,6 +71,7 @@ function Run:update(realDt,input,camYaw,random)
             self.phase='play' self.playAt=T S.playAt=T self.veil=nil self.fold=1
             P.squash=1.1 P:setFrame(0)
             self:emit('levelPlayable',self.index)
+            self:emit('puff',{x=P.pos.x,y=P.pos.y,z=P.pos.z,count=4})
         end
     end
     if self.phase=='out' then
@@ -84,6 +89,10 @@ function Run:update(realDt,input,camYaw,random)
     if live then
         Contact.hitTest(S,P,dt)
         S:step(dt,S.rewinding,self.t)
+        if S.rewinding then
+            self.audioTick=self.audioTick-dt
+            if self.audioTick<=0 then self.audioTick=.12;self:emit('rewindTick',{moved=S.lastRewindMoved}) end
+        end
     else S:updatePlatesAndDoor(dt) end
     if self.phase~='unfold' then Contact.collide(S,P.pos) end
     ---@type {start:number[],exit:number[]}

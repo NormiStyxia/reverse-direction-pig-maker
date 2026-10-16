@@ -104,6 +104,38 @@ calls=list(lua.globals().draw.calls.values())
 plane=[c for c in calls if c.name=='nvgTransform'][-1].args
 assert math.isclose(plane[1],title.st.zoom)
 assert math.isclose(plane[5],1280-(title.st.cam.x-title.st.par.x*.004)*2560*title.st.zoom)
+# Increment 01: background hold, blocked button/panel hits and cancellation.
+for w,h in viewports:
+    for dpr in [1,1.25,2,3]:
+        screen.resize(screen,w,h,dpr)
+        title.st.holding=False
+        down(1200,600,7);assert title.st.holding
+        up(1200,600,8);assert title.st.holding # unrelated finger cannot release
+        up(1200,600,7);assert not title.st.holding
+        down(1200,600,7);screen.cancelPointer(screen);assert not title.st.holding
+        down(1200,600,7);screen.resize(screen,w,h,dpr);assert not title.st.holding
+        down(2400,650,7);assert not title.st.holding # locked continue button
+        up(2400,650,7)
+        title.openPanel(title,'options');tick(40)
+        down(2000,900,7);assert not title.st.holding # blank panel interior
+        up(2000,900,7);title.closePanel(title);tick(40)
+# Finished inversion colors settle after the CSS 0.3-second transition.
+title.st.auto.stage='draft';title.st.auto.t=0;title.st.inv=1;title.st.prog=0
+tick(25,True)
+assert title.view.alt and abs(screen.altAmount-1)<1e-8
+calls=list(lua.globals().draw.calls.values())
+fill_colors=[tuple(c.args[1][i] for i in range(1,5)) for c in calls if c.name=='nvgFillColor']
+assert (242,246,255,255) in fill_colors and (248,250,253,255) in fill_colors
+assert (1,64,196,255) in fill_colors # selected menu text remains cobalt
+# White panel keeps blue heading, even while the background is inverted.
+title.openPanel(title,'options');tick(40,True)
+calls=list(lua.globals().draw.calls.values())
+last_color=None
+for c in calls:
+    if c.name=='nvgFillColor':last_color=tuple(c.args[1][i] for i in range(1,5))
+    if c.name=='nvgText' and c.args[3]=='设置' and c.args[1]==80:
+        assert last_color==(10,60,184,255)
+title.closePanel(title);tick(40)
 # Reached save enables continue, adds margin, and selects the correct 0-based floor.
 title.reached=3;move(2400,650);tick(40)
 assert title.menuSel==1 and abs(screen.menuMargin-26)<1e-7
@@ -112,6 +144,22 @@ click(2400,650);tick(150,True)
 assert title.st.started and not title.active and title.st.choice.level==2
 events=list(title.drainEvents(title).values());assert sum(e.kind=='start' for e in events)==1
 assert screen.hitTest(screen,2400,580) is False
+# A delayed native scene keeps the same paper cover, including letterboxes.
+# Once ready, the original title-root easing drives the fade without UI widgets.
+for w,h in viewports:
+    for dpr in [1,1.25,2,3]:
+        screen.resize(screen,w,h,dpr)
+        for elapsed in [1.1,1.55,2.0]:
+            title.st.leaveT=elapsed;screen.renderBridge(screen)
+            calls=list(lua.globals().draw.calls.values())
+            frame=[c for c in calls if c.name=='begin'][0].args
+            assert frame[1]==w/dpr and frame[2]==h/dpr and frame[3]==dpr
+            alpha=[c for c in calls if c.name=='nvgGlobalAlpha'][0].args[1]
+            assert abs(alpha-(1-P.ease((elapsed-1.1)/.9)))<1e-9
+            rects=[c.args for c in calls if c.name=='nvgRect']
+            assert list(rects[0].values())==[0,0,w/dpr,h/dpr]
+            assert list(rects[1].values())==[0,0,2560,1152]
+            assert any(c.name=='nvgText' and c.args[3].startswith('第 3 层') for c in calls)
 screen.dispose(screen);screen.dispose(screen)
 assert lua.globals().draw.deleted==1 and lua.globals().draw.images==0
 assert lua.globals().draw.fonts==2 # allocated once, not every render
@@ -131,8 +179,8 @@ report={'result':'PASS','viewportDprCombinations':24,
  'checks':['intro press consumed across idle transition','locked continue/floors','panel blocks underlying menu',
  'drag/release cancellation','settings','stationary hover vs keyboard','touch capture and multi-finger isolation',
  'resize/focus cancellation','physical input round trips and frame DPR','fan flip and plane transform',
- 'continue expansion gap and saved floor','single start event','NVG frame/save lifecycle and resources',
- 'CSS curve reversal continuity','120 ticks / 6 paths / 4 blueprint labels','no Yoga or UI widget dependencies'],
+ 'continue expansion gap and saved floor','single start event','NVG frame/save lifecycle and resources','paper loading cover and fade across 24 layouts',
+ 'background hold and cancellation across 24 layouts','inverted menu/label colors and blue panel interior','CSS curve reversal continuity','120 ticks / 6 paths / 4 blueprint labels','no Yoga or UI widget dependencies'],
  'notCovered':['native engine API execution','NVG rendered pixels','font parity and blur/glow','mobile ergonomics','story callback integration']}
 (ROOT/'docs/migration/title-nvg-test-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+chr(10))
 print(json.dumps(report,ensure_ascii=False,indent=2))

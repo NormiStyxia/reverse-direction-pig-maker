@@ -73,5 +73,6 @@
     "Raw-scene regional evidence only.",
     "Shadow offset/filter, texture filtering and full post still differ.",
     "Halo screenshot precedes geometry55 interleaved-attribute correction; only night ground grading is visually verified here. Corrected quad pending runtime capture."
-  ]
+  ],
+  "subsequentSpriteVerification": "docs/migration/store-sampling-comparison.json"
 }

@@ -11,7 +11,7 @@ out=ROOT/'validation/panels';out.mkdir(parents=True,exist_ok=True)
 def preview(command):
     r=subprocess.run(['node',str(CLI),'preview',command,'--target-dir',str(ROOT),'--json'],capture_output=True,text=True)
     data=json.loads(r.stdout);(out/('local-'+command+'.json')).write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n');return data
-status=preview('status');assert status['process_alive'] and status['preparation']['entry']=='preview/title.lua'
+status=preview('status');assert status['process_alive'] and status['preparation']['entry'] in ('main.lua','preview/title.lua','preview/diagnostics.lua')
 pid=int(status['runtime_pid'])
 lua_dir=Path(status['executable']).parent/'logs/lua'
 log=max(lua_dir.glob('*'),key=lambda p:p.stat().st_mtime)

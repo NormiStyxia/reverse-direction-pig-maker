@@ -12,17 +12,18 @@ local function inWindows(t, windows)
 end
 local FLASH={{.32,.4},{.5,.55},{.66,.74},{.86,1},{1.12,1.5}}
 local GSIL={{.16,.22},{.38,.43},{.56,.6}}
-function Title.new(reached, random)
+function Title.new(reached, random, look)
     local self=setmetatable({},Title)
-    self:init(reached,random)
+    self:init(reached,random,look)
     return self
 end
-function Title:init(reached,random)
+function Title:init(reached,random,look)
     self.random=random or math.random
+    self.invert=look~="sketch" -- Approved increment 01 is the native default.
     self.reached=clamp(reached or 0,0,6)
     self.opts={motion=true,parallax=true,muted=false}
     self.st={t=0,world=0,intro=0,phase='intro',prog=0,reveal=0,zoom=2.3,
-        cam={x=.245,y=.33},sil=0,flash=0,rewind=0,wash=0,glitch=0,gsil=0,
+        cam={x=.245,y=.33},sil=0,flash=0,rewind=0,wash=0,glitch=0,gsil=0,inv=0,
         auto={stage='wait',t=0,next=5+self.random()*5},par={x=0,y=0},parT={x=0,y=0},
         dial=0,clock=23*3600+38*60,pigA=.35,pigSpin=0,pigSpinV=0,holding=false,
         leaveT=0,choice=false,started=false}
@@ -111,7 +112,7 @@ function Title:update(dt)
     elseif st.phase=='idle' then
         local a=st.auto; a.t=a.t+dt
         if a.stage=='wait' and a.t>a.next then a.stage='glitch'; a.t=0
-        elseif a.stage=='glitch' and a.t>.75 then a.stage='draft'; a.t=0; st.prog=0
+        elseif a.stage=='glitch' and a.t>.75 then a.stage='draft'; a.t=0; st.prog=0; st.inv=st.holding and 0 or 1
         elseif a.stage=='draft' and a.t>5 then a.stage='glitchBack'; a.t=0
         elseif a.stage=='glitchBack' and a.t>.5 then
             a.stage='wait'; a.t=0; a.next=5+self.random()*5; if not st.holding then st.prog=1 end
@@ -133,10 +134,14 @@ function Title:update(dt)
         if lt>2.4 then self.active=false; self.events[#self.events+1]={kind='dispose'} end
     end
     local held=st.holding and st.phase=='idle'
-    local rewinding=(st.phase=='leaving' or held) and st.prog>0
-    local atStart=held and st.prog==0
+    local rewinding=(st.phase=='leaving' and st.prog>0) or (held and (st.prog>0 or st.inv>0))
+    local atStart=held and st.prog==0 and st.inv==0
     st.rewind=st.rewind+((rewinding and 1 or 0)-st.rewind)*math.min(1,dt*6)
     v.held=held; v.atStart=atStart; v.glitch=st.glitch>.15
+    -- Preserve source ordering: rewind/stop uses the progress before this step.
+    local invOn=self.invert and st.phase=='idle' and (st.auto.stage=='draft' or st.auto.stage=='glitchBack')
+    st.inv=invOn and clamp(st.inv+sign((st.holding and 0 or 1)-st.inv)*dt*(st.holding and .95 or .7)) or 0
+    v.alt=st.inv>.5 and st.prog<.5
     st.world=st.world+dt*(opts.motion and (rewinding and -2.6 or (atStart and 0 or 1)) or 0)
     st.clock=st.clock-dt*(rewinding and 90 or (atStart and 0 or 1))
     st.dial=st.dial-dt*(rewinding and 160 or 5)

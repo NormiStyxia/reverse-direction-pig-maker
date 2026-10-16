@@ -1,0 +1,52 @@
+{
+  "timestamp": "2026-10-16 11:05:12.4971 +0800",
+  "pid": 60846,
+  "exception": {
+    "codes": "0x0000000000000001, 0xbf8000003f800000",
+    "rawCodes": [
+      1,
+      -4647714814380998656
+    ],
+    "type": "EXC_BAD_ACCESS",
+    "signal": "SIGSEGV",
+    "subtype": "KERN_INVALID_ADDRESS at 0xbf8000003f800000 -> 0xffff80003f800000 (possible pointer authentication failure)"
+  },
+  "termination": {
+    "flags": 0,
+    "code": 11,
+    "namespace": "SIGNAL",
+    "indicator": "Segmentation fault: 11",
+    "byProc": "exc handler",
+    "byPid": 60846
+  },
+  "frames": [
+    "Urho3D::GPUObject::GetGraphics() const",
+    "Urho3D::RenderSurface::Release()",
+    "Urho3D::RenderSurface::~RenderSurface()",
+    "Urho3D::RenderSurface::~RenderSurface()",
+    "tolua_collect_RenderSurface(lua_State*)",
+    "precallC",
+    "luaD_precall",
+    "luaD_callnoyield",
+    "lua_callk",
+    "class_gc_event"
+  ],
+  "lastAction": "diagnostic morning -> title, then attempt prologue echo",
+  "finding": "RenderSurface GC ReleaseRef after its parent Texture2D was disposed; native Release always dereferences parentTexture",
+  "change": "detach all surfaces/material inputs; discard Lua surface handles and collect while parent textures remain strongly held; then dispose textures; stop referencing final viewport before scene disposal",
+  "status": "model regression PASS, native rerun PENDING; runtime remains failed, not restarted",
+  "nativeRetest20261016": {
+    "sessionId": "0e8a692e-0aa1-469c-b1ee-2135b07d6cc6",
+    "reloadId": 1,
+    "route": "diagnostic meeting -> morning -> fresh title -> prologue echo",
+    "result": "survived, echo rendered; no EXC_BAD_ACCESS observed in this route",
+    "evidence": [
+      "validation/chapter1/post-lifetime-morning.png",
+      "validation/echo/post-lifetime-echo.png"
+    ],
+    "limitations": [
+      "not full playthrough",
+      "resize stress and repeated cycles still pending"
+    ]
+  }
+}

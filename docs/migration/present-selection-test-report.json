@@ -1,0 +1,90 @@
+{
+  "result": "PASS",
+  "scenes": [
+    {
+      "scene": "EchoScene1",
+      "markedGeometry": 0
+    },
+    {
+      "scene": "EchoScene2",
+      "markedGeometry": 0
+    },
+    {
+      "scene": "EchoScene3",
+      "markedGeometry": 0
+    },
+    {
+      "scene": "EchoScene4",
+      "markedGeometry": 0
+    },
+    {
+      "scene": "EchoScene5",
+      "markedGeometry": 4
+    },
+    {
+      "scene": "EchoScene6",
+      "markedGeometry": 4
+    },
+    {
+      "scene": "Ch1Echosame1",
+      "markedGeometry": 3
+    },
+    {
+      "scene": "Ch1Echosame2",
+      "markedGeometry": 3
+    },
+    {
+      "scene": "Ch1Echosame3",
+      "markedGeometry": 4
+    },
+    {
+      "scene": "Ch1Echosame4",
+      "markedGeometry": 3
+    },
+    {
+      "scene": "Ch1Echosame5",
+      "markedGeometry": 3
+    },
+    {
+      "scene": "Ch1Echolate1",
+      "markedGeometry": 3
+    },
+    {
+      "scene": "Ch1Echolate2",
+      "markedGeometry": 3
+    },
+    {
+      "scene": "Ch1Echolate3",
+      "markedGeometry": 4
+    },
+    {
+      "scene": "Ch1Echolate4",
+      "markedGeometry": 3
+    },
+    {
+      "scene": "Ch1Echolate5",
+      "markedGeometry": 3
+    },
+    {
+      "scene": "Ch1Echodone1",
+      "markedGeometry": 3
+    },
+    {
+      "scene": "Ch1Echodone2",
+      "markedGeometry": 3
+    },
+    {
+      "scene": "Ch1Echodone3",
+      "markedGeometry": 4
+    },
+    {
+      "scene": "Ch1Echodone4",
+      "markedGeometry": 3
+    },
+    {
+      "scene": "Ch1Echodone5",
+      "markedGeometry": 3
+    }
+  ],
+  "scope": "source layer membership including hologram cutout exclusions and dormant merged crate; GPU occlusion checked separately"
+}

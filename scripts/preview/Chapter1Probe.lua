@@ -4,6 +4,7 @@ local Panels=require('game.Chapter1Panels')
 local View=require('render.Chapter1Renderer')
 local Canvas=require('render.StoryOverlay')
 local End=require('render.ChapterEnd')
+local Diagnostics=require('game.Diagnostics')
 local Probe={};Probe.__index=Probe
 function Probe.new(mode,look,answer) local self=setmetatable({},Probe);self:init(mode,look,answer);return self end
 function Probe:init(mode,look,answer)
@@ -11,6 +12,8 @@ function Probe:init(mode,look,answer)
     self.active=true;self.paused=false;self.focused=true;self.keyDriven=false;self.finished=false
     self.caption='';self.captionUntil=0;self.hint='';self.hintUntil=0;self.reference=false;self.stage=0
     self.ending=End.new()
+    self.post=require('render.ScenePost').new(self.view.view);self.post:setEnabled(true)
+    self.screen.sceneActions=require('render.SceneActions').new(self.screen,function() if not self.ending.active then return self.story end end,false)
     self.diagnostic=false
     ---@type table|false
     self.route=false
@@ -23,6 +26,9 @@ function Probe:init(mode,look,answer)
 end
 function Probe:events()
     for _,e in ipairs(self.story:drainEvents()) do
+        require('game.AudioPlayback').get():event(e,'chapter')
+        self.post.effects:event(e)
+        self.post.particles.model:event(e)
         if e.kind=='caption' then self.caption=e.text;self.captionUntil=self.story.t+4.5
         elseif e.kind=='hint' then self.hint=e.text;self.hintUntil=self.story.t+(e.duration or 5)
         elseif e.kind=='clearCaptions' then self.captionUntil=0
@@ -40,9 +46,12 @@ function Probe:update(dt)
         local length=math.sqrt(x*x+z*z);local n=self.story.normi;local p=n.pos
         if length>0 and self.story:controlEnabled() then n:moveStick({x=p.x+x/length*.8,y=0,z=p.z+z/length*.8});self.keyDriven=true
         elseif self.keyDriven then n:release();self.keyDriven=false end
-        self.story:update(dt,{camYaw=0,cameraPosition=self.view:cameraPosition()});self:events();self.view:update(dt,self.story)
+        self.story:update(dt,{camYaw=self.view.camYaw,cameraPosition=self.view:cameraPosition()});self:events();self.view:update(dt,self.story)
+        self.post.effects:update(dt)
+        self.post.particles.model:update(dt)
     elseif not self.reference then self.view:update(0,self.story) end
     self.screen:place(self.view:actorScreen(self.story));self.screen:update(dt)
+    self.post:updateGame(self.story,self.screen,(self.paused or not self.focused) and 0 or dt,'chapter')
 end
 function Probe:replaceStory(story)
     self.story=story;self.screen.story=Panels.new(story);self.screen.lastView=false;self.screen.lastBrowseCount=-1;self.screen:cancelPointer()
@@ -80,6 +89,7 @@ function Probe:stageFrame()
     print('CHAPTER1_STAGE: '..self.stage..' '..s.phase..'; actual model replay, GPU intermediate frames skipped; not full playthrough')
 end
 function Probe:key(key,repeated)
+    if Diagnostics.blocks(key) then return end
     if repeated then return end
     if self.ending.active then if key==KEY_RETURN or key==KEY_SPACE then self.ending.replay=true end;return end
     if key==KEY_F6 then self.paused=not self.paused;self.reference=false;return end
@@ -87,12 +97,15 @@ function Probe:key(key,repeated)
     if key==KEY_F5 and self.view.ready then
         self:replaceStory(Story.new({mode=self.story.mode}));self.story:update(0,{camYaw=0});self.story:drainEvents()
         self.view:updateCamera(0,self.story,true);self.view:update(0,self.story);self.reference=true;self.paused=true
+        self.post:setEnabled(false)
         print('CHAPTER1_REFERENCE: '..self.story.mode..'; source raw camera/t=0; post excluded');return
     end
     if key==KEY_F7 then
         self.diagnostic=true
+        self.post:dispose()
         local mode=self.story.mode=='meeting' and 'morning' or 'meeting';local old=self.view
         self:replaceStory(Story.new({mode=mode,answer=self.story.answer or 'same'}));self.view=View.new(self.story);old:dispose();self.paused=false
+        self.post=require('render.ScenePost').new(self.view.view);self.post:setEnabled(true)
         print('CHAPTER1_DIAGNOSTIC: '..mode..'; explicit scene jump, not full route');return
     end
     if key==KEY_J or key==KEY_SPACE then self.story:togglePhone()
@@ -108,15 +121,14 @@ function Probe:focus(on) self.focused=on;self.keyDriven=false;self.screen:cancel
 function Probe:hud(canvas)
     if self.ending.active then self.ending:render(canvas);return end
     local c={240,237,223,255};local s=self.story
+    if Diagnostics.enabled then
     canvas:text('第一章原生接入校验 · 光影/后处理尚未验收',20,18,15,c,true)
     canvas:text('WASD 移动 · J 手机 · F 交互 · 1/2/3 回答 · F4 阶段 · F5 对照 · F6 暂停 · F7 早晨 · F8 标题',20,42,14,c,true)
-    if not self.view.ready then canvas:text('加载冻结素材… '..self.view.view.pending,20,68,18,c,true);return end
-    canvas:text(s:hm()..'  '..s.phase..(self.paused and ' · 暂停' or ''),20,68,16,c,true)
+    end
+    if not self.view.ready then canvas:text('正在加载…',20,18,18,c,true);return end
+    if Diagnostics.enabled then canvas:text(s:hm()..'  '..s.phase..(self.paused and ' · 暂停' or ''),20,68,16,c,true) end
     if self.captionUntil>s.t then canvas:text(self.caption,math.max(16,(canvas.w-canvas:measure(self.caption,20))/2),canvas.h-100,20,c,true) end
     if self.hintUntil>s.t then canvas:text(self.hint,math.max(16,(canvas.w-canvas:measure(self.hint,16))/2),canvas.h-60,16,c,true) end
-    for _,action in ipairs(s:nearbyInteractions()) do if action.id==s.interactionId then
-        local text='F · '..action.object..' · '..action.text;canvas:text(text,math.max(16,(canvas.w-canvas:measure(text,18))/2),canvas.h-35,18,c,true);break
-    end end
 end
-function Probe:dispose() self.screen:dispose();self.view:dispose() end
+function Probe:dispose() self.post:dispose();self.screen:dispose();self.view:dispose() end
 return Probe

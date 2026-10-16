@@ -1,11 +1,13 @@
 """Observe an explicitly started native input route; never changes game state."""
-import json,re,subprocess,time
+import argparse,json,re,subprocess,time
 from pathlib import Path
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
 CLI=Path.home()/'Library/Application Support/Cindy/owners/8666d40ddc404195528a/cindy-brain/taptap-maker/vendor/taptap-maker/dist/maker.js'
-meta=json.loads((ROOT/'validation/chapter1/native-full-route-start.json').read_text())
-out=ROOT/'validation/full-route';out.mkdir(exist_ok=True)
+parser=argparse.ArgumentParser();parser.add_argument('--meta',default='validation/chapter1/native-full-route-start.json');parser.add_argument('--output',default='validation/full-route')
+args=parser.parse_args()
+meta=json.loads((ROOT/args.meta).read_text())
+out=ROOT/args.output;out.mkdir(parents=True,exist_ok=True)
 def status():return json.loads(subprocess.check_output(['node',str(CLI),'preview','status','--target-dir',str(ROOT),'--json'],text=True))
 s=status();assert s['process_alive'] and s['runtime_pid']==meta['runtimePid'] and s['reload_id']==meta['reloadId']
 log=max((Path(s['executable']).parent/'logs/lua').glob('*'),key=lambda p:p.stat().st_mtime)
@@ -15,7 +17,7 @@ def capture(label):
     global counter
     current=status();assert current['process_alive'] and current['runtime_pid']==meta['runtimePid']
     counter+=1;name=f'{counter:02}-{label}'
-    raw=out/(name+'-window.png');subprocess.run(['screencapture','-x','-o','-l',str(meta['window']),str(raw)],check=True)
+    raw=out/(name+'-window.png');subprocess.run(['screencapture','-x','-o','-a','-l',str(meta['window']),str(raw)],check=True)
     im=Image.open(raw);w,h=meta['contentSize'];assert im.width==w and im.height>=h
     im.crop((0,im.height-h,w,im.height)).save(out/(name+'.png'))
     print('captured',name,flush=True)

@@ -22,6 +22,7 @@
     "portrait controls remain on screen",
     "typing gates send",
     "matching pointer capture",
+    "scene action and panel share pointer owner",
     "drag cancellation",
     "resize cancellation",
     "scroll clamp",

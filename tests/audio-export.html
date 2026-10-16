@@ -1,0 +1,21 @@
+<!doctype html><meta charset="utf-8">
+<script type="module">
+try {
+ const source=await(await fetch('/reference/h5-source/src/store-audio.js')).text();
+ const StoreAudio=new Function(source.replace(/^import .*;$/gm,'').replace('export class','class')+';return StoreAudio;')();
+ const catalog=await(await fetch('/tests/audio-clips.json')).json();
+ window.renderClip=async function(index) {
+  const spec=catalog[index],rate=44100,ctx=new OfflineAudioContext(1,Math.ceil(spec.seconds*rate),rate);
+  const a=new StoreAudio();a.ctx=ctx;a.master=ctx.createGain();a.master.gain.value=.9;a.master.connect(ctx.destination);
+  let seed=6316;const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+  a.noise=ctx.createBuffer(1,rate*2,rate);const noise=a.noise.getChannelData(0);
+  for(let i=0;i<noise.length;i++)noise[i]=random()*2-1;
+  const old=Math.random;Math.random=random;try{a[spec.method](...spec.args)}finally{Math.random=old}
+  const result=await ctx.startRendering(),data=result.getChannelData(0);
+  const bytes=new Uint8Array(data.buffer);let binary='';
+  for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));
+  return {id:spec.id,rate,frames:data.length,float32:btoa(binary)};
+ };
+ window.audioReady=catalog.length;
+}catch(e){window.exportError=e.stack}
+</script>

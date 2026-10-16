@@ -15,6 +15,9 @@
     "continue expansion gap and saved floor",
     "single start event",
     "NVG frame/save lifecycle and resources",
+    "paper loading cover and fade across 24 layouts",
+    "background hold and cancellation across 24 layouts",
+    "inverted menu/label colors and blue panel interior",
     "CSS curve reversal continuity",
     "120 ticks / 6 paths / 4 blueprint labels",
     "no Yoga or UI widget dependencies"

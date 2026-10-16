@@ -28,6 +28,15 @@ float field(vec2 uv) {
   return n * .72 + length(d) * .16 + (smoke - .5) * .34;
 }
 float stateMix(float f) { return smoothstep(f - .09, f + .09, uProg * 1.36 - .18); }
+// 反色版(look=invert)扰动后切到的那一态：原稿亮度反过来，再落回插画的几种蓝 —— 白纸变钴蓝底，蓝色块变浅，角色的深色线条变白
+// (按住 K 和开场照样是铅笔稿；uInvert 只在自动切过去的那几秒是 1)
+uniform float uInvert;
+float lum(vec3 c) { return dot(c, vec3(.3, .59, .11)); }
+vec3 invertMap(float x) {
+  vec3 c0 = vec3(.004, .25, .77), c1 = vec3(.16, .39, .88), c2 = vec3(.43, .61, .94), c3 = vec3(.8, .86, .98), c4 = vec3(.99, .995, 1.);
+  return x < .4 ? mix(c0, c1, x / .4) : x < .62 ? mix(c1, c2, (x - .4) / .22) : x < .8 ? mix(c2, c3, (x - .62) / .18) : mix(c3, c4, (x - .8) / .2);
+}
+vec3 invertBlue(vec3 c) { return invertMap(smoothstep(.04, .86, 1. - lum(c))); }
 
 
 uniform sampler2D uFlat : filter_linear_mipmap, repeat_disable;
@@ -46,6 +55,9 @@ uniform vec2 uPar;
 uniform vec2 uCam;
 // 剪影态(开场最先出现的)：网格纸 + 诺米 / 鸽子 / 羽毛的剪影(fx 的 A 通道，边缘是清楚的)。
 // 平时是白剪影 + 蓝描边，flash 时整块填满钴蓝
+
+// 反色(底板)：线条和蓝色块在原稿里一样暗，直接反过来都只是浅蓝、发糊。
+// 比周围暗的细线(局部对比)额外提亮成白线，大块蓝色不受影响
 
 void fragment() {
   vec2 uv = (UV - .5) / uZoom + uCam;
@@ -80,10 +92,20 @@ void fragment() {
   vec2 suv = uv + off;
   // 稳定在某一态时跳过噪声场，省 GPU
   float m = uProg >= 1. ? 1. : uProg <= 0. ? 0. : stateMix(field(suv));
-  float e = 1. - abs(m * 2. - 1.);
+  // 反色 ↔ 铅笔稿：反色那几秒按住 K，用同一个逆时针扫场倒回铅笔稿(uInvert 1 = 反色，0 = 铅笔稿)
+  float mi = uInvert >= 1. ? 1. : uInvert <= 0. ? 0. : smoothstep(field(suv) - .09, field(suv) + .09, uInvert * 1.36 - .18);
+  float e = max(1. - abs(m * 2. - 1.), (1. - abs(mi * 2. - 1.)) * (1. - m));
   vec2 d = (suv - uC) * vec2(uAspect, 1.);
   vec2 wuv = suv + vec2(d.y, -d.x) / max(length(d), 1e-4) / vec2(uAspect, 1.) * e * e * .008; // 边缘被逆时针的风卷一下
-  vec3 a = texture(uSketch, wuv).rgb;
+  vec3 invertedColor = vec3(0.);
+  if (mi > 0.) {
+  float inv_l = lum(texture(uFlat, wuv).rgb), inv_b = 0.;
+  vec2 inv_px = vec2(2.6 / 2560., 2.6 / 1152.) / uZoom;
+  for (int inv_i = 0; inv_i < 8; inv_i++) { float inv_a = float(inv_i) * .785398; inv_b += lum(texture(uFlat, wuv + vec2(cos(inv_a), sin(inv_a)) * inv_px).rgb); }
+  inv_b /= 8.;
+  invertedColor = invertMap(clamp(smoothstep(.04, .86, 1. - inv_l) + max(inv_b - inv_l, 0.) * 6., 0., 1.));
+  }
+  vec3 a = mi >= 1. ? invertedColor : mi <= 0. ? texture(uSketch, wuv).rgb : mix(texture(uSketch, wuv).rgb, invertedColor, mi);
   float split = .0025 * e + .008 * uGlitch;
   vec3 b = vec3(texture(uFlat, wuv + vec2(split, 0)).r, texture(uFlat, wuv).g, texture(uFlat, wuv - vec2(split, 0)).b);
   vec3 col = mix(a, b, m);

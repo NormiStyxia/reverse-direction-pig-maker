@@ -1,0 +1,18 @@
+{
+  "result": "PASS",
+  "routes": [
+    {
+      "theme": "store",
+      "frames": 6477,
+      "puffCalls": 51,
+      "result": "PASS"
+    },
+    {
+      "theme": "meeting",
+      "frames": 5777,
+      "puffCalls": 68,
+      "result": "PASS"
+    }
+  ],
+  "scope": "actual frozen onCabDown, rewindPuffs, hitTest/simulate/merge/unfold and main charge triggers; puff position/count/order per frame, all 11 rooms; constant effect RNG .37"
+}

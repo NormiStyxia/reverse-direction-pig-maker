@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-16",
+  "sessionId": "0e8a692e-0aa1-469c-b1ee-2135b07d6cc6",
+  "reloadId": 19,
+  "runtimePid": 69610,
+  "nativeRoute": "PASS",
+  "answer": "done",
+  "stageOrder": [
+    "store",
+    "echo-store",
+    "meeting",
+    "echo-meeting",
+    "morning"
+  ],
+  "exitLevels": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "sourceVerifiedInputFrames": [
+    6452,
+    5692
+  ],
+  "post": "owned scene color/depth, separate stylize and 32-tap DOF enabled",
+  "pipelineOrder": "route ran before consumer-first target registration fix; later native scene-switch regression is separate",
+  "resizeAtEnding": [
+    [
+      1280,
+      720
+    ],
+    [
+      900,
+      1000
+    ],
+    [
+      1920,
+      1080
+    ]
+  ],
+  "mouseReplayToTitle": "PASS; native pointer down/up then CHAPTER_REPLAY",
+  "resourceLifetime": "no crash across 11 exits, chapter changes, resize, and replay",
+  "save": "same-process isolated file readback; NOT restart persistence",
+  "officialCheck": "FAIL",
+  "runtimeErrors": [
+    "[2026-10-16 12_33_28_154][0] ERROR: Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds"
+  ],
+  "visualAcceptance": false,
+  "similarityPercentage": null,
+  "notCovered": [
+    "other answer branches",
+    "optional interactions",
+    "all-scene dynamic pixel parity",
+    "full resolution/touch playthrough",
+    "cross-restart persistence",
+    "audio completeness"
+  ]
+}

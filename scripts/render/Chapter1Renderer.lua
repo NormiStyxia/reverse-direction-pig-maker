@@ -68,7 +68,10 @@ function Renderer:updateCamera(dt,story,snap)
     self.camDist=mix(self.camDist,request and request.dist or 1,k);self.camPitch=mix(self.camPitch,request and request.pitch or math.rad(16),k)
     local distance=22*self.camDist*math.max(1,story.wideFrame/(graphics:GetWidth()/math.max(1,graphics:GetHeight())))
     local p=self.camPitch;local v=self.view
-    v.cameraNode.position=Vector3(look.x,look.y+math.sin(p)*distance,-(look.z+math.cos(p)*distance));v.cameraNode:LookAt(Vector3(look.x,look.y,-look.z))
+    v.cameraNode.position=Vector3(look.x,look.y+math.sin(p)*distance,-(look.z+math.cos(p)*distance))
+    if v.screenEffects then local x,y=v.screenEffects:camera(dt);v.cameraNode.position=v.cameraNode.position+Vector3(x,y,0) end
+    v.cameraNode:LookAt(Vector3(look.x,look.y,-look.z))
+    self.camYaw=math.atan(v.cameraNode.position.x-look.x,-v.cameraNode.position.z-look.z)
 end
 function Renderer:actor(story)
     local v,H=self.view,self.data.handles;local n=story.normi;local node=v.nodes[H.normi];local rock=n.walkRock*(1-n.collapse)

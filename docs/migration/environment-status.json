@@ -7,7 +7,7 @@
   "initialDevKitError": "fetch failed",
   "repairError": null,
   "missing": [],
-  "runnable": false,
+  "runnable": true,
   "visualAcceptance": "NOT_ACCEPTED: screenshots exist, parity and full game unfinished",
   "fullPlaythrough": "ONE_NATIVE_DONE_ROUTE_PASS; other branches and manual camera-dependent routes pending",
   "submittedOrBuilt": true,
@@ -16,12 +16,12 @@
   "devKitInstalledVersion": "20261015-132558",
   "recoveryReceipt": "maker_init: AI dev kit prepared; installed_at 2026-10-15T18:44:23.878Z",
   "renderProbeEntry": "preview/title.lua",
-  "submittedCommit": "82d70ad",
+  "submittedCommit": "128fd17c355020c71e9ec2561ce55cfb06cf3253",
   "remoteBuild": "SUCCESS",
-  "previewRefresh": "failed: fetch failed (remote build itself succeeded)",
+  "previewRefresh": "SUCCESS: HTTP 200",
   "previewUrl": "https://maker.taptap.cn/app/1a737f5b-265f-4977-abf1-a9721b9582e6?localDev=1&hide_chat=1",
   "runtimeExecution": "LOCAL: title, store, six echoes, chapter1, five echoes, morning/end and keyboard replay observed; one full done route passed reload31; reload33 adds rain and correct linear transparency comparison; reload37 corrects cutout auxiliary shadow/depth and contact bias (partial visual verification)",
-  "lastBuildElapsedMs": 54937,
+  "lastBuildElapsedMs": 153854,
   "lspErrors": 0,
   "lspMode": "watch (bundled single-check executable absent)",
   "knownLimitations": [
@@ -32,24 +32,25 @@
     "Shadow-only roof/leaves and opposite PCF caster side implemented reload44; left wall, floor shadow/filter, outside shading and final post still differ. Full-story source shadow settings are distinct from direct debug echo entry; 95% NOT accepted.",
     "Installed runtime rejects IN_SHADOW_PASS although dev-kit documents it; attempted shadow-only material was reverted.",
     "Installed runtime accepts shadows_disabled but does not apply it to custom light(); explicit receive_shadow is used for the single native directional light.",
-    "Installed runtime rejects LIGHT_VERTEX despite current docs; diagnostic removed. Sprite geometry55 has been correctly deinterleaved but awaits native visual recapture."
+    "Installed runtime rejects LIGHT_VERTEX despite current docs; diagnostic removed. Sprite geometry55 correction GPU verified; sampling/mip parity remains partial.",
+    "Installed runtime rejects POSITION in Surface Shader v1; receiver-position experiment fully reverted. Invalid captures isolated in validation/shadows/unsupported-position."
   ],
-  "runtimeLogWatcher": "Historical logs received, with previous deferred/empty-buffer errors; use local preview logs for current code",
+  "runtimeLogWatcher": "Current build logs retrieved: three model smoke checks PASS, 0 errors, 1 fog_disabled deferred-pass warning; not visual acceptance",
   "interface": "raw NanoVG only; no Yoga UI in scripts",
   "workflow": "NVG and local runtime preferred; user explicitly authorized one remote submission/build on 2026-10-16.",
   "localPreview": {
-    "sessionId": "1d16f694-19b5-4037-acff-bcddbead9a30",
+    "sessionId": "357eb4b8-f0e2-486e-a956-f5842989901e",
     "entry": "preview/title.lua",
     "launchMode": "loopback_manifest",
     "firstPreparationSeconds": 94.86,
     "runtimeInstalledAt": "2026-09-29T08:15:16.783Z",
-    "renderVerified": false,
-    "reloadId": 0,
-    "runtimePid": null,
-    "displayObserved": false,
+    "renderVerified": true,
+    "reloadId": 13,
+    "runtimePid": 4048,
+    "displayObserved": true,
     "cliCheckResult": "FAIL",
-    "state": "failed",
-    "reason": "Public source index download failed on authorized restart; last successful native captures are session82c1a14d reload4."
+    "state": "running",
+    "reason": "Four-pass native frost static diagnostic rendered; existing startup Cube/Day missing; no Lua/shader errors."
   },
   "prologueModel": {
     "sourceDifferentialFrames": 22325,
@@ -127,7 +128,44 @@
     "reloadId": 4,
     "report": "docs/migration/store-night-comparison.json",
     "nightGradeVerified": true,
-    "spriteGeometryVisualRecheckPending": true,
+    "spriteGeometryVisualRecheckPending": false,
+    "visualAcceptance": false
+  },
+  "latestExplicitRemoteBuild": {
+    "commit": "128fd17",
+    "result": "SUCCESS",
+    "elapsedMs": 153854,
+    "logsRetrieved": true,
+    "report": "docs/migration/remote-build-2026-10-16.json",
+    "visualAcceptance": false,
+    "remotePull": {
+      "result": "PASS",
+      "method": "git pull --ff-only origin main",
+      "head": "001e8556456d1b87aeb96517af1a1d345beef52d",
+      "ahead": 0,
+      "behind": 0,
+      "generatedMetaFiles": 1663,
+      "localReportsPreservedBySha256": true,
+      "checkedAt": "2026-10-16T01:19:40.057771+00:00"
+    }
+  },
+  "latestTextureSamplingIntegration": {
+    "sessionId": "357eb4b8-f0e2-486e-a956-f5842989901e",
+    "reloadId": 3,
+    "report": "docs/migration/local-sampling-runtime-report.json",
+    "visualAcceptance": false
+  },
+  "latestSceneActionsIntegration": {
+    "report": "docs/migration/local-scene-actions-runtime-report.json",
+    "reloadId": 9,
+    "nativeMouseActions": "phone and pig PASS",
+    "visualAcceptance": false
+  },
+  "latestPostIntegration": {
+    "report": "docs/migration/local-post-runtime-report.json",
+    "reloadId": 13,
+    "defaultGameplayEnabled": false,
+    "staticFrostGpu": "PASS",
     "visualAcceptance": false
   }
 }

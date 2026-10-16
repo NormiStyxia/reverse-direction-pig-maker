@@ -1,0 +1,93 @@
+{
+  "sessionId": "0e8a692e-0aa1-469c-b1ee-2135b07d6cc6",
+  "reloadId": 45,
+  "runtimePid": 78424,
+  "rows": [
+    {
+      "sample": 1,
+      "size": [
+        2448,
+        1376
+      ],
+      "sourcePixels": 32136,
+      "nativePixels": 32133,
+      "coverageIoU": 0.9997821893086066,
+      "unionRGBMAE255": 0.4859875121870268,
+      "interiorRGBMAE255": 0.4629900511447927
+    },
+    {
+      "sample": 2,
+      "size": [
+        2448,
+        1376
+      ],
+      "sourcePixels": 21130,
+      "nativePixels": 21132,
+      "coverageIoU": 0.9991485335856197,
+      "unionRGBMAE255": 0.6446389151687165,
+      "interiorRGBMAE255": 0.5665025407947479
+    },
+    {
+      "sample": 3,
+      "size": [
+        2448,
+        1376
+      ],
+      "sourcePixels": 6704,
+      "nativePixels": 6704,
+      "coverageIoU": 0.9994035192365046,
+      "unionRGBMAE255": 0.6709911522020081,
+      "interiorRGBMAE255": 0.5688849099771213
+    },
+    {
+      "sample": 4,
+      "size": [
+        2448,
+        1376
+      ],
+      "sourcePixels": 20677,
+      "nativePixels": 20678,
+      "coverageIoU": 0.9995648389904265,
+      "unionRGBMAE255": 0.6210069948103021,
+      "interiorRGBMAE255": 0.567616375626824
+    },
+    {
+      "sample": 5,
+      "size": [
+        2448,
+        1376
+      ],
+      "sourcePixels": 20677,
+      "nativePixels": 20678,
+      "coverageIoU": 0.9995648389904265,
+      "unionRGBMAE255": 0.6210069948103021,
+      "interiorRGBMAE255": 0.567616375626824
+    },
+    {
+      "sample": 6,
+      "size": [
+        2448,
+        1376
+      ],
+      "sourcePixels": 0,
+      "nativePixels": 0,
+      "coverageIoU": null,
+      "unionRGBMAE255": 0,
+      "interiorRGBMAE255": 0
+    },
+    {
+      "sample": 7,
+      "size": [
+        2448,
+        1376
+      ],
+      "sourcePixels": 21130,
+      "nativePixels": 21132,
+      "coverageIoU": 0.9991485335856197,
+      "unionRGBMAE255": 0.21712393566698202,
+      "interiorRGBMAE255": 0.0
+    }
+  ],
+  "movedFirstVsStableChangedPixels": 0,
+  "scope": "single opaque paper puff, source frozen paintPuff/main.js/Three vs native SurfaceShader; ICC normalized to sRGB, no rescaling for metrics, background excluded; NOT full-game similarity"
+}

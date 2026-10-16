@@ -1,0 +1,178 @@
+{
+  "source": "Frozen StoreChapter raw HDR scene, source ACES/sRGB, no full post",
+  "images": [
+    "h5-shadow-both",
+    "native-halo-packed",
+    "native-hedge-mipmap",
+    "native-source-sampling"
+  ],
+  "candidate": {
+    "sessionId": "357eb4b8-f0e2-486e-a956-f5842989901e",
+    "reloadId": 3,
+    "runtimePid": 25098,
+    "window": 22763,
+    "keys": [
+      "97",
+      "wait:10",
+      "96",
+      "wait:1"
+    ],
+    "cropRect": [
+      0,
+      32,
+      1920,
+      1112
+    ],
+    "contentSize": [
+      1920,
+      1080
+    ],
+    "graphicsLog": "/Users/xd/.taptap-maker/runtime/runtime-49696d14-a3c6-40fe-9808-2e28bb0d0045/logs/game/urhox_runtime-2026-10-16 09_27_31_229.log",
+    "scope": "native store integration, NOT visual acceptance"
+  },
+  "visualAccepted": false,
+  "wholeGameSimilarity": null,
+  "regions": {
+    "hedge": {
+      "rect": [
+        470,
+        437,
+        1140,
+        507
+      ],
+      "MAE255": {
+        "native-halo-packed": 18.164001421464107,
+        "native-hedge-mipmap": 15.292046908315566,
+        "native-source-sampling": 4.905820895522388
+      }
+    },
+    "canopy": {
+      "rect": [
+        790,
+        393,
+        1150,
+        413
+      ],
+      "MAE255": {
+        "native-halo-packed": 8.21412037037037,
+        "native-hedge-mipmap": 8.21412037037037,
+        "native-source-sampling": 1.657175925925926
+      }
+    },
+    "character": {
+      "rect": [
+        1360,
+        415,
+        1435,
+        653
+      ],
+      "MAE255": {
+        "native-halo-packed": 11.593221288515407,
+        "native-hedge-mipmap": 11.406647992530345,
+        "native-source-sampling": 7.449803921568628
+      }
+    },
+    "floor": {
+      "rect": [
+        600,
+        900,
+        1200,
+        1000
+      ],
+      "MAE255": {
+        "native-halo-packed": 1.5637444444444444,
+        "native-hedge-mipmap": 1.5637444444444444,
+        "native-source-sampling": 1.1300166666666667
+      }
+    },
+    "right_wall": {
+      "rect": [
+        1720,
+        180,
+        1850,
+        420
+      ],
+      "MAE255": {
+        "native-halo-packed": 1.033130341880342,
+        "native-hedge-mipmap": 1.033130341880342,
+        "native-source-sampling": 1.0531410256410256
+      }
+    },
+    "lamp_halo": {
+      "rect": [
+        690,
+        215,
+        750,
+        270
+      ],
+      "MAE255": {
+        "native-halo-packed": 2.406868686868687,
+        "native-hedge-mipmap": 2.406868686868687,
+        "native-source-sampling": 3.842828282828283
+      }
+    },
+    "left_wall_shadow": {
+      "rect": [
+        0,
+        145,
+        210,
+        740
+      ],
+      "MAE255": {
+        "native-halo-packed": 15.269638522075496,
+        "native-hedge-mipmap": 15.269638522075496,
+        "native-source-sampling": 14.647098839535815
+      }
+    },
+    "leaf_floor_shadow": {
+      "rect": [
+        585,
+        740,
+        815,
+        860
+      ],
+      "MAE255": {
+        "native-halo-packed": 33.98897342995169,
+        "native-hedge-mipmap": 33.98897342995169,
+        "native-source-sampling": 33.918357487922705
+      }
+    },
+    "leaf_back_shadow": {
+      "rect": [
+        235,
+        145,
+        435,
+        375
+      ],
+      "MAE255": {
+        "native-halo-packed": 2.654268115942029,
+        "native-hedge-mipmap": 2.654268115942029,
+        "native-source-sampling": 2.589492753623188
+      }
+    },
+    "table_shadow": {
+      "rect": [
+        680,
+        520,
+        820,
+        565
+      ],
+      "MAE255": {
+        "native-halo-packed": 23.704391534391533,
+        "native-hedge-mipmap": 23.704391534391533,
+        "native-source-sampling": 23.40767195767196
+      }
+    }
+  },
+  "limitations": [
+    "Regional raw-scene comparison only; no aggregate score.",
+    "Left wall occlusion and shadow projection/filter still differ.",
+    "Native mip generation and sRGB filtering need further source calibration.",
+    "Full post, audio, adaptation and remaining playthrough acceptance pending."
+  ],
+  "spriteGeometryCorrection": {
+    "beforeMAE255": 12.948080808080809,
+    "afterMAE255": 2.406868686868687,
+    "note": "Before subsequent sampler changes; isolated corrected quad evidence."
+  }
+}

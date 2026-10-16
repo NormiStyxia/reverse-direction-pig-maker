@@ -276,6 +276,25 @@ function Story:move(dt)
     local distance=0;for _,w in ipairs(self.walkLog) do distance=distance+w.d end
     if distance>6 then self.walkLog={};self:add(4) end
 end
+function Story:canSkip() return self.phase=='intro' or self.phase=='play' or self.phase=='dark' end
+function Story:skip()
+    if not self:canSkip() then return false end
+    self.later={}
+    local n=self.normi
+    if self.phase=='intro' then
+        n:setPosition(-.7,0,-2.85);n:moveStick({x=-.7,y=0,z=-2.85});n.override=false;n:face(-1)
+        self.archiveVisible=true
+    end
+    if self.phone.open then self:closePhone() end
+    if self.browse.open then self:closeBrowse() end
+    self.clock=12;self.workI=#L.work;self.pending=false
+    for _,key in ipairs({'d-blink','d-cut','d-clerk','d-b','d-c','d-gone','d-pig','d-table'}) do self.fired[key]=true end
+    self.flickBoost=0;self.power=0;self.offline=true;self:emit('sound',{name='powerCut'})
+    self.doodleGone=true;self.doodleK=0;self.tablePig.visible=true;self.tablePig.spinT=0
+    self:emit('puff',{x=Data.table.x,y=Data.table.y+.3,z=Data.table.z,count=3});self:emit('pigReady')
+    self.phase='pig';self.phoneButtonHidden=true;self:emit('hint',{text=L.pig.hint,duration=6.5})
+    return true
+end
 function Story:startReply()
     if self.phase~='play' then return end
     self.phase='dark';self.darkT=0;self:receive(L.cut);self.pending=false

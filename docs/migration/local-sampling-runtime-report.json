@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-16",
+  "sessionId": "357eb4b8-f0e2-486e-a956-f5842989901e",
+  "reloadId": 3,
+  "runtimePid": 25098,
+  "processAlive": true,
+  "runtime": {
+    "lua": {
+      "path": "/Users/xd/.taptap-maker/runtime/runtime-49696d14-a3c6-40fe-9808-2e28bb0d0045/logs/lua/lua-2026-10-16 09_27_32_322.log",
+      "errors": [],
+      "sampling": [
+        "[2026-10-16 09_27_48_886][2126][Script] STORE_TEXTURE_SAMPLING: {\"levels\":12,\"width\":3072,\"sRGB\":false,\"path\":\"store/foliage-hedge.png\",\"height\":1024,\"filter\":2}",
+        "[2026-10-16 09_27_48_886][2126][Script] STORE_TEXTURE_SAMPLING: {\"levels\":12,\"width\":3072,\"sRGB\":false,\"path\":\"store/foliage-canopy.png\",\"height\":1024,\"filter\":2}",
+        "[2026-10-16 09_27_48_886][2126][Script] STORE_TEXTURE_SAMPLING: {\"levels\":13,\"width\":3072,\"sRGB\":false,\"path\":\"c0/normi-motion-atlas.png\",\"height\":5376,\"filter\":2}",
+        "[2026-10-16 09_28_53_110][10923][Script] STORE_TEXTURE_SAMPLING: {\"levels\":13,\"width\":3072,\"sRGB\":false,\"path\":\"c0/normi-motion-atlas.png\",\"height\":5376,\"filter\":2}"
+      ]
+    },
+    "game": {
+      "path": "/Users/xd/.taptap-maker/runtime/runtime-49696d14-a3c6-40fe-9808-2e28bb0d0045/logs/game/urhox_runtime-2026-10-16 09_27_31_229.log",
+      "errors": [
+        "{\"t\":\"2026-10-16 09_27_31_920\",\"f\":0,\"l\":\"ERROR\",\"m\":\"Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds\"}"
+      ],
+      "sampling": []
+    }
+  },
+  "lsp": "Lua Errors: 0 | Dir: /Users/xd/Desktop/maker反方向的猪/scripts | Time: 2026-10-16 09:27:10\nEmmyLua Types: /Users/xd/Desktop/maker反方向的猪/.emmylua\n---\n✅ No errors\n",
+  "capturedScenes": [
+    "store fixed t=0",
+    "chapter1 meeting fixed t=0",
+    "prologue echo level1 fixed t=5"
+  ],
+  "spriteGeometryGpuVerified": true,
+  "textureSampling": "Original base-resolution Image uploaded with automatic mip generation; source wrap/filter modes restored. GPU reports 12 levels for foliage and 13 for character atlas.",
+  "comparison": "docs/migration/store-sampling-comparison.json",
+  "officialCheck": "FAIL: existing missing Cube/Day/DaySpecularHDR_QualityLow.dds at frame 0",
+  "luaErrors": 0,
+  "visualAccepted": false,
+  "wholeGameSimilarity": null,
+  "limitations": [
+    "Source sRGB mip/interpolation not yet exact; lamp ROI increased from 2.407 to 3.843 after global sampling restoration.",
+    "Store left wall and shadow alignment/filter still visibly differ.",
+    "Local scene-load and fixed-frame inspection only, not a new full playthrough.",
+    "Web runtime changes not built again; only one remote build was authorized."
+  ]
+}

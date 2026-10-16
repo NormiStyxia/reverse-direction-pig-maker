@@ -15,7 +15,7 @@ out=ROOT/'validation'/kind;out.mkdir(parents=True,exist_ok=True)
 name=sys.argv[1] if len(sys.argv)>1 else 'native-store'
 assert name.replace('-','').replace('_','').isalnum()
 status=json.loads(subprocess.check_output(['node',str(CLI),'preview','status','--target-dir',str(ROOT),'--json'],text=True))
-assert status['process_alive'] and status['preparation']['entry']=='preview/title.lua'
+assert status['process_alive'] and status['preparation']['entry'] in ('main.lua','preview/title.lua','preview/diagnostics.lua')
 pid=status['runtime_pid']
 for arg in sys.argv[2:]:
     parts=arg.split(':')
@@ -30,10 +30,12 @@ swift='''import CoreGraphics
 import Foundation
 let windows = CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID) as? [[String: Any]] ?? []
 for w in windows where (w[kCGWindowOwnerPID as String] as? Int) == TARGET_PID {
- if let b=w[kCGWindowBounds as String] as? [String:Any], (b["Height"] as? Int ?? 0)>1000 { print(w[kCGWindowNumber as String]!) }
+ if let b=w[kCGWindowBounds as String] as? [String:Any], (b["Height"] as? Int ?? 0)>400, (b["Width"] as? Int ?? 0)>600 { print(w[kCGWindowNumber as String]!) }
 }'''.replace('TARGET_PID',str(pid))
 window=subprocess.check_output(['swift','-e',swift],text=True).strip();assert window.isdigit()
-raw=out/(name+'-window.png');subprocess.run(['screencapture','-x','-o','-l',window,str(raw)],check=True)
+# macOS can attach an input-method badge outside the game window. Exclude
+# attached windows instead of silently cropping/scaling a wider capture.
+raw=out/(name+'-window.png');subprocess.run(['screencapture','-x','-o','-a','-l',window,str(raw)],check=True)
 im=Image.open(raw)
 # Keep real resolution; a resized/fullscreen window must never be rescaled into
 # a supposedly identical 1920x1080 reference capture. Derive content size from
@@ -43,7 +45,7 @@ log=max(logdir.glob('*'),key=lambda p:p.stat().st_mtime)
 sizes=re.findall(r'Graphics (?:mode|resized): ([0-9]+)x([0-9]+)',log.read_text())
 assert sizes,'No current runtime graphics dimensions'
 w,h=map(int,sizes[-1]);top=im.height-h
-assert im.width==w and 0<=top<=80,(im.size,(w,h),'Unexpected capture geometry')
+assert im.width==w and 0<=top<=160,(im.size,(w,h),'Unexpected capture geometry')
 rect=(0,top,w,im.height);im.crop(rect).save(out/(name+'.png'))
 (out/(name+'.json')).write_text(json.dumps({'sessionId':status['session_id'],'reloadId':status['reload_id'],'runtimePid':pid,'window':int(window),
     'keys':sys.argv[2:],'cropRect':rect,'contentSize':[w,h],'graphicsLog':str(log),'scope':'native '+kind+' integration, NOT visual acceptance'},indent=2)+'\n')

@@ -1,0 +1,360 @@
+[
+  {
+    "id": "tap",
+    "method": "tap",
+    "args": [],
+    "seconds": 0.11
+  },
+  {
+    "id": "send",
+    "method": "send",
+    "args": [],
+    "seconds": 0.28
+  },
+  {
+    "id": "buzz",
+    "method": "buzz",
+    "args": [],
+    "seconds": 0.62
+  },
+  {
+    "id": "powerCut",
+    "method": "powerCut",
+    "args": [],
+    "seconds": 0.76
+  },
+  {
+    "id": "slide",
+    "method": "slide",
+    "args": [],
+    "seconds": 0.85
+  },
+  {
+    "id": "thunder",
+    "method": "thunder",
+    "args": [
+      0.5
+    ],
+    "seconds": 4.7
+  },
+  {
+    "id": "chime-0.6",
+    "method": "chime",
+    "args": [
+      0.6
+    ],
+    "seconds": 1.5
+  },
+  {
+    "id": "chime-0.8",
+    "method": "chime",
+    "args": [
+      0.8
+    ],
+    "seconds": 1.5
+  },
+  {
+    "id": "chime-0.9",
+    "method": "chime",
+    "args": [
+      0.9
+    ],
+    "seconds": 1.5
+  },
+  {
+    "id": "chime-1",
+    "method": "chime",
+    "args": [
+      1
+    ],
+    "seconds": 1.5
+  },
+  {
+    "id": "chime-1.2",
+    "method": "chime",
+    "args": [
+      1.2
+    ],
+    "seconds": 1.5
+  },
+  {
+    "id": "blink",
+    "method": "tone",
+    "args": [
+      2400,
+      {
+        "dur": 1.6,
+        "gain": 0.006,
+        "type": "sawtooth",
+        "slide": 0
+      }
+    ],
+    "seconds": 1.6600000000000001
+  },
+  {
+    "id": "prologuePig",
+    "method": "tone",
+    "args": [
+      330,
+      {
+        "dur": 0.6,
+        "gain": 0.04,
+        "type": "sine",
+        "slide": 0.6
+      }
+    ],
+    "seconds": 0.6599999999999999
+  },
+  {
+    "id": "pig",
+    "method": "tone",
+    "args": [
+      880,
+      {
+        "dur": 0.3,
+        "gain": 0.04,
+        "type": "triangle",
+        "slide": 0.6
+      }
+    ],
+    "seconds": 0.36
+  },
+  {
+    "id": "tick",
+    "method": "tone",
+    "args": [
+      1300,
+      {
+        "dur": 0.08,
+        "gain": 0.05,
+        "type": "triangle",
+        "slide": 0
+      }
+    ],
+    "seconds": 0.14
+  },
+  {
+    "id": "push",
+    "method": "tone",
+    "args": [
+      95,
+      {
+        "dur": 0.22,
+        "gain": 0.1,
+        "type": "triangle",
+        "slide": 0.6
+      }
+    ],
+    "seconds": 0.28
+  },
+  {
+    "id": "autoSlide",
+    "method": "tone",
+    "args": [
+      95,
+      {
+        "dur": 0.22,
+        "gain": 0.08,
+        "type": "triangle",
+        "slide": 0.6
+      }
+    ],
+    "seconds": 0.28
+  },
+  {
+    "id": "stop",
+    "method": "tone",
+    "args": [
+      80,
+      {
+        "dur": 0.18,
+        "gain": 0.08,
+        "type": "triangle",
+        "slide": 0.7
+      }
+    ],
+    "seconds": 0.24
+  },
+  {
+    "id": "tip",
+    "method": "tone",
+    "args": [
+      140,
+      {
+        "dur": 0.5,
+        "gain": 0.04,
+        "type": "sawtooth",
+        "slide": 0.8
+      }
+    ],
+    "seconds": 0.56
+  },
+  {
+    "id": "fall",
+    "method": "tone",
+    "args": [
+      70,
+      {
+        "dur": 0.4,
+        "gain": 0.14,
+        "type": "triangle",
+        "slide": 0.5
+      }
+    ],
+    "seconds": 0.46
+  },
+  {
+    "id": "merge",
+    "method": "tone",
+    "args": [
+      520,
+      {
+        "dur": 0.45,
+        "gain": 0.07,
+        "type": "triangle",
+        "slide": 1.6
+      }
+    ],
+    "seconds": 0.51
+  },
+  {
+    "id": "rewind",
+    "method": "tone",
+    "args": [
+      1500,
+      {
+        "dur": 0.05,
+        "gain": 0.035,
+        "type": "triangle",
+        "slide": 0.7
+      }
+    ],
+    "seconds": 0.11
+  },
+  {
+    "id": "rewindEnd",
+    "method": "tone",
+    "args": [
+      900,
+      {
+        "dur": 0.05,
+        "gain": 0.015,
+        "type": "triangle",
+        "slide": 0.7
+      }
+    ],
+    "seconds": 0.11
+  },
+  {
+    "id": "leave-0",
+    "method": "tone",
+    "args": [
+      320,
+      {
+        "dur": 0.25,
+        "gain": 0.03,
+        "type": "triangle",
+        "slide": 1.4
+      }
+    ],
+    "seconds": 0.31
+  },
+  {
+    "id": "leave-1",
+    "method": "tone",
+    "args": [
+      290,
+      {
+        "dur": 0.25,
+        "gain": 0.03,
+        "type": "triangle",
+        "slide": 1.4
+      }
+    ],
+    "seconds": 0.31
+  },
+  {
+    "id": "leave-2",
+    "method": "tone",
+    "args": [
+      260,
+      {
+        "dur": 0.25,
+        "gain": 0.03,
+        "type": "triangle",
+        "slide": 1.4
+      }
+    ],
+    "seconds": 0.31
+  },
+  {
+    "id": "leave-3",
+    "method": "tone",
+    "args": [
+      230,
+      {
+        "dur": 0.25,
+        "gain": 0.03,
+        "type": "triangle",
+        "slide": 1.4
+      }
+    ],
+    "seconds": 0.31
+  },
+  {
+    "id": "leave-4",
+    "method": "tone",
+    "args": [
+      200,
+      {
+        "dur": 0.25,
+        "gain": 0.03,
+        "type": "triangle",
+        "slide": 1.4
+      }
+    ],
+    "seconds": 0.31
+  },
+  {
+    "id": "leave-5",
+    "method": "tone",
+    "args": [
+      170,
+      {
+        "dur": 0.25,
+        "gain": 0.03,
+        "type": "triangle",
+        "slide": 1.4
+      }
+    ],
+    "seconds": 0.31
+  },
+  {
+    "id": "leave-6",
+    "method": "tone",
+    "args": [
+      140,
+      {
+        "dur": 0.25,
+        "gain": 0.03,
+        "type": "triangle",
+        "slide": 1.4
+      }
+    ],
+    "seconds": 0.31
+  },
+  {
+    "id": "leave-7",
+    "method": "tone",
+    "args": [
+      110,
+      {
+        "dur": 0.25,
+        "gain": 0.03,
+        "type": "triangle",
+        "slide": 1.4
+      }
+    ],
+    "seconds": 0.31
+  }
+]

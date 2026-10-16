@@ -1,0 +1,5 @@
+{
+  "result": "PASS",
+  "frames": 8361,
+  "scope": "frozen main.js timing, sweep, previous-frame distance output, inactive rewind strength; not pixel parity"
+}

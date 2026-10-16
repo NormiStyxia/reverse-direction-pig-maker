@@ -1,0 +1,23 @@
+{
+  "result": "PASS_SAMPLED",
+  "captures": {
+    "live-title-before-cover": {
+      "reload": 30,
+      "samples": 37,
+      "blackSamples": [
+        {
+          "index": 2,
+          "seconds": 4.430458083
+        }
+      ],
+      "duration": 60.77730341699999
+    },
+    "live-title": {
+      "reload": 31,
+      "samples": 37,
+      "blackSamples": [],
+      "duration": 25.245806207999998
+    }
+  },
+  "limit": "37 wall-clock samples, not frame-complete video; asset readiness timing varies"
+}

@@ -120,6 +120,7 @@ function Echo:merge(a,b)
     self.room.crates=remaining
     self.room.merged=self.room.merged+1
     self:emit('merge',{pastAndTonight={a,b},now=now})
+    self:emit('puff',{x=b.x,y=.6,z=b.z,count=6})
 end
 function Echo:tipCabinet(k,key)
     local fallen=shrink(self:cabBox(k,math.pi/2,key),.05)
@@ -137,6 +138,7 @@ function Echo:push(c,key)
     local d=assert(dirs[key])
     c.vx=d[1]*SLIDE c.vz=d[2]*SLIDE c.moving=true c.pushed=true
     self:emit('cratePush',c)
+    self:emit('puff',{x=c.x,y=.2,z=c.z,count=3})
 end
 function Echo:simulate(dt,onlyGold)
     local R=self.room
@@ -165,6 +167,7 @@ function Echo:simulate(dt,onlyGold)
                     if hit~='wall' and not hit.moving then hit.vx=c.vx hit.vz=c.vz hit.moving=true end
                     c.vx=0 c.vz=0 c.moving=false left=0
                     self:emit('crateStop',c)
+                    self:emit('puff',{x=c.x+ux*BOX,y=.2,z=c.z+uz*BOX,count=2})
                 end
             end
         end
@@ -181,7 +184,10 @@ function Echo:simulate(dt,onlyGold)
             if k.tm>.5 then k.ph=2 k.w=.8 end
         elseif k.ph==2 then
             k.w=k.w+(2.5+9*math.sin(k.a))*dt k.a=k.a+k.w*dt
-            if k.a>=math.pi/2 then k.a=math.pi/2 k.w=0 k.ph=3 self:emit('cabinetDown',k) end
+            if k.a>=math.pi/2 then
+                k.a=math.pi/2 k.w=0 k.ph=3 self:emit('cabinetDown',k)
+                self:emit('puffCabinet',{bounds=self:cabBox(k)})
+            end
         end
     end
 end
@@ -250,7 +256,13 @@ end
 function Echo:step(dt,rewinding,absoluteTime)
     self.t=absoluteTime or (self.t+dt)
     if rewinding then
-        self.timeline:rewind(dt*1.15,function(s) return self:rewindOk(s) end)
+        local moved=self.timeline:rewind(dt*1.15,function(s) return self:rewindOk(s) end)
+        self.lastRewindMoved=moved
+        if moved then
+            local positions={}
+            for _,c in ipairs(self.room.crates) do if not c.gold and not c.gone then positions[#positions+1]={x=c.x,y=.3,z=c.z} end end
+            self:emit('rewindPuffs',{dt=dt,positions=positions})
+        end
         self:simulate(dt,true)
     else
         self:simulate(dt,false)

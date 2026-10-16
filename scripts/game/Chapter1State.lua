@@ -172,6 +172,38 @@ function Story:togglePhone()
     self:sound('tap');if self.phone.open then self:closePanel();return end
     self.panelClosable=true;self:openPanel('手机',self:hm(),{{kind='card',name='日程',rows={{'周五','方案 v7'}}},think('周五。……今天就是周五。')},{'收起'});self.choiceMode='phone'
 end
+function Story:canSkip()
+    if self.mode=='morning' then return self.phase=='play' or self.phase=='msg' end
+    return self.phase=='play' or self.phase=='ask' or self.phase=='leave' or self.phase=='msg' or (self.phase=='walk' and not self.carrying)
+end
+function Story:takeBox()
+    if self.carrying then return end
+    self.carrying=true;self.boxVisible=false;self.seen.take=true
+    self:emit('puff',{pos=vec(Data.box.x,1.6,Data.box.z),count=2})
+end
+function Story:skip()
+    if not self:canSkip() then return false end
+    if self.mode=='morning' then
+        self.later={};self:closePanel();self.phase='done';self.result=true;self:emit('finish');return true
+    end
+    if self.phase=='play' or (self.phase=='ask' and not self.answer) then
+        self.later={};self.phase='ask';self.interactionId=false
+        if not self.phone.open or self.choiceMode~='answer' then
+            self.panelClosable=false;self.choiceMode='answer'
+            local choices={};for _,a in ipairs(Data.answers) do choices[#choices+1]=a.say end
+            self:openPanel('组会',self:hm(),{leader('诺米，方案周五前再出一版，没问题吧？'),think('上次我说的是……')},choices)
+        end
+        self.phone:flush();return true
+    end
+    if self.phase=='walk' then self:takeBox();return true end
+    self.later={};self.waitPanel=false
+    if self.answer=='done' then self.slide=true end
+    self.tonightAnswer=self.answer
+    for _,p in ipairs(self.people) do p.leaveT=false;p.visible=false end
+    self.clockMin=902;self.clockDusk=true;self.replied=true
+    self:closePanel();self.expr='calm';self.phase='walk';self:takeBox()
+    self:emit('hint',{text=Data.after.goDesk,duration=6});return true
+end
 function Story:ask()
     if self.phase~='play' then return end
     self.phase='ask';if self.phone.open then self:closePanel() end
@@ -200,7 +232,9 @@ end
 function Story:dismiss()
     self.phase='leave';self:talk('leader','散会。');self.tonightAnswer=self.answer
     local order={};for _,p in ipairs(self.people) do if p.kind~='leader' then order[#order+1]=p end end;order[#order+1]=self.people[1]
-    for i,p in ipairs(order) do self:after(1.2+(i-1)*.45,function() p.leaveT=0;self:sound('leave') end) end
+    for i,p in ipairs(order) do self:after(1.2+(i-1)*.45,function()
+        p.leaveT=0;self:emit('tone',{frequency=320-(i-1)*30,duration=.25,gain=.03,wave='triangle',slide=1.4})
+    end) end
     self:after(1.2+#order*.45+.4,function() self.clockMin=902;self.clockDusk=true end)
     self:after(1.2+#order*.45+1.4,function() self:message() end)
 end
