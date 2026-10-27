@@ -16,6 +16,13 @@ local Dynamics=require('game.StoreDynamics')
 ---@field screenEffects ScreenEffects?
 local Renderer={}
 Renderer.__index=Renderer
+local MOTION_ATLAS='c0/normi-motion-atlas.png'
+local function motionTile(frame)return string.format('increment03/normi-motion/%02d.png',frame)end
+local PREPARED_TEXTURES={
+    ['pig-atlas-eight.png']='increment03/prepared/pig-atlas-eight.dds',
+    ['store/foliage-canopy.png']='increment03/prepared/foliage-canopy.dds',
+    ['store/foliage-hedge.png']='increment03/prepared/foliage-hedge.dds',
+}
 local function vec(a) return Vector3(a[1],a[2],-a[3]) end
 local function quat(a) return Quaternion(a[4],-a[1],-a[2],a[3]) end
 ---@param a number[]
@@ -44,7 +51,7 @@ function Renderer.new(data)
     local self=setmetatable({},Renderer);self:init(data);return self
 end
 function Renderer:init(data)
-    self.data=data or Data
+    self.data=data or require('game.data.StoreSceneWithWalkers')
     local Data=self.data
     self.disposed=false;self.ready=false;self.pending=0;self.textures={};self.materials={};self.models={};self.nodes={};self.drawables={};self.lights={}
     self.look={x=0,y=2.05,z=-1.1};self.camYaw=0;self.time=0;self.active=true
@@ -88,26 +95,64 @@ function Renderer:init(data)
     for _,t in ipairs(Data.textures) do
         local previous=textureSpecs[t.path]
         assert(not previous or (previous.wrapS==t.wrapS and previous.wrapT==t.wrapT and previous.minFilter==t.minFilter and previous.magFilter==t.magFilter),'Conflicting source samplers: '..t.path)
-        paths[t.path]=true;textureSpecs[t.path]=t
+        if t.path==MOTION_ATLAS then
+            self.motionTextureId=t.id
+            for frame=0,27 do local path=motionTile(frame);paths[path]=true;textureSpecs[path]=t end
+        else paths[t.path]=true;textureSpecs[t.path]=t end
     end
-    for _ in pairs(paths) do self.pending=self.pending+1 end
-    for resourcePath in pairs(paths) do
-        cache:GetResourceAsync('Texture2D',resourcePath,function(resource)
+    self.textureSpecs=textureSpecs;self.textureQueue={};self.textureNext=1;self.textureInFlight=0
+    for path in pairs(paths) do self.textureQueue[#self.textureQueue+1]=path;self.pending=self.pending+1 end
+    table.sort(self.textureQueue)
+end
+function Renderer:setActorFrame(id,frame,columns,rows)
+    local source=self.data.materials[id];local material=self.materials[id]
+    if self.motionTextureId and source.map==self.motionTextureId then
+        assert(columns==4 and rows==7 and frame>=0 and frame<28 and frame%1==0,'Invalid frozen motion frame')
+        self.motionFrames=self.motionFrames or {}
+        if self.motionFrames[id]==frame then return end
+        local texture=assert(self.textures[motionTile(frame)],'Motion frame not loaded')
+        material:SetSurfaceTexture('paint_map',texture)
+        if source.emissiveMap==self.motionTextureId then material:SetSurfaceTexture('emit_map',texture)end
+        -- 768 original pixels inside a 1024 tile with 128 source-pixel gutters.
+        local uv=Vector4(.75,.75,.125,.125)
+        parameter(material,'map_uv',uv);parameter(material,'emit_uv',uv)
+        self.motionFrames[id]=frame
+    else
+        local uv=Vector4(1/columns,1/rows,(frame%columns)/columns,math.floor(frame/columns)/rows)
+        parameter(material,'map_uv',uv);parameter(material,'emit_uv',uv)
+    end
+end
+function Renderer:pumpTextures()
+    if self.disposed or self.pending==0 then return end
+    -- DWP finishes texture uploads before BeginFrame. Queueing the whole scene
+    -- together caused 0.5–1s stalls there. Limit requests/frame and in-flight
+    -- uploads; publish geometry only after every original texture is ready.
+    -- The existing probe/view pair can call pumpBuild twice in one frame.
+    if self.texturePumpFrame==time.frameNumber then return end
+    self.texturePumpFrame=time.frameNumber
+    for _=1,2 do
+        if self.textureInFlight>=2 then break end
+        local resourcePath=self.textureQueue[self.textureNext];if not resourcePath then break end
+        self.textureNext=self.textureNext+1;self.textureInFlight=self.textureInFlight+1
+        local loadPath=PREPARED_TEXTURES[resourcePath]or resourcePath
+        if Renderer.textureTrace then Renderer.textureTrace('request',loadPath)end
+        cache:GetResourceAsync('Texture2D',loadPath,function(resource)
             if self.disposed then return end
             assert(resource,'STORE_TEXTURE_FAILED: '..resourcePath)
             ---@type Texture2D
             local texture=resource
-            local spec=textureSpecs[resourcePath]
+            local spec=self.textureSpecs[resourcePath]
             local function loaded()
                 Renderer.configureTexture(texture,spec)
-                self.textures[resourcePath]=texture;self.pending=self.pending-1
-                if self.pending==0 then self:build() end
+                self.textures[resourcePath]=texture;self.pending=self.pending-1;self.textureInFlight=self.textureInFlight-1
+                if Renderer.textureTrace then Renderer.textureTrace('ready',loadPath)end
+                if self.pending==0 then self.buildTask=coroutine.create(function()self:build()end) end
             end
             -- Prepared PNG resources arrive with one GPU level on this Runtime.
             -- Re-upload their original Image with automatic mip generation; do
             -- not resize, blur, or replace the frozen base pixels.
             if spec and spec.minFilter==1008 and texture.levels==1 and math.max(texture.width,texture.height)>1 then
-                cache:GetResourceAsync('Image',resourcePath,function(image)
+                cache:GetResourceAsync('Image',loadPath,function(image)
                     if self.disposed then return end
                     assert(image,'STORE_MIP_IMAGE_FAILED: '..resourcePath)
                     texture:SetNumLevels(0)
@@ -120,6 +165,17 @@ function Renderer:init(data)
 end
 function Renderer:activate()
     self.active=true;renderer.hdrRendering=true;renderer:SetViewport(0,self.viewport)
+end
+function Renderer:buildBudget()
+    if self.buildTask and os.clock()-self.buildSliceStart>=.006 then coroutine.yield()end
+end
+function Renderer:pumpBuild()
+    self:pumpTextures()
+    if not self.buildTask or self.disposed then return end
+    self.buildSliceStart=os.clock()
+    local ok,err=coroutine.resume(self.buildTask)
+    if not ok then self.buildTask=nil;error(err)end
+    if coroutine.status(self.buildTask)=='dead' then self.buildTask=nil end
 end
 function Renderer:shadowDiagnostic(toggle)
     if toggle then renderer.drawShadows=not renderer.drawShadows end
@@ -222,6 +278,7 @@ function Renderer:model(id,slots)
                     g:DefineTexCoord(uv and Vector2(component(uv,k),1-component(uv,k+1)) or Vector2(0,0))
                     g:DefineColor(c and Color(component(c,j),component(c,j+1),component(c,j+2),1) or Color(1,1,1,1))
                 end
+                if first%192==1 then self:buildBudget()end
             end
         end end
     end
@@ -235,6 +292,7 @@ end
 function Renderer:drawable(node,source,instance)
     local Data=self.data or Data
     local drawable=node:CreateComponent('StaticModel')
+    drawable.enabled=false -- publish the finished scene together, never partial meshes
     drawable.model=self:model(source.geometry,#source.materials)
     for slot,id in ipairs(source.materials) do
         local material=self:sourceMaterial(source,id)
@@ -253,7 +311,7 @@ function Renderer:drawable(node,source,instance)
         end
         drawable:SetMaterial(slot-1,material)
     end
-    drawable.castShadows=source.castShadow;drawable.viewMask=1
+    drawable.castShadows=source.castShadow;drawable.viewMask=((source.sourceLayers or 1)&1)~=0 and 1 or 2
     -- StoreShadowOnly retains the source geometry in the directional shadow
     -- view and discards it in the perspective color/depth passes.
     self.drawables[#self.drawables+1]=drawable
@@ -274,6 +332,7 @@ function Renderer:build()
             parameter(self.materials[m.id],'hemi_ground',Vector3(.03434,.042312,.045186))
             parameter(self.materials[m.id],'hemi_intensity',.72)
         end
+        self:buildBudget()
     end
     -- This installed runtime lacks Material:GetShaderParameter despite the dev-kit
     -- declaration. Validation uses the frozen material XML and rendered output.
@@ -285,7 +344,7 @@ function Renderer:build()
         transform(node,source);node.enabled=source.visible
         self.children[source.id]={};self.visible[source.id]=source.visible
         table.insert(self.children[source.parent],source.id)
-        if source.light then
+        if source.light and source.light.type=='PointLight' then
             local d=source.light;local l=node:CreateComponent('Light');l.lightType=LIGHT_POINT
             l.color=Color(d.color[1],d.color[2],d.color[3]);l.brightness=d.intensity;l.range=d.distance
             l.castShadows=false;self.lights[source.id]=l
@@ -296,6 +355,7 @@ function Renderer:build()
             if source.instances then
                 for i,instance in ipairs(source.instances) do
                     local child=node:CreateChild('Product'..i);transform(child,instance);self:drawable(child,source,instance)
+                    self:buildBudget()
                 end
             else self:drawable(node,source,nil) end
         elseif source.type=='Sprite' then
@@ -306,6 +366,7 @@ function Renderer:build()
             table.insert(self.billboards,node)
         elseif source.type=='LineSegments' then
             local line=node:CreateComponent('CustomGeometry');line:SetNumGeometries(1);line:BeginGeometry(0,LINE_LIST)
+            line.enabled=false
             local p=Data.geometries[source.geometry].attributes.position.array
             for i=1,#p,3 do line:DefineVertex(Vector3(p[i],p[i+1],-p[i+2]));line:DefineColor(Color(1,1,1,1));line:DefineTexCoord(Vector2(0,0)) end
             line:Commit();line:SetMaterial(0,self.materials[source.materials[1]]);line.castShadows=false
@@ -316,9 +377,10 @@ function Renderer:build()
             -- Retain source metadata; these require their own billboard/particle renderer.
             self.omitted[#self.omitted+1]={id=source.id,type=source.type}
         end
+        self:buildBudget()
     end
     self:setSourceVisible(0,true);self:updatePointUniforms();self:updateBillboards()
-    for _,path in ipairs({'store/foliage-hedge.png','store/foliage-canopy.png','c0/normi-motion-atlas.png'}) do
+    for _,path in ipairs({'store/foliage-hedge.png','store/foliage-canopy.png',motionTile(0)}) do
         local t=self.textures[path]
         if t then print('STORE_TEXTURE_SAMPLING: '..cjson.encode({path=path,width=t.width,height=t.height,levels=t.levels,filter=t.filterMode,sRGB=t.sRGB})) end
     end
@@ -343,7 +405,9 @@ end
 function Renderer:updatePointUniforms()
     local Data=self.data or Data
     local index=0
-    for _,source in ipairs(Data.nodes) do if source.light then
+    -- Hemisphere and directional light terms belong to the scene renderer.
+    -- Only point lights have the distance/decay pair used by this shader.
+    for _,source in ipairs(Data.nodes) do if source.light and source.light.type=='PointLight' then
         assert(index<8,'Frozen store has more point lights than its shader supports')
         local d=source.light
         ---@type Vector3
@@ -373,11 +437,23 @@ function Renderer:referenceFrame(story)
     local id=Data.handles.normi;transform(self.nodes[id],Data.nodes[id])
     self:setSourceVisible(Data.handles.archive,Data.nodes[Data.handles.archive].visible)
 end
+function Renderer:spawnRider(story)
+    if self.walker then return end
+    self.walker=require('game.StoreWalker').new(function(w,index)story:riderStep(index,w.head)end)
+end
+function Renderer:updateWalker(dt,story)
+    local w=self.walker;if not w then return end
+    w:update(dt,self.camYaw)
+    local id=self.data.handles.rider;local node=self.nodes[id]
+    self:setSourceVisible(id,not w.done and story.fx.fold<.2)
+    node.position=vec(w.pos);node.rotation=quat(w.quaternion);node.scale=Vector3(w.scale,1,1)
+    for _,draw in ipairs(self.sourceDrawables[id])do draw.castShadows=w.castShadow end
+end
 function Renderer:updateDynamics(dt,story)
     local Data=self.data or Data
     local p=story.normi.pos;local d=self.dynamics;local H=Data.handles
     d:update(dt,{stress=story.sv,time=self.time,power=story.power,flickBoost=story.flickBoost,
-        fold=story.fx.fold,pos={p.x,p.y,p.z}})
+        fold=story.fx.fold,pos={p.x,p.y,p.z},walkers=self.walker and {self.walker}or {}})
     for _,flat in ipairs(d.flats) do
         local node=self.nodes[H.flats[flat.name]]
         node.position=vec(flat.position);node.rotation=quat(flat.quaternion);node.scale=Vector3(flat.scale,flat.scale,flat.scale)
@@ -387,6 +463,7 @@ function Renderer:updateDynamics(dt,story)
         local position=Data.nodes[pane.id].position
         self.nodes[pane.id].position=Vector3(component(d.panes,i),component(position,2),-component(position,3))
     end
+    self:updateWalker(dt,story)
     self.nodes[H.leaves].position=vec(d.leaves)
     self.nodes[H.emptyChair].position=vec(d.chairPosition)
     self.nodes[H.emptyChair].scale=Vector3(d.chairScale,d.chairScale,d.chairScale)
@@ -447,6 +524,7 @@ function Renderer:updateCamera(dt,story)
 end
 function Renderer:update(dt,story)
     local Data=self.data or Data
+    self:pumpBuild()
     if not self.ready then return end
     self.time=self.time+dt;self:updateCamera(dt,story)
     self:updateDynamics(dt,story)
@@ -456,9 +534,8 @@ function Renderer:update(dt,story)
     node.position=Vector3(actor.pos.x-math.sin(rock)*hang,actor.pos.y+hang+actor.lift+(math.cos(rock)-1)*hang,-actor.pos.z)
     node.rotation=Quaternion(math.deg(-actor.sway*actor.side*(1-actor.collapse)+rock),Vector3(0,0,1))
     node.scale=Vector3(actor.flipScale or 1,1,1);node.enabled=actor.visible
-    local layout=Data.normiLayout;local material=self.materials[Data.nodes[Data.handles.normi].materials[1]]
-    parameter(material,'map_uv',Vector4(1/layout.columns,1/layout.rows,(actor.pose%layout.columns)/layout.columns,math.floor(actor.pose/layout.columns)/layout.rows))
-    parameter(material,'emit_uv',Vector4(1/layout.columns,1/layout.rows,(actor.pose%layout.columns)/layout.columns,math.floor(actor.pose/layout.columns)/layout.rows))
+    local layout=Data.normiLayout
+    self:setActorFrame(Data.nodes[Data.handles.normi].materials[1],actor.pose,layout.columns,layout.rows)
     if self.visible[Data.handles.archive]~=story.archiveVisible then self:setSourceVisible(Data.handles.archive,story.archiveVisible) end
     for i,id in ipairs(Data.handles.clockHands) do
         local total=23*60+38+story.clock
@@ -473,6 +550,6 @@ function Renderer:actorScreen(story)
     return a.x,b.x
 end
 function Renderer:dispose()
-    self.disposed=true;if self.steam then self.steam:dispose() end;self.scene:Dispose()
+    self.disposed=true;self.buildTask=nil;if self.steam then self.steam:dispose() end;self.scene:Dispose()
 end
 return Renderer

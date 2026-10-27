@@ -1,0 +1,109 @@
+{
+  "run": "1a3eefa3-9f43-4516-9bd6-9939279ed61c",
+  "report": {
+    "version": 2,
+    "script": "validation/Increment03TouchInput.lua",
+    "result": "FAIL",
+    "duration_ms": 218653,
+    "frames_completed": 12008,
+    "phases": {
+      "load": {
+        "result": "PASS",
+        "errors": []
+      },
+      "init": {
+        "result": "PASS",
+        "errors": []
+      },
+      "run": {
+        "result": "FAIL",
+        "errors": [
+          {
+            "category": "engine",
+            "message": "Frame time spike: 343.186ms (threshold: 100ms)",
+            "frame": 404
+          },
+          {
+            "category": "engine",
+            "message": "Frame time spike: 603.09ms (threshold: 100ms)",
+            "frame": 1438
+          },
+          {
+            "category": "engine",
+            "message": "Frame time spike: 529.842ms (threshold: 100ms)",
+            "frame": 4567
+          }
+        ]
+      },
+      "scene": {
+        "result": "PASS",
+        "errors": [],
+        "node_count": 3,
+        "component_count": 4,
+        "scene_exists": true
+      }
+    },
+    "state_snapshots": [
+      {
+        "frame": 1,
+        "phase": "init",
+        "nodes": 14,
+        "components": 15,
+        "hash": 2571127980,
+        "frame_time_ms": 219.00900268554688
+      },
+      {
+        "frame": 10,
+        "phase": "run",
+        "nodes": 14,
+        "components": 15,
+        "hash": 2571127980,
+        "frame_time_ms": 17.304000854492188
+      },
+      {
+        "frame": 6004,
+        "phase": "run",
+        "nodes": 3,
+        "components": 4,
+        "hash": 1114304471,
+        "frame_time_ms": 17.836000442504883
+      },
+      {
+        "frame": 12008,
+        "phase": "run",
+        "nodes": 3,
+        "components": 4,
+        "hash": 1114304471,
+        "frame_time_ms": 17.485000610351562
+      }
+    ],
+    "scene_stalled": false,
+    "max_frame_time_ms": 603.0900268554688,
+    "update_defined": false,
+    "component_census": {
+      "Octree": 1,
+      "Zone": 1,
+      "Camera": 1,
+      "CustomGeometry": 1
+    },
+    "test_result": "NOT_RUN",
+    "test_assertions": {
+      "total": 0,
+      "passed": 0,
+      "failed": 0
+    },
+    "test_issues": [],
+    "missing_resources": [],
+    "missing_engine_resources": [],
+    "summary": {
+      "lua_errors": 0,
+      "resource_errors": 0,
+      "engine_errors": 3,
+      "total_errors": 3
+    }
+  },
+  "inputChecks": "PASS; two independent pointers, ownership, cancel/focus, pause/restart; dream human-pig-human movement; office object cycling and F inspect/back",
+  "scope": "native event dispatch; not hardware touchscreen",
+  "visualAcceptance": false,
+  "finalScreenshot": "captured before closing animation settles; not a clean normal-play screenshot"
+}

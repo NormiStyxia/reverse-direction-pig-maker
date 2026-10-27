@@ -1,0 +1,195 @@
+{
+  "run": "92dcb11f-80b4-4835-adf5-8999a475000c",
+  "entry": "validation/Increment03MainWide.lua",
+  "size": [
+    1200,
+    540
+  ],
+  "choices": [
+    "late",
+    "wreck",
+    "pc"
+  ],
+  "officialResult": "FAIL",
+  "summary": {
+    "lua_errors": 3109,
+    "resource_errors": 0,
+    "engine_errors": 30,
+    "total_errors": 3139
+  },
+  "maxFrameTimeMs": 1016.5889892578125,
+  "gameRoute": "PASS",
+  "clockScale": 2,
+  "echoPostLifecycleFixed": true,
+  "limitations": [
+    "same-process save readback",
+    "no hardware touch",
+    "not all-scene visual acceptance"
+  ],
+  "engineErrors": [
+    {
+      "category": "engine",
+      "message": "Frame time spike: 104.385ms (threshold: 100ms)",
+      "frame": 511
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 134.744ms (threshold: 100ms)",
+      "frame": 700
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 169.232ms (threshold: 100ms)",
+      "frame": 1790
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 105.832ms (threshold: 100ms)",
+      "frame": 1796
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 303.623ms (threshold: 100ms)",
+      "frame": 1986
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 108.927ms (threshold: 100ms)",
+      "frame": 2022
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 134.521ms (threshold: 100ms)",
+      "frame": 2049
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 139.297ms (threshold: 100ms)",
+      "frame": 2059
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 173.835ms (threshold: 100ms)",
+      "frame": 2083
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 268.535ms (threshold: 100ms)",
+      "frame": 2296
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 146.425ms (threshold: 100ms)",
+      "frame": 4488
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 151.95ms (threshold: 100ms)",
+      "frame": 8554
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 129.692ms (threshold: 100ms)",
+      "frame": 11138
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 101.881ms (threshold: 100ms)",
+      "frame": 11209
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 1016.59ms (threshold: 100ms)",
+      "frame": 12569
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 135.062ms (threshold: 100ms)",
+      "frame": 13305
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 113.88ms (threshold: 100ms)",
+      "frame": 17135
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 100.683ms (threshold: 100ms)",
+      "frame": 17148
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 115.874ms (threshold: 100ms)",
+      "frame": 19233
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 108.69ms (threshold: 100ms)",
+      "frame": 22170
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 107.256ms (threshold: 100ms)",
+      "frame": 22171
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 322.291ms (threshold: 100ms)",
+      "frame": 22215
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 374.5ms (threshold: 100ms)",
+      "frame": 22327
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 102.361ms (threshold: 100ms)",
+      "frame": 22901
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 109.132ms (threshold: 100ms)",
+      "frame": 22918
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 116.95ms (threshold: 100ms)",
+      "frame": 24000
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 109.484ms (threshold: 100ms)",
+      "frame": 24052
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 1016.12ms (threshold: 100ms)",
+      "frame": 24054
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 220.343ms (threshold: 100ms)",
+      "frame": 24055
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 102.595ms (threshold: 100ms)",
+      "frame": 25971
+    }
+  ],
+  "luaErrorSamples": [
+    {
+      "category": "lua",
+      "message": "[2026-10-27 10_48_26_111][8701] ERROR: Execute Lua function failed: [string \"render/SceneActions\"]:55: attempt to index a nil value (field 'browse')\nstack traceback:\n\t[string \"render/SceneActions\"]:55: in method 'layout'\n\t[string \"render/SceneActions\"]:131: in method 'render'\n\t[string \"render/StoryOverlay\"]:397: in method 'render'\n\t[string \"game/Application\"]:149: in function 'Chapter1PreviewRender'",
+      "frame": 8611
+    },
+    {
+      "category": "lua",
+      "message": "[2026-10-27 10_53_24_868][25679] ERROR: Execute Lua function failed: [string \"render/SceneActions\"]:55: attempt to index a nil value (field 'browse')\nstack traceback:\n\t[string \"render/SceneActions\"]:55: in method 'layout'\n\t[string \"render/SceneActions\"]:131: in method 'render'\n\t[string \"render/StoryOverlay\"]:397: in method 'render'\n\t[string \"game/Application\"]:149: in function 'Chapter1PreviewRender'",
+      "frame": 25589
+    }
+  ],
+  "luaErrorCount": 3109,
+  "fullErrors": "validation/increment03/native/wide-current02-report/validate.json"
+}

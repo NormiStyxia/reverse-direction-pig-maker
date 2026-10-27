@@ -1,0 +1,121 @@
+{
+  "run": "68ac922e-d732-4835-9c5e-9d92874cdbe8",
+  "report": {
+    "version": 2,
+    "script": "validation/Increment03TouchInput.lua",
+    "result": "FAIL",
+    "duration_ms": 141521,
+    "frames_completed": 8008,
+    "phases": {
+      "load": {
+        "result": "PASS",
+        "errors": []
+      },
+      "init": {
+        "result": "PASS",
+        "errors": []
+      },
+      "run": {
+        "result": "FAIL",
+        "errors": [
+          {
+            "category": "engine",
+            "message": "Frame time spike: 359.063ms (threshold: 100ms)",
+            "frame": 404
+          },
+          {
+            "category": "engine",
+            "message": "Frame time spike: 598.248ms (threshold: 100ms)",
+            "frame": 1439
+          },
+          {
+            "category": "engine",
+            "message": "Frame time spike: 108.035ms (threshold: 100ms)",
+            "frame": 1725
+          },
+          {
+            "category": "engine",
+            "message": "Frame time spike: 530.228ms (threshold: 100ms)",
+            "frame": 4569
+          }
+        ]
+      },
+      "scene": {
+        "result": "PASS",
+        "errors": [],
+        "node_count": 3,
+        "component_count": 4,
+        "scene_exists": true
+      }
+    },
+    "state_snapshots": [
+      {
+        "frame": 1,
+        "phase": "init",
+        "nodes": 14,
+        "components": 15,
+        "hash": 2571127980,
+        "frame_time_ms": 190.9929962158203
+      },
+      {
+        "frame": 10,
+        "phase": "run",
+        "nodes": 14,
+        "components": 15,
+        "hash": 2571127980,
+        "frame_time_ms": 17.042999267578125
+      },
+      {
+        "frame": 4004,
+        "phase": "run",
+        "nodes": 3,
+        "components": 4,
+        "hash": 1114304471,
+        "frame_time_ms": 16.93400001525879
+      },
+      {
+        "frame": 8008,
+        "phase": "run",
+        "nodes": 3,
+        "components": 4,
+        "hash": 1114304471,
+        "frame_time_ms": 17.395999908447266
+      }
+    ],
+    "scene_stalled": false,
+    "max_frame_time_ms": 598.2479858398438,
+    "update_defined": false,
+    "component_census": {
+      "Octree": 1,
+      "Zone": 1,
+      "Camera": 1,
+      "CustomGeometry": 1
+    },
+    "test_result": "NOT_RUN",
+    "test_assertions": {
+      "total": 0,
+      "passed": 0,
+      "failed": 0
+    },
+    "test_issues": [],
+    "missing_resources": [],
+    "missing_engine_resources": [],
+    "summary": {
+      "lua_errors": 0,
+      "resource_errors": 0,
+      "engine_errors": 4,
+      "total_errors": 4
+    }
+  },
+  "inputChecks": "PASS: two-finger ownership, release/cancel/focus, pause/resume/restart; dream human-pig-human; 12px office prompt; independent object card; F inspect/back",
+  "reviewedScreenshots": [
+    "touch03-window-28.png",
+    "touch03-window-30.png"
+  ],
+  "laterChangesNotInSnapshot": [
+    "reserve home-arrow space for wide object card",
+    "object-card title letter spacing"
+  ],
+  "hardwareTouch": false,
+  "visualAcceptance": false
+}

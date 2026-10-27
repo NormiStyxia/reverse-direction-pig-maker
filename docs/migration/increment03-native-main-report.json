@@ -1,0 +1,115 @@
+{
+  "run": "b68a673e-d743-48b7-a883-8fb1c351bbe9",
+  "frames": 30004,
+  "report": "FAIL",
+  "gameRoute": "PASS",
+  "clockScale": 2,
+  "coverage": [
+    "title",
+    "dream swap/pigwalk/unswap",
+    "night wake",
+    "store6",
+    "meeting same",
+    "meeting5",
+    "native file reopen at 0958",
+    "home/continue/timeline",
+    "morning fix",
+    "second meeting",
+    "office4",
+    "dorm sick",
+    "dorm4",
+    "withdrawal/Game Jam",
+    "title and restart",
+    "9-node 19-floor save readback"
+  ],
+  "limitations": [
+    "2x simulation clock, not normal-speed device input",
+    "cross-process saves cleared by local Maker cache",
+    "startup missing Cube/Day/DaySpecularHDR_QualityLow.dds",
+    "official performance report not passed",
+    "visual similarity not accepted",
+    "later dream one-shots, portal fade and caption anchor changes not in snapshot"
+  ],
+  "runErrors": [
+    {
+      "category": "engine",
+      "message": "Frame time spike: 755.629ms (threshold: 100ms)",
+      "frame": 202
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 123.232ms (threshold: 100ms)",
+      "frame": 565
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 135.122ms (threshold: 100ms)",
+      "frame": 753
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 571.815ms (threshold: 100ms)",
+      "frame": 1996
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 1095.51ms (threshold: 100ms)",
+      "frame": 3381
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 303.98ms (threshold: 100ms)",
+      "frame": 4840
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 117.009ms (threshold: 100ms)",
+      "frame": 7637
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 677.681ms (threshold: 100ms)",
+      "frame": 8244
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 151.994ms (threshold: 100ms)",
+      "frame": 9813
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 404.603ms (threshold: 100ms)",
+      "frame": 10320
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 145.957ms (threshold: 100ms)",
+      "frame": 13334
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 250.945ms (threshold: 100ms)",
+      "frame": 13536
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 306.727ms (threshold: 100ms)",
+      "frame": 16497
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 432.687ms (threshold: 100ms)",
+      "frame": 19624
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 293.705ms (threshold: 100ms)",
+      "frame": 20962
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 102.347ms (threshold: 100ms)",
+      "frame": 25137
+    }
+  ]
+}

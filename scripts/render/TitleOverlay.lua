@@ -4,6 +4,7 @@ local P=require('game.TitlePresentation')
 local Metrics=require('game.data.TitleVectorMetrics')
 local Vectors=require('render.TitleVectors')
 local Sets=require('game.data.Levels')
+local Catalog=require('game.LevelCatalog')
 local Levels=Sets.prologue
 local Overlay={}
 Overlay.__index=Overlay
@@ -68,13 +69,16 @@ function Overlay:cancelPointer()
 end
 function Overlay:menuY(index) return 552+index*56 end
 function Overlay:panelRow(index)
-    if (self.title.panel or self.panelKind)=='levelmode' then return 220+index*45+(index>=6 and 48 or 0),45 end
+    if (self.title.panel or self.panelKind)=='levelmode' then
+        local set=Catalog.at(index);local _,group=Catalog.find(set.id)
+        return 220+index*38+(group-1)*28,38
+    end
     return 265+index*69,69
 end
 function Overlay:choiceLabel(choice)
-    if choice.kind=='new' then return '23:38' end
-    local levels=choice.set=='ch1' and Sets.chapter1 or Levels
-    return (choice.kind=='levels' and (choice.set=='ch1' and '第一章 · ' or '序章 · ') or '')..'第 '..(choice.level+1)..' 层 · '..levels[choice.level+1].name
+    if choice.kind=='new' or choice.kind=='timeline' then return '' end
+    local set=Catalog.find(choice.set or 'prologue');local levels=set.levels
+    return (choice.kind=='levels' and (set.name..' · ') or '')..'第 '..(choice.level+1)..' 层 · '..levels[choice.level+1].name
 end
 function Overlay:touchRows()
     local rows={};local title=self.title;local w,h=self.logicalW,self.logicalH
@@ -90,10 +94,9 @@ function Overlay:touchRows()
         local row=i;local x=16;local y=108
         local label
         if mode then
-            local chapter=i>=6;local index=chapter and i-6 or i
-            label=(chapter and '一' or '序')..string.format('%02d',index+1)..'  '..(chapter and Sets.chapter1 or Levels)[index+1].name
-            if columns then row=index;x=chapter and w/2+8 or 16
-            else y=chapter and 128 or 108 end
+            local set,index=Catalog.at(i)
+            label=set.name..' '..string.format('%02d',index+1)..'  '..set.levels[index+1].name
+            if columns then row=math.floor(i/2);x=i%2==1 and w/2+8 or 16 end
         elseif title.panel=='chapters' then label=i==0 and '序章 · 23:38' or ('第 '..i..' 层 · '..Levels[i].name)
         else
             label=({'画面动态','鼠标视差','声音','返回'})[i+1]
@@ -204,15 +207,17 @@ function Overlay:drawMenu(alpha)
     for i,n in ipairs(NAMES) do
         local selected=title.menuSel==i-1;local c=selected and mixColor(WHITE,BLUE,self.altAmount) or self.ink
         local y=self:menuY(i-1);local amount=self.rowAmounts[i]
-        nvgGlobalAlpha(vg,alpha*(i==2 and title.reached==0 and .38 or 1))
+        nvgGlobalAlpha(vg,alpha*(title:disabled(i-1) and .38 or 1))
         rect(vg,2328+232*(1-amount),y+4,232*amount,48,title.view.alt and PAPER or BLUE)
         text(vg,string.format('%02d',i),2346,y+12,17,c,nil,1.36,nil,selected and .8 or .55)
         text(vg,n[1],2530,y+7,28,c,NVG_ALIGN_RIGHT,3.6,'title-bold')
-        text(vg,i==2 and title.reached==0 and 'NO SAVE' or n[2],2530,y+40,14,c,NVG_ALIGN_RIGHT,1.12,nil,.65)
+        text(vg,i==2 and not title.latest and title.reached==0 and 'NO SAVE' or n[2],2530,y+40,14,c,NVG_ALIGN_RIGHT,1.12,nil,.65)
     end
     nvgGlobalAlpha(vg,alpha)
-    if title.menuSel==1 and title.reached>0 then
-        local label='第 '..title.reached..' 层 · '..Levels[title.reached].name
+    if title.menuSel==1 and (title.latest or title.reached>0) then
+        local label=''
+        if title.latest then for _,n in ipairs(require('game.data.TimelineNodes'))do if n.id==title.latest then label=n.time..' · '..n.place end end
+        elseif title.reached>0 then label='第 '..title.reached..' 层 · '..Levels[title.reached].name end
         nvgFontFace(vg,'title-sans');nvgFontSize(vg,15);nvgTextLetterSpacing(vg,0)
         local w=nvgTextBounds(vg,0,0,label)+20
         rect(vg,2316-w,622,w,26,title.view.alt and PAPER or BLUE)
@@ -235,19 +240,22 @@ function Overlay:drawPanel(alpha)
     text(vg,mode and '关卡模式' or (chapters and '选择关卡' or '设置'),80,mode and 80 or 110,mode and 56 or 64,INK,nil,6.4,'title-bold')
     text(vg,mode and 'LEVEL MODE · 不走剧情，一路打下去 · ESC 返回' or (chapters and 'CHAPTERS · 序章 + 6 FLOORS' or 'OPTIONS'),80,mode and 153 or 197,16,INK,nil,1.28,nil,.6)
     if mode then
-        text(vg,'序章 · 便利店回响',98,194,15,INK,nil,0,nil,.6)
-        text(vg,'第一章 · 会议室回响',98,512,15,INK,nil,0,nil,.6)
+        local index=0
+        for _,set in ipairs(Catalog) do
+            local y=self:panelRow(index);text(vg,set.name..'回响',98,y-23,15,INK,nil,0,nil,.6);index=index+#set.levels
+        end
     end
-    for index=0,(mode and 10 or (chapters and 6 or 3)) do
+    for index=0,(mode and Catalog.count()-1 or (chapters and 6 or 3)) do
         local disabled=chapters and index>title.reached
         local selected=title.panel==self.panelKind and title.sel==index
         local c=selected and WHITE or INK;local y,rh=self:panelRow(index)
         nvgGlobalAlpha(vg,alpha*(disabled and .35 or 1))
         if selected then rect(vg,80,y,590,rh,BLUE) end
         rect(vg,80,y+rh-2,590,2,INK,.14)
-        local name=mode and (index<6 and Levels[index+1].name or Sets.chapter1[index-5].name) or chapters and (index==0 and '序章 · 23:38' or Levels[index].name) or ({'画面动态','鼠标视差','声音','返回'})[index+1]
+        local set,floor=Catalog.at(index)
+        local name=mode and set.levels[floor+1].name or chapters and (index==0 and '序章 · 23:38' or Levels[index].name) or ({'画面动态','鼠标视差','声音','返回'})[index+1]
         text(vg,name,(chapters or mode) and 164 or 98,y+(mode and 6 or 14),mode and 26 or 32,c,nil,2.56,'title-bold')
-        if mode then text(vg,(index<6 and '序' or '一')..string.format('%02d',index<6 and index+1 or index-5),98,y+14,18,c,nil,0,nil,.6)
+        if mode then text(vg,string.format('%02d',floor+1),98,y+10,18,c,nil,0,nil,.6)
         elseif chapters then text(vg,string.format('%02d',index),98,y+26,18,c,nil,1.44,nil,.6) end
         local note=''
         if chapters then note=index==0 and '公司楼下的便利店' or (index==title.reached and '上次停在这里' or (disabled and '未到达' or ''))
@@ -350,6 +358,12 @@ function Overlay:render()
     Vectors.logo(vg,self.mirror);nvgRestore(vg)
     self:drawPanel(rootAlpha)
     self:drawTouch(fade)
+    if title.saveStatus and title.saveStatus~='ready' and st.phase=='idle' then
+        local message=title.saveStatus=='loading' and '正在读取进度…' or title.saveStatus=='saving' and '正在保存进度…' or '暂未连上存档，刷新前请等待保存'
+        nvgSave(vg);nvgResetTransform(vg);nvgResetScissor(vg);nvgGlobalAlpha(vg,fade)
+        rect(vg,12,12,math.min(self.logicalW-24,260),30,PAPER,.95)
+        text(vg,message,20,20,12,INK);nvgRestore(vg)
+    end
     local wash=st.phase=='leaving' and P.ease((st.leaveT-.5)/.6)*rootAlpha or 0
     nvgGlobalAlpha(vg,wash);rect(vg,0,0,2560,1152,PAPER)
     if st.choice then

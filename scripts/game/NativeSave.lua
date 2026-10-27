@@ -2,6 +2,8 @@
 local State=require('game.SaveState')
 local Native={}
 function Native.open(filename)
+    -- Explicit filenames are isolated validation/smoke files, never cloud keys.
+    if not filename and GetPlatform()=='Web' then return require('game.CloudSave').open(clientCloud,cjson)end
     filename=filename or 'reverse-pig-save-v1.json'
     return State.new({
         read=function()

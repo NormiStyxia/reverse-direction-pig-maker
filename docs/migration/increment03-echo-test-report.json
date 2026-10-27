@@ -1,0 +1,25 @@
+{
+  "result": "PASS",
+  "fixtures": 25,
+  "differentialSteps": 9655,
+  "source": "frozen src/rewind-levels.js methods",
+  "covers": [
+    "all 19 level physics",
+    "crate slide and transfer",
+    "cabinet falling",
+    "automatic slide",
+    "forward merge",
+    "rewind merge",
+    "unrelated hologram blocking",
+    "merge irreversibility",
+    "plates and doors",
+    "gold objects during rewind"
+  ],
+  "notCovered": [
+    "player input",
+    "dead-end hints",
+    "scene transitions",
+    "rendering",
+    "full playthrough"
+  ]
+}

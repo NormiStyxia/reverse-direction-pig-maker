@@ -1,6 +1,7 @@
 -- Native playable prologue echo adapter; F7 diagnostics do not count as a playthrough.
 local Run=require('game.EchoRun')
 local Levels=require('game.data.Levels')
+local Catalog=require('game.LevelCatalog')
 local View=require('render.EchoRenderer')
 local Screen=require('render.EchoOverlay')
 local Diagnostics=require('game.Diagnostics')
@@ -11,11 +12,18 @@ function Probe.new(look,theme,answer,startLevel,onProgress)
 end
 function Probe:init(look,theme,answer,startLevel,onProgress)
     require('game.SpriteParticles').shared.puffT=0
-    self.run=Run.new(theme=='meeting' and Levels.chapter1 or Levels.prologue,theme or 'store');self.run.answer=answer or 'same'
+    local set=assert(Catalog.find(theme or 'store'))
+    self.run=Run.new(set.levels,set.theme);self.run.answer=answer or set.answer
     if startLevel and startLevel>1 then self.run:drainEvents();self.run:load(startLevel) end
     self.onProgress=onProgress
     self.allowFixtureProgress=false
     self.view=View.new(self.run,look);self.screen=Screen.new(self.run)
+    self.screen.exitPoint=function()
+        local v=self.view.view;if not v.ready then return end
+        local e=self.run.levels[self.run.index].exit;local w=Vector3(e[1],1.2,-e[2])
+        local p=v.camera:WorldToScreenPoint(w)
+        return p.x*2-1,1-p.y*2,v.cameraNode:WorldToLocal(w).z<=0
+    end
     self.bridge=require('game.SceneBridge').new()
     self.active=true;self.focused=true;self.charge=false;self.restart=false;self.paused=false
     self.suppressed={}
@@ -44,7 +52,7 @@ function Probe:events()
 end
 function Probe:beginInputReplay()
     assert(self.run.index==1 and self.run.phase=='unfold','Continuous replay must enter the natural first level')
-    self.replay=require(self.run.theme=='meeting' and 'preview.ChapterEchoRoute' or 'preview.PrologueEchoRoute')
+    self.replay=require('preview.Increment03'..self.run.theme..'Route')
     self.replayFrame=0;self.replayAccumulator=0;self.paused=false
     print('ECHO_CONTINUOUS_INPUT: natural chapter handoff; theme='..self.run.theme..'; no model reset')
 end
@@ -53,16 +61,26 @@ function Probe:setPaused(on)
     for _,key in ipairs({KEY_W,KEY_A,KEY_S,KEY_D,KEY_UP,KEY_DOWN,KEY_LEFT,KEY_RIGHT,KEY_K,KEY_SHIFT,KEY_LSHIFT,KEY_RSHIFT,KEY_J,KEY_SPACE,KEY_R}) do
         if input:GetKeyDown(key) then self.suppressed[key]=true end
     end
+    self.run.pig.spinning=false;self.run.sim.rewinding=false
     self.screen:cancelPointer()
+end
+function Probe:syncScene()
+    -- Own the scene/post lifetime together. Renderer:update can load a new room
+    -- too; letting it do so first hid the loadId change and left the old Post
+    -- attached to a disposed room, displaying raw rendering from floor 2 on.
+    if self.run.loadId~=self.view.loadId then if self.post then self.post:dispose();self.post=nil end;self.view:load(self.run) end
+    if self.post and self.post.view~=self.view.view then self.post:dispose();self.post=nil end
+    if not self.post then self.post=require('render.ScenePost').new(self.view.view);self.post:setEnabled(true) end
+    self.view.view:pumpBuild()
+    self.screen.loading=not self.view.view.ready
+    return not self.screen.loading
 end
 function Probe:update(dt)
     if self.screen.ending.active then self.screen.ending:update(dt);return end
     if self.playerPaused then return end -- freeze renderer randomness as well as simulation
     self.view.bridgeDistance=self.bridge.distance
-    if self.run.loadId~=self.view.loadId then if self.post then self.post:dispose();self.post=nil end;self.view:load(self.run) end
-    if not self.post then self.post=require('render.ScenePost').new(self.view.view);self.post:setEnabled(true) end
-    self.screen.loading=not self.view.view.ready
-    if self.screen.loading then return end
+    if not self:syncScene()then return end
+    if not self.paused and self.focused then require('game.AudioPlayback').get():environment(math.min(dt,.05),self.run,'echo')end
     if self.referencePending then
         local v,r=self.view,self.run
         ---@type {x:number,y:number,z:number}
@@ -82,6 +100,9 @@ function Probe:update(dt)
             self.run:update(1/60,control,0,function() return .7 end);self:events()
             local e=self.replay.states[frame];local r=self.run
             assert(e.level==r.index and e.phase==r.phase and math.abs(e.x-r.pig.pos.x)<1e-7 and math.abs(e.z-r.pig.pos.z)<1e-7 and math.abs(e.door-r.sim.room.doorOpen)<1e-7 and e.timeline==#r.sim.timeline.h,'CH1 native route state mismatch frame '..frame)
+            if r.loadId~=self.view.loadId then
+                self:syncScene();self.screen:update(1/60);break
+            end
             self.view:update(r.lastDt or 0,r);self.post.effects:update(r.lastDt or 0);self.screen:update(1/60)
             self.post.particles.model:update(r.lastDt or 0)
             if r.phase=='done' then print('ECHO_NATIVE_ROUTE: PASS; theme='..r.theme..'; '..frame..' frames; '..#r.levels..' levels; source-verified controls; no teleports; answer='..r.answer) end
@@ -102,6 +123,7 @@ function Probe:update(dt)
         if self.touchInput then x=x+self.touchInput.x;y=y+self.touchInput.y;spin=spin or self.touchInput.spin end
         self.run:update(dt,{x=x,y=y,spin=spin,charge=self.charge,restart=self.restart},self.view.camYaw)
         self.charge=false;self.restart=false;self:events()
+        if self.run.loadId~=self.view.loadId and not self:syncScene()then return end
         self.view:update(self.run.lastDt or 0,self.run);self.post.effects:update(self.run.lastDt or 0);self.screen:update(math.min(dt,.05))
         self.post.particles.model:update(self.run.lastDt or 0)
     else self.view:update(0,self.run) end
@@ -134,12 +156,7 @@ function Probe:key(key,repeated)
         print('ECHO_ALPHA_PROBE: '..self.referenceAlpha);return
     end
     if key==KEY_F4 then
-        if not self.allowFixtureProgress then self.onProgress=false end
-        -- Reset only at the start of this explicitly requested diagnostic replay.
-        local old=self.run;self.run=Run.new(old.theme=='meeting' and Levels.chapter1 or Levels.prologue,old.theme);self.run.answer=old.answer;self.run.loadId=old.loadId+1
-        self.screen.run=self.run;self.view:load(self.run);self:events()
-        self.replay=require(old.theme=='meeting' and 'preview.ChapterEchoRoute' or 'preview.PrologueEchoRoute');self.replayFrame=0;self.replayAccumulator=0;self.paused=false
-        print('ECHO_NATIVE_ROUTE: begin fixed-step real-time replay of source-verified controls; theme='..old.theme);return
+        print('ECHO_NATIVE_ROUTE: use the explicit increment03 validation entry; legacy replay retired');return
     end
     if key==KEY_J or key==KEY_SPACE then self.charge=true
     elseif key==KEY_R then self.restart=true
@@ -155,6 +172,15 @@ function Probe:key(key,repeated)
         print('ECHO_DIAGNOSTIC_LEVEL: explicit diagnostic jump, not a solved route')
     end
 end
-function Probe:focus(focused) self.focused=focused;self.charge=false;self.restart=false;self.screen:cancelPointer() end
+function Probe:focus(focused)
+    self.focused=focused;self.charge=false;self.restart=false
+    if not focused then
+        self.run.pig.spinning=false;self.run.sim.rewinding=false
+        for _,key in ipairs({KEY_W,KEY_A,KEY_S,KEY_D,KEY_UP,KEY_DOWN,KEY_LEFT,KEY_RIGHT,KEY_K,KEY_SHIFT,KEY_LSHIFT,KEY_RSHIFT,KEY_J,KEY_SPACE,KEY_R})do
+            if input:GetKeyDown(key)then self.suppressed[key]=true end
+        end
+    end
+    self.screen:cancelPointer()
+end
 function Probe:dispose() if self.post then self.post:dispose() end;self.screen:dispose();self.view:dispose() end
 return Probe

@@ -1,0 +1,7 @@
+{
+  "result": "PASS",
+  "source": "Chrome running frozen main.js; actual Post.settings after node transitions",
+  "snapshots": 15,
+  "checks": 150,
+  "coverage": "parameter lifecycle, not image similarity"
+}

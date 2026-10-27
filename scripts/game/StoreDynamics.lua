@@ -33,7 +33,7 @@ function Dynamics:update(dt,state)
     ---@type number
     local want=D.force>0 and 1 or 0;D.force=math.max(0,D.force-dt)
     if pos[1]>door.x0-.9 and pos[1]<door.x1+.9 and pos[3]<-4 then want=1 end
-    -- Walkers are supplied by their later presentation controller.
+    -- Use pre-step walker positions, as in frozen store.update().
     for _,w in ipairs(state.walkers or {}) do
         if not w.done and w.pos[1]>door.x0-.9 and w.pos[1]<door.x1+.9 and w.pos[3]>-8.6 and w.pos[3]<-4 then want=math.max(want,w.halfDoor and .45 or 1) end
     end

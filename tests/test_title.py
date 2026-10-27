@@ -4,6 +4,7 @@ from pathlib import Path
 from lupa.lua54 import LuaRuntime
 ROOT=Path(__file__).resolve().parents[1]
 lua=LuaRuntime(unpack_returned_tuples=True)
+lua.execute("package.path='scripts/?.lua;'..package.path")
 Title=lua.execute((ROOT/'scripts/game/TitleState.lua').read_text())
 frames=0
 stages=set()
@@ -46,10 +47,9 @@ t=Title.new(0,lambda:.5);t.keyDown(t,'Enter',False);t.update(t,1/60)
 assert t.st.phase=='idle'
 t.keyDown(t,'ArrowDown',False);assert t.sel==2
 t.keyDown(t,'Enter',False);assert t.panel=='levelmode'
-t.keyDown(t,'Escape',False);t.keyDown(t,'ArrowDown',False);t.keyDown(t,'Enter',False);assert t.panel=='chapters'
-t.keyDown(t,'ArrowDown',False);assert t.sel==0
-for i in range(1,7):t.activate(t,i);assert t.st.phase=='idle'
-t.keyDown(t,'Escape',False);assert t.sel==3 and not t.panel
+t.keyDown(t,'Escape',False);t.keyDown(t,'ArrowDown',False);t.keyDown(t,'Enter',False)
+assert t.st.choice.kind=='new' and t.st.phase=='leaving' and not t.panel
+t.st.phase='idle'
 t.keyDown(t,'ArrowDown',False);t.keyDown(t,'Enter',False);assert t.panel=='options'
 for i,key in enumerate(['motion','parallax','muted']):
     before=t.opts[key];t.activate(t,i);assert t.opts[key]!=before and t.sel==i
@@ -60,7 +60,8 @@ t.blur(t);assert not t.st.holding
 t.st.auto.t=4.2;t.keyDown(t,'ArrowDown',False);assert t.st.auto.t==4.2
 for reached in range(1,7):
     t=Title.new(reached,lambda:.5);t.skipIntro(t);t.update(t,.01)
-    t.keyDown(t,'ArrowDown',False);t.activate(t);assert t.st.choice.level==reached-1
+    t.latest='echo1'
+    t.keyDown(t,'ArrowDown',False);t.activate(t);assert t.st.choice.kind=='timeline'
     t=Title.new(reached,lambda:.5);t.skipIntro(t);t.update(t,.01);t.openPanel(t,'chapters')
     t.select(t,reached);t.activate(t);assert t.st.choice.level==reached-1
 for w,h in [(1280,720),(2560,1152),(720,1280),(3440,1440),(640,360)]:

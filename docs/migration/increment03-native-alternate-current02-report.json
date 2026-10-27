@@ -1,0 +1,109 @@
+{
+  "run": "7efb054f-e33c-49b4-afa2-e34750cc7c7c",
+  "entry": "validation/Increment03MainAlternate.lua",
+  "size": [
+    1200,
+    540
+  ],
+  "choices": [
+    "done",
+    "leave",
+    "off"
+  ],
+  "officialResult": "TIMEOUT",
+  "summary": {
+    "lua_errors": 0,
+    "resource_errors": 0,
+    "engine_errors": 15,
+    "total_errors": 15
+  },
+  "maxFrameTimeMs": 165.5780029296875,
+  "gameRoute": "PASS",
+  "clockScale": 2,
+  "echoPostLifecycleFixed": true,
+  "wideSceneActionsFixed": true,
+  "runErrors": [
+    {
+      "category": "engine",
+      "message": "Frame time spike: 109.497ms (threshold: 100ms)",
+      "frame": 403
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 115.332ms (threshold: 100ms)",
+      "frame": 504
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 133.935ms (threshold: 100ms)",
+      "frame": 693
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 111.915ms (threshold: 100ms)",
+      "frame": 836
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 105.039ms (threshold: 100ms)",
+      "frame": 3539
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 165.578ms (threshold: 100ms)",
+      "frame": 4496
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 145.335ms (threshold: 100ms)",
+      "frame": 8546
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 107.155ms (threshold: 100ms)",
+      "frame": 17128
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 104.25ms (threshold: 100ms)",
+      "frame": 17798
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 111.091ms (threshold: 100ms)",
+      "frame": 20346
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 102.72ms (threshold: 100ms)",
+      "frame": 21722
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 113.961ms (threshold: 100ms)",
+      "frame": 23626
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 121.447ms (threshold: 100ms)",
+      "frame": 26070
+    },
+    {
+      "category": "engine",
+      "message": "Frame time spike: 103.546ms (threshold: 100ms)",
+      "frame": 26202
+    },
+    {
+      "category": "engine",
+      "message": "Validation timed out",
+      "frame": 27635
+    }
+  ],
+  "limitations": [
+    "same-process save readback",
+    "no hardware touch",
+    "not all-scene visual acceptance",
+    "before fixed tone PCM routing",
+    "validation timers enabled; headless audio export overlapped near final group"
+  ]
+}

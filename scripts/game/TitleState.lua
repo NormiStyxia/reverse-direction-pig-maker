@@ -1,6 +1,7 @@
 -- Frozen src/title-screen.js. Engine-independent animation/menu state.
 -- Menu selections and level choices keep H5's zero-based indices.
 local Title = {}
+local Catalog=require('game.LevelCatalog')
 Title.__index = Title
 local function clamp(x, a, b) return math.min(b or 1, math.max(a or 0, x)) end
 local function ease(x) x=clamp(x); return x < .5 and 4*x*x*x or 1-(-2*x+2)^3/2 end
@@ -35,10 +36,11 @@ function Title:drainEvents() local events=self.events; self.events={}; return ev
 function Title:skipIntro()
     if self.st.phase=='intro' and self.st.intro<5.6 then self.st.intro=5.6 end
 end
-function Title:count() return self.panel=='chapters' and 7 or (self.panel=='levelmode' and 11 or (self.panel=='options' and 4 or 5)) end
+function Title:count() return self.panel=='chapters' and 7 or (self.panel=='levelmode' and Catalog.count() or (self.panel=='options' and 4 or 5)) end
 function Title:disabled(i)
+    if self.saveLoading and (self.panel=='chapters' or not self.panel and (i==0 or i==1 or i==3))then return true end
     if self.panel=='chapters' then return i>self.reached end
-    return not self.panel and i==1 and self.reached==0
+    return not self.panel and i==1 and not self.latest and self.reached==0
 end
 function Title:select(i)
     local n=self:count()
@@ -58,7 +60,7 @@ function Title:activate(i)
     i=i or self.sel
     if self.st.phase~='idle' or self:disabled(i) then return end
     if self.panel=='levelmode' then
-        self:leave({kind='levels',set=i<6 and 'prologue' or 'ch1',level=i<6 and i or i-6})
+        local set,level=Catalog.at(i);self:leave({kind='levels',set=set.id,level=level})
     elseif self.panel=='chapters' then
         self:leave(i==0 and {kind='new'} or {kind='echo',level=i-1})
     elseif self.panel=='options' then
@@ -69,9 +71,9 @@ function Title:activate(i)
             self:openPanel('options',i)
         end
     elseif i==0 then self:leave({kind='new'})
-    elseif i==1 then self:leave({kind='echo',level=self.reached-1})
+    elseif i==1 then self:leave({kind=self.latest and 'timeline' or 'new'})
     elseif i==2 then self:openPanel('levelmode')
-    elseif i==3 then self:openPanel('chapters')
+    elseif i==3 then self:leave({kind=self.latest and 'timeline' or 'new'})
     elseif i==4 then self:openPanel('options') end
 end
 function Title:keyDown(key,repeated)

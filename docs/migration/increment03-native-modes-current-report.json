@@ -1,0 +1,20 @@
+{
+  "run": "569fe023-087d-4cca-b582-1c472729f6d3",
+  "officialResult": "FAIL",
+  "summary": {
+    "lua_errors": 0,
+    "resource_errors": 0,
+    "engine_errors": 3,
+    "total_errors": 3
+  },
+  "maxFrameTimeMs": 156.8990020751953,
+  "levelModePassed": true,
+  "timelinePassed": true,
+  "echoScenePostAssertion": true,
+  "limitations": [
+    "Seeded timeline progress fixture",
+    "Scripted controls at 2x clock, not hardware touch",
+    "Official screenshot ENOENT; system window screenshots used",
+    "Three >100ms spikes; not overall acceptance"
+  ]
+}

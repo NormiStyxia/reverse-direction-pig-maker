@@ -8,7 +8,10 @@ local Browser=require('game.BrowseState')
 local Story={}
 Story.__index=Story
 ---@type table
-local L=Data.lines
+local Source=require('game.data.Story03Data')
+local Group=require('game.GroupChat')
+local L=Source.STORE_LINES
+local BROWSE=Source.STORE_BROWSE
 local function copy(t)
     if type(t)~='table' then return t end
     local out={};for k,v in pairs(t) do out[k]=copy(v) end;return out
@@ -31,13 +34,17 @@ function Story:init(options)
         tone={polite=0,ask=0,silent=0,sulk=0,blame=0,retreat=0,recall=0,resend=0,erase=0}}
     self.pose={sit=self.normi:frameIndex('sit'),sitPhone=self.normi:frameIndex('sit-phone'),standPhone=self.normi:frameIndex('stand-phone'),lookUp=self.normi:frameIndex('look-up')}
     self.phone={open=false,k=0,elapsed=0,view='lock',time=self:hm(),battery=21,draft='',msgs={},recallable={},buttons={},
-        history={},contact=L.group,subtitle=L.groupSub,lockLabel=L.lock,previewName='领导',previewAvatar=L.history[1].from.avatar,preview=L.history[3].text,failText=L.failText}
-    for _,item in ipairs(L.history) do
-        ---@type table
-        local h=item
-        self.phone.history[#self.phone.history+1]={me=not not h.me,stamp=h.stamp,text=h.text,name=h.from and h.from.name or nil,avatar=h.from and h.from.avatar or nil}
-    end
-    self.browse=Browser.new();self.browseIdx={shelf=0,fridge=0,food=0};self.activity=false;self.browseNext={}
+        history={},reacts={},stickers=true,contact=L.group,subtitle=L.groupSub,lockLabel=L.lock,previewName='领导',previewAvatar=L.history[1].from.avatar,preview=L.history[3].text,failText=L.failText}
+    local others,mine={},{}
+    for _,h in ipairs(L.history)do if h.me then mine[#mine+1]=h else others[#others+1]=h end end
+    mine=Group.mine or mine
+    local hid={h0='h0',h1='h1',w1='h2'}
+    for i,m in ipairs(mine)do if m.id then hid[m.id]='h'..(#others+i-1)end end
+    for _,h in ipairs(others)do self.phone.history[#self.phone.history+1]={me=false,stamp=h.stamp,text=h.text,name=h.from and h.from.name,avatar=h.from and h.from.avatar}end
+    for _,h in ipairs(mine)do self.phone.history[#self.phone.history+1]={me=true,stamp=h.stamp,text=h.text,sticker=h.sticker}end
+    for id,reacts in pairs(Group.reacts)do if hid[id] and #reacts>0 then self.phone.reacts[hid[id]]=copy(reacts)end end
+    self.browse=Browser.new();self.browse.onThought=function(text)self:think(text)end
+    self.browseIdx={};self.activity=false;self.browseNext={}
     self.browseZone=false;self.browseCloseText='';self.phoneButtonHidden=false
     self.power=1;self.flickBoost=0;self.doodleK=0;self.doodleGone=false;self.archiveVisible=false
     self.tablePig={visible=false,spinT=0,scale=.42,light=0};self.pigK=0;self.darkT=0;self.foldT=0
@@ -66,7 +73,12 @@ function Story:add(v,isEvent)
 end
 function Story:say(text,style)
     if not text or self.phase=='done' or (self.phase=='fold' and self.foldT>.6) then return end
+    if style=='inner' and text~=L.buzz then self:think(text);return end
     self:emit('caption',{speaker='normi',text=text,style=self.phone.open and 'inner' or (style or 'soft')})
+end
+function Story:think(text)
+    local n=utf8.len(text) or 0
+    self.dialog={text=text,at=self.t,hold=n*.055+math.max(2.2,1.3+n*.13),stamp=self:hm()..' · 便利店',face=text:sub(1,#'……')=='……' and 'deadpan' or 'puzzled'}
 end
 function Story:clerk(text)
     if self.phase~='fold' and self.phase~='done' then self:emit('caption',{speaker='clerk',text=text,style='talk'}) end
@@ -76,14 +88,14 @@ function Story:begin()
     self.introStarted=true;local n=self.normi
     n:setPosition(4.3,0,-4.85);n.side=-1;n.override=self.pose.standPhone;n:moveStick({x=2.4,y=0,z=-2.2})
     self:emit('doorForce',{duration=2.2})
-    self:after(1,function() self:clerk(L.enter) end)
-    self:after(2.2,function() self:say(L.thinkIn,'inner') end)
-    self:after(3.4,function() n.override=false;n:moveStick({x=-.7,y=0,z=-2.85}) end)
-    self:after(6.6,function()
+    self:after(.7,function() self:clerk(L.enter) end)
+    self:after(1.5,function() self:say(L.thinkIn,'inner') end)
+    self:after(2.3,function() n.override=false;n:moveStick({x=-.7,y=0,z=-2.85}) end)
+    self:after(4.4,function()
         n:face(-1);n:doTouch('hesitate');self.archiveVisible=true
         self:emit('puff',{x=Data.table.x+.42,y=Data.table.y+.2,z=Data.table.z});self:say(L.putDown)
     end)
-    self:after(8.4,function() self.phase='play';self:emit('hint',{text=L.hint,duration=6.5}) end)
+    self:after(5.6,function() self.phase='play';self:emit('hint',{text=L.hint,duration=6.5}) end)
 end
 function Story:togglePhone()
     if self.phase~='play' and self.phase~='dark' and self.phase~='pig' then return end
@@ -124,23 +136,31 @@ function Story:onPhone(id)
         local text=index and replies and replies[index+1]
         if text then self.draft={text=text};self.phone.draft=text end
     elseif id=='clear' then self.draft=false;self.phone.draft=''
-    elseif id=='send' then self:sendDraft() end
+    elseif id=='send' then self:sendDraft()
+    elseif id:sub(1,8)=='sticker:' then local key=id:sub(9);self:sendDraft({sticker=key,text='['..Group.label(key)..']'})
+    elseif id:sub(1,6)=='react:' and self.pending and not self.offline and id:match('^react:([^:]+):')==self.pendingId then
+        self.pending=false;self.draft=false;self.phone.draft=''
+        self:after(1.2,function()self:say(L.sent[math.min(self.sentN+1,#L.sent)],'inner');self.sentN=self.sentN+1 end);self:refreshButtons()
+    end
 end
 function Story:syncMessages()
     self.phone.msgs=copy(self.msgs);self.mem.sent={}
     for _,m in ipairs(self.msgs) do if not m.them and m.status~='recalled' then self.mem.sent[#self.mem.sent+1]=m.text end end
 end
-function Story:sendDraft()
-    if not self.draft then return end
+function Story:sendDraft(d)
+    d=d or self.draft;if not d then return end
+    local answer=not not self.pending
     self.msgSeq=self.msgSeq+1
-    local m={id='m'..self.msgSeq,text=self.draft.text,time=self:hm(),minute=self.clock,status='sending'}
-    self.msgs[#self.msgs+1]=m;self.draft=false;self.pending=false;self.phone.draft='';self:syncMessages();self:emit('sound',{name='send'})
+    local m={id='m'..self.msgSeq,text=d.text,sticker=d.sticker,time=self:hm(),minute=self.clock,status='sending'}
+    self.msgs[#self.msgs+1]=m
+    if answer or not d.sticker then self.draft=false;self.pending=false;self.phone.draft=''end
+    self:syncMessages();self:emit('sound',{name='send'})
     local fail=self.offline
     self:after(.7,function()
         m.status=fail and 'failed' or 'sent';self:syncMessages()
         if fail and not self.saidFail then self.saidFail=true;self:after(.5,function() self:say(L.failed,'inner') end) end
     end)
-    if not fail then self:after(1.2,function() self:say(L.sent[math.min(self.sentN+1,#L.sent)],'inner');self.sentN=self.sentN+1 end) end
+    if not fail and answer then self:after(1.2,function() self:say(L.sent[math.min(self.sentN+1,#L.sent)],'inner');self.sentN=self.sentN+1 end) end
     self:refreshButtons()
 end
 function Story:receive(w)
@@ -148,7 +168,7 @@ function Story:receive(w)
     self.msgs[#self.msgs+1]={id='w'..self.msgSeq,them=true,name=w.from.name,avatar=w.from.avatar,text=w.text,time=self:hm(),minute=self.clock,status='sent'}
     self:syncMessages();self:emit('sound',{name='buzz'});self:emit('phoneWiggle')
     self.phone.previewName=w.from.name;self.phone.previewAvatar=w.from.avatar;self.phone.preview=w.text
-    if w.replies or w.later then self.pending=w end
+    if w.replies or w.later then self.pending=w;self.pendingId='w'..self.msgSeq end
     if w.after then
         if self.phone.open and self.phone.view=='chat' then self:after(1.3,function() self:say(w.after,'inner') end)
         else self.unread=w.after;if not self.browse.open and not self.phone.open then self:say(L.buzz,'inner') end end
@@ -164,9 +184,9 @@ function Story:timeline()
     self:once('yawn',9,self.clock,function() self:clerk(L.yawn) end)
 end
 -- Scene walker calls back with the original zero-based route step.
-function Story:riderStep(index)
+function Story:riderStep(index,head)
     if index==2 then self:clerk(L.rider.hi)
-    elseif index==5 then self:emit('caption',{speaker='rider',style='talk',text=L.rider.mutter})
+    elseif index==5 then self:emit('caption',{speaker=head or 'rider',style='talk',text=L.rider.mutter})
     elseif index==9 then self:after(.6,function() self:say(L.rider.watch) end) end
 end
 function Story:nearbyInteractions()
@@ -226,13 +246,13 @@ function Story:interact(id)
     elseif option.id=='stand' then self:standUp()
     elseif option.id=='door' then
         self:add(self.t-self.lastDoor<20 and 6 or 2);self.lastDoor=self.t;self.mem.doorLooks=self.mem.doorLooks+1
-        self.normi:face(Data.door.x0-self.normi.pos.x);self:say(L.door)
-    elseif Data.browse[option.id] then self:startBrowse(option.id)
+        self.normi:face(Data.door.x0-self.normi.pos.x);self:startBrowse('door')
+    elseif BROWSE[option.id] then self:startBrowse(option.id)
     else self:add(1);if not self.sitting then self.normi:doTouch('hesitate') end;if option.id=='window' then self:say(L.window) end end
     self:updateInteractionPrompt()
 end
 function Story:startBrowse(zone,more)
-    local list=Data.browse[zone];local act=list[self.browseIdx[zone]%#list+1];self.browseIdx[zone]=self.browseIdx[zone]+1
+    local list=BROWSE[zone];local index=self.browseIdx[zone] or 0;local act=list[index%#list+1];self.browseIdx[zone]=index+1
     self.activity=act;self.browseZone=zone;self.browseCloseText=act.closeText or '放回去'
     if more then self.browse:retitle(act.title,act.sub);self.browse:push({{kind='divider',text=act.sub}},{}) else self.browse:show(act.title,act.sub) end
     self.mem.browse=(self.mem.browse or 0)+1;self.stress=math.max(0,self.stress-({3,1.5,0})[self:tier()+1])
@@ -301,23 +321,24 @@ function Story:startReply()
 end
 function Story:updateDark(dt)
     self.darkT=self.darkT+dt;local t=self.darkT
-    self:once('d-blink',.6,t,function() self.flickBoost=1;self:say(L.dark.blink,'inner');self:emit('tone',{frequency=2400,dur=1.6,gain=.006,wave='sawtooth'}) end)
-    self:once('d-cut',2.6,t,function()
+    self:once('d-blink',.4,t,function() self.flickBoost=1;self:say(L.dark.blink,'inner');self:emit('tone',{frequency=2400,dur=1.6,gain=.006,wave='sawtooth'}) end)
+    self:once('d-cut',1.6,t,function()
         self.flickBoost=0;self.power=0;self.offline=true;self:emit('sound',{name='powerCut'});self:emit('shake',{amount=.1})
         if self.browse.open then self:closeBrowse() end
     end)
-    self:once('d-clerk',5.4,t,function() self:clerk(L.dark.clerk) end)
-    self:once('d-b',8.6,t,function() self:say(L.dark.b,'inner') end)
-    self:once('d-c',10.4,t,function() self:say(L.dark.c,'inner') end)
-    if t>12.2 and t<14.2 then self.doodleK=math.sin(smooth(t,12.2,14.2)*math.pi) end
-    self:once('d-gone',13.2,t,function() self.doodleGone=true end)
-    self:once('d-pig',14.2,t,function()
+    self:once('d-clerk',3.2,t,function() self:clerk(L.dark.clerk) end)
+    self:once('d-b',5,t,function() self:say(L.dark.b,'inner') end)
+    self:once('d-c',6.2,t,function() self:say(L.dark.c,'inner') end)
+    if t>7 and t<8.2 then self.doodleK=math.sin(smooth(t,7,8.2)*math.pi) end
+    self.fx.blue=((t>7.52 and t<7.59) or (t>8.2 and t<8.25)) and .85 or 0
+    self:once('d-gone',7.6,t,function() self.doodleGone=true end)
+    self:once('d-pig',8.2,t,function()
         self.doodleK=0;self.tablePig.visible=true;self.tablePig.spinT=0
         self:emit('puff',{x=Data.table.x,y=Data.table.y+.3,z=Data.table.z,count=3})
         self:emit('tone',{frequency=330,dur=.6,gain=.04,wave='sine',slide=.6})
         self:say(L.pig.gone,'inner');self:emit('pigReady')
     end)
-    self:once('d-table',16.6,t,function()
+    self:once('d-table',9.2,t,function()
         self:say(L.pig.table,'inner');self.phase='pig';if self.phone.open then self:closePhone() end
         self.phoneButtonHidden=true;self:emit('hint',{text=L.pig.hint,duration=6.5})
     end)
@@ -332,12 +353,13 @@ function Story:updateTablePig(dt)
 end
 function Story:startFold()
     if self.phase~='pig' then return end
-    self.phase='fold';self.foldT=0;self:emit('clearCaptions');self:emit('hint',{text='……',duration=.4})
+    self.phase='fold';self.foldT=0;self.dialog=false;self:emit('clearCaptions');self:emit('hint',{text='……',duration=.4})
     if not self.sitting then self.normi:doTouch('hesitate') end
     self.normi:face(Data.table.x-self.normi.pos.x);self:emit('flash',{amount=.25});self:emit('sound',{name='thunder',amount=.5});self:say('……','inner')
 end
 function Story:updateFold(dt)
     self.foldT=self.foldT+dt;local t,f=self.foldT,self.fx
+    f.blue=smooth(t,1.4,2.6)*(1-smooth(t,3.4,4.4))*.45
     f.haze=smooth(t,.4,2.2)*(1-smooth(t,4.6,5.4));f.fold=smooth(t,.9,4.3);f.audioFade=smooth(t,1,4)
     if t>1.8 and self.normi.visible then self.normi.visible=false;self:emit('puff',{x=self.normi.pos.x,y=.3,z=self.normi.pos.z}) end
     -- Veil center is the projected table pig, supplied by the renderer.
@@ -347,12 +369,18 @@ function Story:updateFold(dt)
         self.result={mem=copy(self.mem),stress=self.stress,tier=self:tier(),reply='',msgs=own};self:emit('finish',{result=self.result})
     end
 end
+function Story:skipAhead(dt)
+    self.settleT=(not self.pending and not self.unread and not self.browse.open) and (self.settleT or 0)+dt or 0
+    if self.settleT<2 then return end
+    self.settleT=0;local nextAt=self.workI<#L.work and L.work[self.workI+1].at or 12
+    if (nextAt-self.clock)*5>2.5 then self.clock=nextAt-.1 end
+end
 function Story:update(dt,ctx)
     ctx=ctx or {};self.t=self.t+dt;self.moving=not not ctx.moving
     -- Reverse traversal is deliberate: new callbacks wait until the next frame.
     for i=#self.later,1,-1 do local l=self.later[i];l.t=l.t-dt;if l.t<=0 then table.remove(self.later,i);l.fn() end end
     if self.phase=='play' then
-        self.clock=math.min(12,self.clock+dt/10);self:timeline()
+        self.clock=math.min(12,self.clock+dt/5);self:timeline()
         local floor=self.clock>=10 and 35 or (self.clock>=5 and 15 or 0)
         if self.stress<floor then self.stress=self.stress+math.min(floor-self.stress,dt*3) end
         self:add(dt*.18,false);self:move(dt);if self.clock>=12 then self:startReply() end
@@ -376,6 +404,7 @@ function Story:update(dt,ctx)
         self.idleT=still and self.idleT+dt or 0
         if self.idleT>9 then self.idleT=-12;self:say(L.idle[math.floor(self.random()*#L.idle)+1],'inner') end
     end
+    if self.phase=='play' then self:skipAhead(dt)end
     if self.phase=='dark' then self:updateDark(dt) end
 end
 return Story

@@ -1,0 +1,14 @@
+{
+  "run": "5526ce45-7bb5-4ae4-9028-e99aaa156416",
+  "entry": "validation/Increment03UIPages.lua",
+  "officialResult": "FAIL",
+  "summary": {
+    "lua_errors": 0,
+    "resource_errors": 0,
+    "engine_errors": 3,
+    "total_errors": 3
+  },
+  "maxFrameTimeMs": 430.5329895019531,
+  "uiRoutePass": true,
+  "evidence": "validation/increment03/native/ui-pages05-report"
+}

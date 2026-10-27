@@ -1,0 +1,30 @@
+{
+  "method": "7x7 uniform valid window; sample covariance 49/48; RGB mean; data range 255",
+  "time": 10,
+  "rows": [
+    {
+      "run": "b8986d85-8476-4d04-80ba-042d9d94211f",
+      "width": 1280,
+      "height": 720,
+      "ssim": 0.9329906693211848,
+      "meanAbsoluteRgbError": 4.0038031684027775,
+      "source": "validation/increment03/timeline-aligned/h5-1280-720.png",
+      "native": "validation/increment03/timeline-aligned/timeline-aligned03-client.png"
+    },
+    {
+      "run": "25912732-2cc8-4f86-9a60-6eaa3f8f6b94",
+      "width": 1200,
+      "height": 540,
+      "ssim": 0.935724587795029,
+      "meanAbsoluteRgbError": 3.5981923868312755,
+      "source": "validation/increment03/timeline-aligned/h5-1200-540.png",
+      "native": "validation/increment03/timeline-aligned/timeline-wide01-client.png"
+    }
+  ],
+  "verdict": "NOT_ACCEPTED",
+  "limitations": [
+    "Snapshots precede final label paint-order and mobile button correction",
+    "Not all scenes; not a perceptual percentage",
+    "Frozen page fixture explicitly unlocks nodes, not natural gameplay"
+  ]
+}

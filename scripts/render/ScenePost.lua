@@ -76,7 +76,7 @@ function Post.new(view)
     for i=2,7 do self.bloom[i]=pass('Shaders/BLGL/SceneBlur.shader') end
     self.bloomTargets={};self.bloomSurfaces={}
     local f=self.final.material
-    for k,v in pairs({frost=0,frostSide=1,frostEdge=.5,frostFeather=.08,bloom=0,exposure=1,paperOn=0,vignette=0,shock=0,shockSeed=0,flash=0,veil=0,veilR=1.9,blue=0,blueLo=.06,blueHi=.5,blueSweep=0,presentOn=0,time=0}) do parameter(f,k,v) end
+    for k,v in pairs({frost=0,frostSide=1,frostEdge=.5,frostFeather=.08,bloom=0,exposure=1,paperOn=0,vignette=0,edgeK=1,blueInk=0,shock=0,shockSeed=0,flash=0,veil=0,veilR=1.9,blue=0,blueLo=.06,blueHi=.5,blueSweep=0,presentOn=0,time=0}) do parameter(f,k,v) end
     parameter(f,'grade',Vector3(1,1,1));parameter(f,'veilC',Vector2(.5,.5));parameter(f,'blueC',Vector2(.5,.5))
     if view.data and view.data.definition then self.present=require('render.PresentMask').new(view) end
     self:resize(graphics:GetWidth(),graphics:GetHeight())
@@ -196,6 +196,7 @@ function Post:update(canvas,haze)
     local story=canvas and canvas.story;local p=story and (canvas.channel=='browse' and story.browse or story.phone) or {k=0}
     local placement=canvas and (canvas.channel=='browse' and story.browse or canvas.placement) or {layoutSide='right',frostEdge=.5}
     local k,side,edge=p.k,placement.layoutSide=='left' and -1 or 1,placement.frostEdge
+    if p.presentation=='look'then k=0 end -- Object cards use focus DOF, not phone half-screen frost.
     if (haze or 0)>k then k=haze;side=1;edge=-.2 end
     parameter(self.final.material,'frost',k);parameter(self.final.material,'frostSide',side);parameter(self.final.material,'frostEdge',edge)
     -- Custom SurfaceShader sampler dependencies are not recursively queued by
@@ -217,20 +218,22 @@ function Post:updateGame(story,canvas,dt,kind,pose,bridge)
         fx={grade={1,.97,.98},exposure=1+.08*story.power,kFar=tune.dofFar*(1+stress*.35),kNear=tune.dofNear,
             desat=stress*.12,vignette=smooth(stress,.3,1)*.5,haze=fx.haze,veil=fx.veil}
     elseif kind=='echo' then
-        local k=pose and pose.rwK or 0;local meeting=story.theme=='meeting'
-        local base=meeting and {1.04,1,.93} or {.9,.98,1.04}
+        local k=pose and pose.rwK or 0;local meeting=story.theme~='store'
+        local base=({meeting={1.04,1,.93},office={1.06,.99,.94},dorm={1.03,1,.96},store={.9,.98,1.04}})[story.theme]
         local cold=meeting and {.82,.92,1.12} or {.78,.92,1.16};local grade={}
         for i=1,3 do grade[i]=base[i]+(cold[i]-base[i])*k*.8;if not meeting then grade[i]=grade[i]*({.86/.9,.93/.98,1.1/1.04})[i] end end
-        -- Chapter tuning survives entering its echoes in frozen main.js.
-        tune=meeting and require('game.data.Chapter1Data').tune or tune
         fx={grade=grade,exposure=meeting and (1-k*.06) or 1,kFar=meeting and 4 or 7,kNear=44,veil=story.veil}
+    end
+    if story.postSettings then
+        local resolved={};for k,v in pairs(tune)do resolved[k]=v end
+        for k,v in pairs(story.postSettings)do resolved[k]=v end;tune=resolved
     end
     self.style:update(tune,fx,story.t,focusActor,dt)
     local f=self.final.material;local g=fx.grade or {1,1,1}
     parameter(f,'shock',self.effects.shock);parameter(f,'shockSeed',self.effects.shockSeed);parameter(f,'flash',self.effects.flash)
-    local blue=bridge and bridge.blue or (kind=='echo' and pose and pose.rwK*.6 or 0)
+    local blue=bridge and bridge.blue or (fx.blue or (kind=='echo' and pose and pose.rwK*.6 or 0))
     parameter(f,'blue',blue);parameter(f,'blueSweep',bridge and bridge.sweep or 0)
-    parameter(f,'blueLo',kind=='store' and .015 or .035);parameter(f,'blueHi',kind=='store' and .26 or .4)
+    parameter(f,'blueLo',fx.blueLo or (kind=='store' and .015 or .035));parameter(f,'blueHi',fx.blueHi or (kind=='store' and .26 or .4))
     if bridge and bridge.blue>0 then
         local center=self.view.camera:WorldToScreenPoint(Vector3(focusActor.x,focusActor.y,-focusActor.z))
         parameter(f,'blueC',Vector2(center.x,1-center.y))
@@ -240,7 +243,8 @@ function Post:updateGame(story,canvas,dt,kind,pose,bridge)
     parameter(f,'depth_reverse',self.view.camera:UseReverseZ() and 1 or 0)
     parameter(f,'grade',Vector3(g[1],g[2],g[3]));parameter(f,'exposure',fx.exposure or 1)
     parameter(f,'time',story.t);parameter(f,'vignette',fx.vignette or 0)
-    parameter(f,'paperOn',tune.paper==false and 0 or 1);parameter(f,'bloom',tune.bloomStrength or 1)
+    parameter(f,'edgeK',fx.edgeK or 1);parameter(f,'blueInk',fx.ink or 0)
+    parameter(f,'paperOn',tune.paper==false and 0 or 1);parameter(f,'bloom',tune.bloom==false and 0 or (tune.bloomStrength or 1))
     parameter(self.bloom[1].material,'threshold',tune.bloomThreshold or 1)
     parameter(self.dof.material,'desat',fx.desat or 0);parameter(self.dof.material,'sat',fx.sat or 1)
     local veil=fx.veil

@@ -1,0 +1,129 @@
+{
+  "run": "a089689a-df84-4825-a0fc-662efc18c1a3",
+  "report": {
+    "version": 2,
+    "script": "validation/Increment03Modes.lua",
+    "result": "FAIL",
+    "duration_ms": 379820,
+    "frames_completed": 21009,
+    "phases": {
+      "load": {
+        "result": "PASS",
+        "errors": []
+      },
+      "init": {
+        "result": "PASS",
+        "errors": []
+      },
+      "run": {
+        "result": "FAIL",
+        "errors": [
+          {
+            "category": "engine",
+            "message": "Frame time spike: 356.129ms (threshold: 100ms)",
+            "frame": 203
+          },
+          {
+            "category": "engine",
+            "message": "Frame time spike: 113.948ms (threshold: 100ms)",
+            "frame": 1620
+          },
+          {
+            "category": "engine",
+            "message": "Frame time spike: 135.781ms (threshold: 100ms)",
+            "frame": 2256
+          },
+          {
+            "category": "engine",
+            "message": "Frame time spike: 316.368ms (threshold: 100ms)",
+            "frame": 3628
+          },
+          {
+            "category": "engine",
+            "message": "Frame time spike: 179.989ms (threshold: 100ms)",
+            "frame": 6656
+          },
+          {
+            "category": "engine",
+            "message": "Frame time spike: 218.936ms (threshold: 100ms)",
+            "frame": 9795
+          },
+          {
+            "category": "engine",
+            "message": "Frame time spike: 630.134ms (threshold: 100ms)",
+            "frame": 13033
+          }
+        ]
+      },
+      "scene": {
+        "result": "PASS",
+        "errors": [],
+        "node_count": 14,
+        "component_count": 15,
+        "scene_exists": true
+      }
+    },
+    "state_snapshots": [
+      {
+        "frame": 1,
+        "phase": "init",
+        "nodes": 14,
+        "components": 15,
+        "hash": 2571127980,
+        "frame_time_ms": 232.06300354003906
+      },
+      {
+        "frame": 10,
+        "phase": "run",
+        "nodes": 14,
+        "components": 15,
+        "hash": 2571127980,
+        "frame_time_ms": 17.235000610351562
+      },
+      {
+        "frame": 10504,
+        "phase": "run",
+        "nodes": 33,
+        "components": 33,
+        "hash": 2802760023,
+        "frame_time_ms": 17.660999298095703
+      },
+      {
+        "frame": 21009,
+        "phase": "run",
+        "nodes": 14,
+        "components": 15,
+        "hash": 2571127980,
+        "frame_time_ms": 16.6200008392334
+      }
+    ],
+    "scene_stalled": false,
+    "max_frame_time_ms": 630.1339721679688,
+    "update_defined": false,
+    "component_census": {
+      "Octree": 1,
+      "Zone": 1,
+      "Camera": 1,
+      "CustomGeometry": 12
+    },
+    "test_result": "NOT_RUN",
+    "test_assertions": {
+      "total": 0,
+      "passed": 0,
+      "failed": 0
+    },
+    "test_issues": [],
+    "missing_resources": [],
+    "missing_engine_resources": [],
+    "summary": {
+      "lua_errors": 0,
+      "resource_errors": 0,
+      "engine_errors": 7,
+      "total_errors": 7
+    }
+  },
+  "levelMode": "PASS",
+  "timelineUI": "PASS",
+  "timelineFixture": "explicitly seeded nine unlocked nodes; natural unlock covered by full mainline runs",
+  "visualAcceptance": false
+}

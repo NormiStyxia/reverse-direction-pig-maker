@@ -40,7 +40,7 @@ export function serialize(roots,handles) {
   }
   function visit(o,parent){
     const id=nodes.length+1;nm.set(o,id);
-    const n={id,parent,name:o.name,type:o.type,position:o.position.toArray(),quaternion:o.quaternion.toArray(),scale:o.scale.toArray(),visible:o.visible,
+    const n={id,parent,name:o.name,type:o.type,position:o.position.toArray(),quaternion:o.quaternion.toArray(),rotation:[o.rotation.x,o.rotation.y,o.rotation.z],scale:o.scale.toArray(),visible:o.visible,
       castShadow:o.castShadow,receiveShadow:o.receiveShadow,renderOrder:o.renderOrder,sourceLayers:o.layers.mask};nodes.push(n);
     if(o.geometry)n.geometry=geometry(o.geometry);
     if(o.material)n.materials=(Array.isArray(o.material)?o.material:[o.material]).map(material);

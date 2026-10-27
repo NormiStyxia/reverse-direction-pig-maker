@@ -1,0 +1,42 @@
+<!doctype html><meta charset="utf-8">
+<style>@font-face{font-family:'LXGW WenKai';src:url('/assets/fonts/LXGWWenKai-subset.ttf')}body{margin:0}#store-interaction,#ch1-clock,.br-layer,.dlg{display:none}</style>
+<script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {Ch1Dorm} from '/src/ch1-scenes.js';
+import {CH1_TUNE_DEFAULTS} from '/src/ch1-tuning.js';
+import {asPaperFigure} from '/src/store.js';
+import {Normi} from '/src/normi.js';
+import {Pig} from '/src/pig.js';
+import {serialize} from '/export-scene.js';
+try{
+ await document.fonts.load('20px "LXGW WenKai"');await document.fonts.ready;
+ const seed=0x6a316e84;let rng=seed;Math.random=()=>{rng=(Math.imul(rng,1664525)+1013904223)>>>0;return rng/4294967296};
+ const load=async path=>{const i=new Image();i.src=path;await i.decode();return i};
+ const art={};for(const [key,file] of Object.entries({doodle:'pig-doodle.png',window:'window-afternoon.jpg',faces:'normi-faces.png'}))art[key]=await load('/assets/ch1/'+file);
+ const layout=await(await fetch('/assets/c0/normi-motion-atlas.json')).json();
+ const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(24,1920/1080,1,1400);
+ scene.fog=new THREE.Fog('#dfe8f2',34,150);scene.background=scene.fog.color;
+ const normi=new Normi(scene,await load('/assets/c0/normi-motion-atlas.png'),layout);normi.stick.visible=false;asPaperFigure(normi.mesh);
+ const pig=new Pig(scene,await load('/assets/pig-atlas-eight.png'));
+ const sun=new THREE.DirectionalLight(),hemi=new THREE.HemisphereLight();sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);scene.add(sun,sun.target,hemi);
+ const o={scene,camera,normi,art,tablePig:pig,audio:new Proxy({},{get:()=>()=>{}}),world:{rooms:[],rocks:[],island:{},sky:{},lights:{sun,hemi}},hooks:{shake(){},flash(){},puff(){}},caption(){},clearCaptions(){},ui:{title(){},hint(){}},skipRewind:true};
+ const ch=new Ch1Dorm(o),tune={...CH1_TUNE_DEFAULTS,...await(await fetch('/config/ch1-tuning.json')).json()};ch.applyTune(tune);ch.update(0,{camYaw:0,time:0});
+ const tonight=[];for(const answer of ['sick','pc','off']){ch.dormChoice=answer;ch.showDeskPig(true);ch.tonight.group.visible=false;tonight.push({answer,h:ch.tonight});}
+ ch.dropParcel();ch.parcel.visible=false;pig.mesh.visible=false;
+ // Native scene includes loaded cutouts, not unresolved TextureLoader placeholders.
+ for(let i=0;i<200&&THREE.DefaultLoadingManager.isLoading;i++)await new Promise(r=>setTimeout(r,50));
+ await new Promise(r=>setTimeout(r,500));
+ const base=normi.mesh.clone();base.material=normi.mat.clone();base.material.map=base.material.emissiveMap=normi.tex;base.visible=false;
+ const lit=ch.room.screen.clone();lit.material=lit.material.clone();lit.material.map=ch.room.screenArt;lit.material.color.setRGB(1,1,1);lit.visible=false;
+ scene.updateMatrixWorld(true);
+ const data=serialize([ch.room.group,normi.mesh,pig.mesh,base,lit],(nm,mm)=>({root:nm.get(ch.room.group),normi:nm.get(normi.mesh),normiBaseMaterial:mm.get(base.material),normiFaceMaterial:mm.get(normi.mat),tablePig:nm.get(pig.mesh),
+  screen:nm.get(ch.room.screen),screenLitMaterial:mm.get(lit.material),window:mm.get(ch.room.view.material),drape:mm.get(ch.drape.material),parcel:nm.get(ch.parcel),
+  tonight:tonight.map(v=>({answer:v.answer,id:nm.get(v.h.group),seed:v.h.seed,mats:v.h.mats.map(m=>mm.get(m)),edge:mm.get(v.h.group.children[1].material),scan:mm.get(v.h.group.children[2].material),base:mm.get(v.h.group.children[3].material),baseNode:nm.get(v.h.group.children[3])}))}));
+ Object.assign(data,{schema:1,seed,chapter:'dorm',tune,normiLayout:layout,obstacles:ch.room.obstacles,bounds:normi.bounds,pivot:ch.pivot.toArray(),tonightAt:ch.room.tonightAt.toArray(),screenPosition:ch.room.screen.position.toArray(),coordinates:'Three RH; native renderer flips Z once'});
+ window.chapterExport=[data];
+ const renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true});renderer.setSize(1920,1080);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;document.body.appendChild(renderer.domElement);
+ window.renderReference=()=>{const look=ch.cam.target,pitch=16*Math.PI/180;camera.position.copy(look).add(new THREE.Vector3(0,Math.sin(pitch)*22*.66,Math.cos(pitch)*22*.66));camera.lookAt(look);camera.updateMatrixWorld();renderer.render(scene,camera);return {position:camera.position.toArray(),look:look.toArray(),fov:24}};
+ window.renderReference();window.exportReady=true;
+}catch(e){window.exportError=e.stack;console.error(e)}
+</script>

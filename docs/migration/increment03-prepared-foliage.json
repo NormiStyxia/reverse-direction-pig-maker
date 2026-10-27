@@ -1,0 +1,135 @@
+{
+  "assets": [
+    {
+      "source": "assets/store/foliage-canopy.png",
+      "path": "assets/increment03/prepared/foliage-canopy.dds",
+      "sourceSha256": "ad57e6c12ac778567775b81edd42b54c1c35d3a46fc4d33c077a8e8950b019b3",
+      "sha256": "9a9f2eac520af486d3a6729b502a3e2e2065e9215b66f007366e5f4670b5b825",
+      "width": 3072,
+      "height": 1024,
+      "mips": 12,
+      "bytes": 16777344,
+      "basePixels": "exact"
+    },
+    {
+      "source": "assets/store/foliage-hedge.png",
+      "path": "assets/increment03/prepared/foliage-hedge.dds",
+      "sourceSha256": "e6eed1f773839420726e878ad65b471d0bafe1ad94cca2b740756d423edd27a0",
+      "sha256": "7418a10b2ae75fc8d74f452b6155a4721a993c5165a6cb861e64d8c36b1595b4",
+      "width": 3072,
+      "height": 1024,
+      "mips": 12,
+      "bytes": 16777344,
+      "basePixels": "exact"
+    },
+    {
+      "source": "assets/pig-atlas-eight.png",
+      "path": "assets/increment03/prepared/pig-atlas-eight.dds",
+      "sourceSha256": "96f8a013c528704903b4d6f8dd62b7820f8095795fa99e263d4baa9a8c081db1",
+      "sha256": "ac4246ecd19f00f8e9549778c7a046cf7d3348869d74db03b347e218a2c9737c",
+      "width": 2048,
+      "height": 1024,
+      "mips": 12,
+      "bytes": 11184940,
+      "basePixels": "exact"
+    }
+  ],
+  "mipOracleRun": "b17b7be7-389e-489c-8a27-fc890a5912f0",
+  "gpuSampleChannels": 12288,
+  "differingChannels": 0,
+  "deliveryValidationRun": "d165824b-6a52-4f72-bfa8-ad0616f5238a",
+  "nativeReport": {
+    "version": 2,
+    "script": "validation/Increment03TextureExport.lua",
+    "result": "PASS",
+    "duration_ms": 17119,
+    "frames_completed": 814,
+    "phases": {
+      "load": {
+        "result": "PASS",
+        "errors": []
+      },
+      "init": {
+        "result": "PASS",
+        "errors": []
+      },
+      "run": {
+        "result": "PASS",
+        "errors": []
+      },
+      "scene": {
+        "result": "PASS",
+        "errors": [],
+        "node_count": 3,
+        "component_count": 4,
+        "scene_exists": true
+      }
+    },
+    "state_snapshots": [
+      {
+        "frame": 1,
+        "phase": "init",
+        "nodes": 3,
+        "components": 4,
+        "hash": 1114304471,
+        "frame_time_ms": 168.44900512695312
+      },
+      {
+        "frame": 10,
+        "phase": "run",
+        "nodes": 3,
+        "components": 4,
+        "hash": 1114304471,
+        "frame_time_ms": 51.319000244140625
+      },
+      {
+        "frame": 407,
+        "phase": "run",
+        "nodes": 3,
+        "components": 4,
+        "hash": 1114304471,
+        "frame_time_ms": 16.85700035095215
+      },
+      {
+        "frame": 814,
+        "phase": "run",
+        "nodes": 3,
+        "components": 4,
+        "hash": 1114304471,
+        "frame_time_ms": 17.549999237060547
+      }
+    ],
+    "scene_stalled": true,
+    "max_frame_time_ms": 90.4540023803711,
+    "update_defined": false,
+    "component_census": {
+      "Octree": 1,
+      "Zone": 1,
+      "Camera": 1,
+      "CustomGeometry": 1
+    },
+    "test_result": "NOT_RUN",
+    "test_assertions": {
+      "total": 0,
+      "passed": 0,
+      "failed": 0
+    },
+    "test_issues": [],
+    "missing_resources": [],
+    "missing_engine_resources": [],
+    "summary": {
+      "lua_errors": 0,
+      "resource_errors": 0,
+      "engine_errors": 0,
+      "total_errors": 0
+    }
+  },
+  "limitations": [
+    "Stationary native store fixture, not whole-game performance",
+    "Frame-zero default sky resource warning remains",
+    "Official screenshot collection ENOENT; this run proves GPU samples, not visual acceptance"
+  ],
+  "deliveryGpuSampleChannels": 18432,
+  "deliveryDifferingChannels": 0,
+  "basePixelCheck": "all base pixels byte-identical for all three textures"
+}

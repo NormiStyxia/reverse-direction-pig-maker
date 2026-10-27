@@ -12,6 +12,8 @@ uniform float bloom;
 uniform float exposure;
 uniform float paperOn;
 uniform float vignette;
+uniform float edgeK;
+uniform float blueInk;
 uniform float shock;
 uniform float shockSeed;
 uniform vec3 grade;
@@ -69,7 +71,7 @@ void fragment(){
   // 水彩晕边：边缘不规则地压暗
   float edgeN = fbm(vUv * 5.0 + 3.1) * 0.22;
   float v = smoothstep(0.42 - vignette * 0.22 - edgeN * 0.6, 1.0 - vignette * 0.3, r + edgeN * 0.2);
-  c = mix(c, c * vec3(0.32, 0.27, 0.33), v * (0.55 + vignette * 0.45));
+  c = mix(c, c * vec3(0.32, 0.27, 0.33), v * (0.55 + vignette * 0.45) * edgeK);
 
   // 蓝白：亮度往纸白那头压(插画是白为主、蓝只做色块和阴影)，再按档平涂上色
   float kb = 0.0, haze = 0.0;
@@ -94,6 +96,7 @@ void fragment(){
     }
     float l = dot(c, vec3(0.299, 0.587, 0.114));
     c = mix(c, blueRamp(bands(smoothstep(blueLo, blueHi, l))), kb);
+    if (blueInk > 0.001) c = mix(c, vec3(0.012, 0.016, 0.04), kb * blueInk * (1.0 - smoothstep(0.004, 0.03, l)));
   }
 
   // 漫画集中线：FOCUS / INTRUSION 时出现，每 1/12 秒重画一次

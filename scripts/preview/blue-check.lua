@@ -57,6 +57,7 @@ local function sample()
 end
 function Start() store();SubscribeToEvent('Update','BlueCheckUpdate') end
 function BlueCheckUpdate(eventType,eventData)
+    view:pumpBuild()
     local w,h=graphics:GetWidth(),graphics:GetHeight()
     if w~=width or h~=height then
         width=w;height=h;generation=generation+1;frame=0;hold=0;wait=0

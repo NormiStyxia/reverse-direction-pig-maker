@@ -1,40 +1,55 @@
-# Build artifacts & runtime state
-.build/
-dist/
-.cli/
-logs/
-*.log
-logs/.nfs*
-.sce/logs/
-.sce/build/build_steps/__pycache__/
-
-# Temp & swap files
-.tmp/
-*.crswap
+.maker-mcp/
 .DS_Store
+__pycache__/
+reference/
+validation/
 
-# OSS util
-.ossutil_checkpoint/
-ossutil_output/
-
-# Editor / IDE / agent configs
-.vscode/
-.cursor/
-.codex/
-.gemini/
+# >>> TapTap Maker AI dev kit (local only) >>>
+.DS_Store
+.agents/skills/custom-lobby/
+.agents/skills/materials/
+.agents/skills/nvg-resolution-mode/
+.agents/skills/online-system-notification/
+.agents/skills/setup-achievements/
+.agents/skills/setup-ads/
+.agents/skills/setup-fsm/
+.agents/skills/skill-creator/
+.agents/skills/sprite-gen/
+.agents/skills/ui-astroon/
+.agents/skills/ui-brawlforge/
+.agents/skills/ui-pixelforge/
 .claude/
+.cli/
+.codex/
+.cursor/
 .emmylua/
+.gemini/
 .installer/
 .maker/
-
-# Maker engine assets & agent files (provided by ai-dev-kit, not user source)
+AGENTS.md
+CLAUDE.md
 engine-docs/
 examples/
-lua-tools/
 schemas/
 skills/
 templates/
 tools/
 urhox-libs/
-AGENTS.md
-CLAUDE.md
+# <<< TapTap Maker AI dev kit (local only) <<<
+
+# Maker 默认忽略规则（自动补充；平台内容不应提交）
+.build/
+dist/
+logs/
+*.log
+logs/.nfs*
+.sce/logs/
+.sce/build/build_steps/__pycache__/
+.tmp/
+*.crswap
+.org.chromium.Chromium.??????
+.ossutil_checkpoint/
+ossutil_output/
+.vscode/
+lua-tools/
+/.maker-preview/

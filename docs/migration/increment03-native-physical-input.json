@@ -1,0 +1,654 @@
+{
+  "run": "890fc296-adf7-4812-9bbe-20025bea2c66",
+  "runtimeReport": {
+    "version": 2,
+    "script": "validation/Increment03PhysicalInput.lua",
+    "result": "FAIL",
+    "duration_ms": 179063,
+    "frames_completed": 10006,
+    "phases": {
+      "load": {
+        "result": "PASS",
+        "errors": []
+      },
+      "init": {
+        "result": "PASS",
+        "errors": []
+      },
+      "run": {
+        "result": "FAIL",
+        "errors": [
+          {
+            "category": "engine",
+            "message": "Frame time spike: 123.798ms (threshold: 100ms)",
+            "frame": 354
+          },
+          {
+            "category": "engine",
+            "message": "Frame time spike: 339.502ms (threshold: 100ms)",
+            "frame": 494
+          },
+          {
+            "category": "engine",
+            "message": "Frame time spike: 108.431ms (threshold: 100ms)",
+            "frame": 1391
+          },
+          {
+            "category": "engine",
+            "message": "Frame time spike: 3093.57ms (threshold: 100ms)",
+            "frame": 1418
+          },
+          {
+            "category": "engine",
+            "message": "Frame time spike: 625.972ms (threshold: 100ms)",
+            "frame": 6612
+          }
+        ]
+      },
+      "scene": {
+        "result": "PASS",
+        "errors": [],
+        "node_count": 14,
+        "component_count": 15,
+        "scene_exists": true
+      }
+    },
+    "state_snapshots": [
+      {
+        "frame": 1,
+        "phase": "init",
+        "nodes": 14,
+        "components": 15,
+        "hash": 2571127980,
+        "frame_time_ms": 213.38499450683594
+      },
+      {
+        "frame": 10,
+        "phase": "run",
+        "nodes": 14,
+        "components": 15,
+        "hash": 2571127980,
+        "frame_time_ms": 16.72100067138672
+      },
+      {
+        "frame": 5003,
+        "phase": "run",
+        "nodes": 33,
+        "components": 33,
+        "hash": 2022756742,
+        "frame_time_ms": 17.18899917602539
+      },
+      {
+        "frame": 10006,
+        "phase": "run",
+        "nodes": 14,
+        "components": 15,
+        "hash": 2571127980,
+        "frame_time_ms": 17.3799991607666
+      }
+    ],
+    "scene_stalled": false,
+    "max_frame_time_ms": 3093.572021484375,
+    "update_defined": false,
+    "component_census": {
+      "Octree": 1,
+      "Zone": 1,
+      "Camera": 1,
+      "CustomGeometry": 12
+    },
+    "test_result": "NOT_RUN",
+    "test_assertions": {
+      "total": 0,
+      "passed": 0,
+      "failed": 0
+    },
+    "test_issues": [],
+    "missing_resources": [],
+    "missing_engine_resources": [],
+    "summary": {
+      "lua_errors": 0,
+      "resource_errors": 0,
+      "engine_errors": 5,
+      "total_errors": 5
+    }
+  },
+  "inputReport": {
+    "result": "PASS",
+    "pid": 55025,
+    "scope": "macOS CGEvent delivered to actual isolated Runtime: keyboard, mouse, focus. No hardware touchscreen proof.",
+    "checks": [
+      {
+        "event": "FOCUS 55025 AX 0"
+      },
+      {
+        "check": "title silent",
+        "state": {
+          "muted": false,
+          "loops": 0,
+          "sounds": 0,
+          "scene": "title",
+          "phase": "idle",
+          "levelMode": false,
+          "sel": 0,
+          "panel": false
+        }
+      },
+      {
+        "event": "KEY 55025 1 down"
+      },
+      {
+        "event": "KEY 55025 1 up"
+      },
+      {
+        "check": "keyboard selects level mode",
+        "state": {
+          "muted": false,
+          "loops": 0,
+          "sounds": 0,
+          "scene": "title",
+          "phase": "idle",
+          "levelMode": false,
+          "sel": 2,
+          "panel": false
+        }
+      },
+      {
+        "event": "KEY 55025 36 down"
+      },
+      {
+        "event": "KEY 55025 36 up"
+      },
+      {
+        "check": "level mode list",
+        "state": {
+          "muted": false,
+          "loops": 0,
+          "sounds": 0,
+          "scene": "title",
+          "phase": "idle",
+          "levelMode": false,
+          "sel": 0,
+          "panel": "levelmode"
+        }
+      },
+      {
+        "event": "KEY 55025 36 down"
+      },
+      {
+        "event": "KEY 55025 36 up"
+      },
+      {
+        "check": "native level ready",
+        "state": {
+          "muted": false,
+          "charge": 0,
+          "t": 6.2,
+          "load": 1,
+          "phase": "play",
+          "x": -5.6,
+          "sounds": 0,
+          "z": 3.4,
+          "rewind": false,
+          "loops": 7,
+          "focused": true,
+          "scene": "echo",
+          "paused": false,
+          "panel": "levelmode",
+          "sel": 0,
+          "levelMode": true
+        }
+      },
+      {
+        "event": "KEY 55025 2 down"
+      },
+      {
+        "event": "KEY 55025 2 up"
+      },
+      {
+        "check": "D moves player",
+        "state": {
+          "muted": false,
+          "charge": 0,
+          "t": 7.2,
+          "load": 1,
+          "phase": "play",
+          "x": -3.23,
+          "sounds": 0,
+          "z": 3.4,
+          "rewind": false,
+          "loops": 7,
+          "focused": true,
+          "scene": "echo",
+          "paused": false,
+          "panel": "levelmode",
+          "sel": 0,
+          "levelMode": true
+        }
+      },
+      {
+        "event": "KEY 55025 40 down"
+      },
+      {
+        "check": "K starts rewind",
+        "state": {
+          "muted": false,
+          "charge": 0,
+          "t": 7.6,
+          "load": 1,
+          "phase": "play",
+          "x": -3.01,
+          "sounds": 1,
+          "z": 3.4,
+          "rewind": true,
+          "loops": 7,
+          "focused": true,
+          "scene": "echo",
+          "paused": false,
+          "panel": "levelmode",
+          "sel": 0,
+          "levelMode": true
+        }
+      },
+      {
+        "event": "KEY 55025 40 up"
+      },
+      {
+        "check": "K release ends rewind",
+        "state": {
+          "muted": false,
+          "charge": 0,
+          "t": 8.3,
+          "load": 1,
+          "phase": "play",
+          "x": -3.01,
+          "sounds": 0,
+          "z": 3.4,
+          "rewind": false,
+          "loops": 7,
+          "focused": true,
+          "scene": "echo",
+          "paused": false,
+          "panel": "levelmode",
+          "sel": 0,
+          "levelMode": true
+        }
+      },
+      {
+        "event": "KEY 55025 38 down"
+      },
+      {
+        "check": "J charge",
+        "state": {
+          "muted": false,
+          "charge": 0.10083332451060423,
+          "t": 8.6,
+          "load": 1,
+          "phase": "play",
+          "x": -2.5,
+          "sounds": 1,
+          "z": 3.4,
+          "rewind": false,
+          "loops": 7,
+          "focused": true,
+          "scene": "echo",
+          "paused": false,
+          "panel": "levelmode",
+          "sel": 0,
+          "levelMode": true
+        }
+      },
+      {
+        "event": "KEY 55025 38 up"
+      },
+      {
+        "event": "KEY 55025 15 down"
+      },
+      {
+        "event": "KEY 55025 15 up"
+      },
+      {
+        "check": "R restarts level",
+        "state": {
+          "muted": false,
+          "charge": 0,
+          "t": 0,
+          "phase": "unfold",
+          "x": -5.6,
+          "sounds": 0,
+          "z": 3.4,
+          "load": 2,
+          "loops": 7,
+          "focused": true,
+          "scene": "echo",
+          "paused": false,
+          "panel": "levelmode",
+          "sel": 0,
+          "levelMode": true
+        }
+      },
+      {
+        "check": "restarted level playable",
+        "state": {
+          "muted": false,
+          "charge": 0,
+          "t": 2.6,
+          "load": 2,
+          "phase": "play",
+          "x": -5.6,
+          "sounds": 0,
+          "z": 3.4,
+          "rewind": false,
+          "loops": 7,
+          "focused": true,
+          "scene": "echo",
+          "paused": false,
+          "panel": "levelmode",
+          "sel": 0,
+          "levelMode": true
+        }
+      },
+      {
+        "event": "KEY 55025 53 down"
+      },
+      {
+        "event": "KEY 55025 53 up"
+      },
+      {
+        "check": "Esc pauses",
+        "state": {
+          "muted": false,
+          "charge": 0,
+          "t": 2.7,
+          "load": 2,
+          "phase": "play",
+          "x": -5.6,
+          "sounds": 0,
+          "z": 3.4,
+          "rewind": false,
+          "loops": 7,
+          "focused": true,
+          "scene": "echo",
+          "paused": true,
+          "panel": "levelmode",
+          "sel": 0,
+          "levelMode": true
+        }
+      },
+      {
+        "event": "KEY 55025 53 down"
+      },
+      {
+        "event": "KEY 55025 53 up"
+      },
+      {
+        "check": "Esc resumes",
+        "state": {
+          "muted": false,
+          "charge": 0,
+          "t": 3.2,
+          "load": 2,
+          "phase": "play",
+          "x": -5.6,
+          "sounds": 0,
+          "z": 3.4,
+          "rewind": false,
+          "loops": 7,
+          "focused": true,
+          "scene": "echo",
+          "paused": false,
+          "panel": "levelmode",
+          "sel": 0,
+          "levelMode": true
+        }
+      },
+      {
+        "event": "KEY 55025 40 down"
+      },
+      {
+        "check": "held before focus loss",
+        "state": {
+          "muted": false,
+          "charge": 0,
+          "t": 3.4,
+          "load": 2,
+          "phase": "play",
+          "x": -5.6,
+          "sounds": 0,
+          "z": 3.4,
+          "rewind": true,
+          "loops": 7,
+          "focused": true,
+          "scene": "echo",
+          "paused": false,
+          "panel": "levelmode",
+          "sel": 0,
+          "levelMode": true
+        }
+      },
+      {
+        "event": "HIDE 55025"
+      },
+      {
+        "check": "focus loss observed",
+        "state": {
+          "muted": false,
+          "charge": 0,
+          "t": 3.5,
+          "load": 2,
+          "phase": "play",
+          "x": -5.6,
+          "sounds": 0,
+          "z": 3.4,
+          "rewind": false,
+          "loops": 7,
+          "focused": false,
+          "scene": "echo",
+          "paused": false,
+          "panel": "levelmode",
+          "sel": 0,
+          "levelMode": true
+        }
+      },
+      {
+        "event": "KEY 55025 40 up"
+      },
+      {
+        "event": "FOCUS 55025 AX 0"
+      },
+      {
+        "check": "focus restored without stuck rewind",
+        "state": {
+          "muted": false,
+          "charge": 0,
+          "t": 3.6,
+          "load": 2,
+          "phase": "play",
+          "x": -5.6,
+          "sounds": 0,
+          "z": 3.4,
+          "rewind": false,
+          "loops": 7,
+          "focused": true,
+          "scene": "echo",
+          "paused": false,
+          "panel": "levelmode",
+          "sel": 0,
+          "levelMode": true
+        }
+      },
+      {
+        "event": "FOCUS 55025 AX 0"
+      },
+      {
+        "event": "CLICK 55025 718.0 488.0"
+      },
+      {
+        "check": "mouse home",
+        "state": {
+          "muted": false,
+          "loops": 0,
+          "sounds": 0,
+          "scene": "title",
+          "phase": "idle",
+          "levelMode": false,
+          "sel": 0,
+          "panel": false
+        }
+      },
+      {
+        "event": "KEY 55025 36 down"
+      },
+      {
+        "event": "KEY 55025 36 up"
+      },
+      {
+        "check": "keyboard starts dream",
+        "state": {
+          "muted": false,
+          "phase": "intro",
+          "x": -15.9,
+          "sounds": 0,
+          "phone": false,
+          "loops": 0,
+          "scene": "dream",
+          "focused": true,
+          "panel": false,
+          "sel": 0,
+          "levelMode": false
+        }
+      },
+      {
+        "check": "dream phone appears",
+        "state": {
+          "muted": false,
+          "phase": "phone",
+          "x": -15.9,
+          "sounds": 1,
+          "phone": true,
+          "loops": 16,
+          "scene": "dream",
+          "focused": true,
+          "panel": false,
+          "sel": 0,
+          "levelMode": false
+        }
+      },
+      {
+        "event": "KEY 55025 38 down"
+      },
+      {
+        "event": "KEY 55025 38 up"
+      },
+      {
+        "check": "J closes dream phone",
+        "state": {
+          "muted": false,
+          "phase": "pig",
+          "x": -15.9,
+          "sounds": 1,
+          "phone": false,
+          "loops": 16,
+          "scene": "dream",
+          "focused": true,
+          "panel": false,
+          "sel": 0,
+          "levelMode": false
+        }
+      },
+      {
+        "check": "dream walking available",
+        "state": {
+          "muted": false,
+          "phase": "walk",
+          "x": -15.9,
+          "sounds": 0,
+          "phone": false,
+          "loops": 16,
+          "scene": "dream",
+          "focused": true,
+          "panel": false,
+          "sel": 0,
+          "levelMode": false
+        }
+      },
+      {
+        "event": "KEY 55025 2 down"
+      },
+      {
+        "check": "dream switches to pig",
+        "state": {
+          "muted": false,
+          "phase": "pigwalk",
+          "x": -2.94,
+          "sounds": 1,
+          "phone": false,
+          "loops": 16,
+          "scene": "dream",
+          "focused": true,
+          "panel": false,
+          "sel": 0,
+          "levelMode": false
+        }
+      },
+      {
+        "check": "dream switches back",
+        "state": {
+          "muted": false,
+          "phase": "unswap",
+          "x": 8.21,
+          "sounds": 1,
+          "phone": false,
+          "loops": 16,
+          "scene": "dream",
+          "focused": true,
+          "panel": false,
+          "sel": 0,
+          "levelMode": false
+        }
+      },
+      {
+        "event": "KEY 55025 2 up"
+      },
+      {
+        "event": "KEY 55025 46 down"
+      },
+      {
+        "event": "KEY 55025 46 up"
+      },
+      {
+        "check": "M mutes in play",
+        "state": {
+          "muted": true,
+          "phase": "unswap",
+          "x": 8.21,
+          "sounds": 2,
+          "phone": false,
+          "loops": 16,
+          "scene": "dream",
+          "focused": true,
+          "panel": false,
+          "sel": 0,
+          "levelMode": false
+        }
+      },
+      {
+        "event": "CLICK 55025 718.0 488.0"
+      },
+      {
+        "check": "home preserves mute and stops audio",
+        "state": {
+          "muted": true,
+          "loops": 0,
+          "sounds": 0,
+          "scene": "title",
+          "phase": "idle",
+          "levelMode": false,
+          "sel": 0,
+          "panel": false
+        }
+      }
+    ]
+  },
+  "scope": "macOS native OS events; first pass guarded a menu-bar misidentification; same-process resume completed remaining checks",
+  "visualAcceptance": false
+}

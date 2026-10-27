@@ -1,0 +1,52 @@
+{
+  "result": "NOT_ACCEPTED",
+  "time": 10,
+  "method": "7x7 uniform valid; sample covariance 49/48; RGB mean; data range 255; crop only macOS 32px chrome",
+  "rows": [
+    {
+      "run": "882546f7-20c5-4e1c-ab5f-873f1800dccc",
+      "size": [
+        1280,
+        720
+      ],
+      "ssim": 0.9334840155531559,
+      "meanAbsoluteRgbError": 3.864407552083333,
+      "native": "validation/increment03/timeline-aligned/timeline-final16c-client.png",
+      "officialResult": "FAIL",
+      "summary": {
+        "lua_errors": 0,
+        "resource_errors": 0,
+        "engine_errors": 1,
+        "total_errors": 1
+      },
+      "maxFrameTimeMs": 133.1540069580078,
+      "fixedNativePCM": "PASS"
+    },
+    {
+      "run": "3a6c7e85-907a-42a8-9a20-850b3085bf5a",
+      "size": [
+        1200,
+        540
+      ],
+      "ssim": 0.9481313257939455,
+      "meanAbsoluteRgbError": 2.94915329218107,
+      "native": "validation/increment03/timeline-aligned/timeline-final20c-client.png",
+      "officialResult": "FAIL",
+      "summary": {
+        "lua_errors": 0,
+        "resource_errors": 0,
+        "engine_errors": 1,
+        "total_errors": 1
+      },
+      "maxFrameTimeMs": 128.08999633789062,
+      "fixedNativePCM": "PASS"
+    }
+  ],
+  "limitations": [
+    "Source and native use fixed-time seeded page; not natural unlock",
+    "SSIM is not perceptual similarity percentage",
+    "No all-scene or acoustic acceptance",
+    "Native screenshots reviewed; official screenshot collection ENOENT",
+    "No full-game performance acceptance"
+  ]
+}

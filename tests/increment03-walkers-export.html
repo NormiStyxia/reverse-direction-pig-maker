@@ -1,0 +1,29 @@
+<!doctype html><meta charset="utf-8">
+<script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {buildStore} from '/src/store.js';
+import {PrologueStore} from '/src/store-prologue.js';
+import {serialize} from '/export-scene.js';
+try {
+ const load=async path=>{const i=new Image();i.src=path;await i.decode();return i};
+ const images={};for(const key of ['clerk','worker','rider','stranger','foliage-canopy','foliage-hedge'])images[key]=await load('/assets/store/'+key+'.png');
+ images['pig-doodle']=await load('/assets/ch1/pig-doodle.png');
+ const store=buildStore(new THREE.Scene(),images);store.applyTune(await(await fetch('/config/store-tuning.json')).json());
+ let sourcePath;const callbacks=[];
+ // Invoke the actual frozen event method to capture its path and callback indices.
+ const context={clock:2.2,fired:new Set(),workI:999,store:{spawn(kind,path){sourcePath=path;return store.spawn(kind,path,{onStep(w,i){callbacks.push(i)}})}}};
+ PrologueStore.prototype.events.call(context);
+ const rider=store.walkers[0];rider.mesh.visible=false;
+ const data=serialize([rider.mesh],nm=>({rider:nm.get(rider.mesh)}));
+ Object.assign(data,{seed:0x6a316e84,chapter:'walkers',rider:{h:rider.h,faces:rider.faces,path:sourcePath.map(n=>({...n,p:n.p.toArray()}))}});
+ const frames=[];
+ rider.mesh.visible=true;
+ for(let i=0;i<2600&&!rider.done;i++){
+  const dt=i%11===0?.033:1/60,yaw=Math.sin(i*.001)*.55;
+  store.update(dt,0,i*dt,yaw,new THREE.Vector3(0,0,0));
+  frames.push({dt,yaw,p:rider.mesh.position.toArray(),side:rider.side,flip:rider.flip,walkPhase:rider.walkPhase,sway:rider.sway,wait:rider.wait,i:rider.i,done:rider.done,head:rider.head.toArray(),castShadow:rider.mesh.castShadow,scale:rider.mesh.scale.toArray(),q:rider.mesh.quaternion.toArray(),door:store.door.open});
+ }
+ window.chapterExport=[data];window.walkerFixtures={frames,callbacks};window.renderReference=()=>({});window.exportReady=true;
+}catch(e){window.exportError=e.stack}
+</script>

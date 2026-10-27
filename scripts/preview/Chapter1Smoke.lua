@@ -21,10 +21,15 @@ function Smoke.run()
         end
         assert(s.result and s.result.answer==answer and finishEvents==1 and ready==1,'Chapter1 meeting handoff failed')
         assert(s.tonightAnswer==answer and s.tonightVisible and s.frozen and s.clockBack==1,'Chapter1 desk state mismatch')
-        assert(s.slide==(answer=='done') and s.tune.paper==false,'Chapter1 branch/tuning mismatch');finished=finished+1
+        assert(not s.slide and s.tune.paper==false,'Chapter1 branch/tuning mismatch');finished=finished+1
         local morning=Story.new({mode='morning',answer=answer,random=function() return .37 end})
-        for _=1,620 do morning:update(.05,{camYaw=0});morning:drainEvents();frames=frames+1 end
-        assert(morning.result and morning.clockMin==598 and morning.expr=='deadpan','Chapter1 morning completion failed');finished=finished+1
+        for _=1,1600 do
+            if morning.phase=='play' then morning:skip() end
+            if morning.choiceMode=='chen' and #morning.phone.choices>0 then morning:onPanel('choice:'..(index-1)) end
+            morning:update(.05,{camYaw=0});morning:drainEvents();frames=frames+1
+            if morning.result then break end
+        end
+        assert(morning.result and morning.clockMin==887 and morning.result.morningBranch==({'fix','wreck','leave'})[index],'Chapter1 morning intervention failed');finished=finished+1
     end
     print('CHAPTER1_MODEL_SMOKE: PASS; '..frames..' frames; '..finished..' model completions; same/late/done; paper=false; visuals not tested')
 end

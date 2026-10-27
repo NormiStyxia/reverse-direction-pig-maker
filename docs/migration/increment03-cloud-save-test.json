@@ -1,0 +1,19 @@
+{
+  "result": "PASS",
+  "coverage": [
+    "asynchronous load/menu gating",
+    "coalesced serialized writes",
+    "current-revision acknowledgement",
+    "serialized record reopened",
+    "timeout/retry/stale callback",
+    "merge offline progress without losing remote unlocks",
+    "level mode zero writes",
+    "corrupt save protection",
+    "shutdown callback",
+    "unavailable/throwing API"
+  ],
+  "limitations": [
+    "Mock clientCloud API; not a real service or browser refresh test",
+    "No concurrent cross-device conflict resolution"
+  ]
+}

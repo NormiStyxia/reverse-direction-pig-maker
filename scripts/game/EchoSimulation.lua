@@ -39,7 +39,7 @@ function Echo:init(level,theme)
         if w.z0 then R.statics[#R.statics+1]=rect(w.x-.35,w.x+.35,w.z0,w.z1)
         else R.statics[#R.statics+1]=rect(w.x0,w.x1,w.z-.35,w.z+.35) end
     end
-    if self.theme~='meeting' then R.statics[#R.statics+1]=rect(-7.6,-6.2,-4.9,-3.5) end
+    if self.theme=='store' then R.statics[#R.statics+1]=rect(-7.6,-6.2,-4.9,-3.5) end
     for _,c in ipairs(level.crates or {}) do
         local crate=Echo.makeCrate(c)
         R.crates[#R.crates+1]=crate
@@ -103,7 +103,8 @@ function Echo:crateHit(c,x,z)
     if math.abs(x)>6.8 or z< -4.45 or z>3.95 then return 'wall' end
     local b=shrink(self:crateBox(c,x,z),.0001)
     for _,s in ipairs(self:solids()) do if overlap(b,s) then return 'wall' end end
-    for _,o in ipairs(self.room.crates) do if o~=c and overlap(b,self:crateBox(o)) then return o end end
+    if c.phased then return nil end
+    for _,o in ipairs(self.room.crates) do if o~=c and not o.phased and overlap(b,self:crateBox(o)) then return o end end
     return nil
 end
 function Echo:pair(a,b)
@@ -114,7 +115,7 @@ function Echo:merge(a,b)
     a.gone=true b.gone=true a.moving=false b.moving=false a.vx=0 a.vz=0 b.vx=0 b.vz=0
     local remaining={}
     for _,c in ipairs(self.room.crates) do if c~=a and c~=b then remaining[#remaining+1]=c end end
-    local now=Echo.makeCrate({x=b.x,z=b.z,kind='now'})
+    local now=Echo.makeCrate({x=b.x,z=b.z,kind='now',origin=b.origin})
     now.spawnT=self.t now.pushed=true
     remaining[#remaining+1]=now
     self.room.crates=remaining
@@ -163,7 +164,7 @@ function Echo:simulate(dt,onlyGold)
                 if not hit then c.x=c.x+ux*s c.z=c.z+uz*s
                 else
                     if hit~='wall' and self:pair(c,hit) then self:merge(c,hit) break end
-                    if hit~='wall' and self.theme=='meeting' and (c.holo or hit.holo) then self:emit('notSame',c) end
+                    if hit~='wall' and self.theme~='store' and (c.holo or hit.holo or (c.origin and hit.origin and c.origin~=hit.origin)) then self:emit('notSame',c) end
                     if hit~='wall' and not hit.moving then hit.vx=c.vx hit.vz=c.vz hit.moving=true end
                     c.vx=0 c.vz=0 c.moving=false left=0
                     self:emit('crateStop',c)
@@ -192,6 +193,7 @@ function Echo:simulate(dt,onlyGold)
     end
 end
 function Echo:accepts(p,c)
+    if c.phased then return false end
     if p.type=='holo' then return c.holo end
     if p.type=='gold' then return c.gold and not c.holo end
     return not c.holo
@@ -199,15 +201,15 @@ end
 function Echo:solved()
     if #self.L.door.plates==0 then return false end
     for _,index in ipairs(self.L.door.plates) do if not self.room.plates[index+1].pressed then return false end end
-    return true
+    return not self:locked(self.L.door.lockPlates)
 end
 function Echo:exitOn()
     for _,index in ipairs(self.L.exitPlates or {}) do if not self.room.plates[index+1].pressed then return false end end
-    return true
+    return not self:locked(self.L.exitLockPlates)
 end
 function Echo:rewindOk(s)
     local R=self.room
-    local golds={} for _,c in ipairs(R.crates) do if c.gold then golds[#golds+1]=c end end
+    local golds={} for _,c in ipairs(R.crates) do if c.gold and not c.phased then golds[#golds+1]=c end end
     local door=R.doorOpen<.8 and self:doorBox() or nil
     local i,hitC,hitO=1,nil,nil
     for _,c in ipairs(self.rwCrates) do
@@ -246,11 +248,40 @@ function Echo:updatePlatesAndDoor(dt)
         end
         if p.pressed and not was then self:emit('platePressed',p) end
     end
+    self:updatePower()
     local D=self.L.door
-    local pressed=#D.plates==0 or self:solved()
-    if pressed then R.doorTimer=D.hold or 0 else R.doorTimer=math.max(0,R.doorTimer-dt) end
-    local want=(pressed or R.doorTimer>0) and 1 or 0
+    local pressed=(#D.plates==0 or self:solved()) and not self:locked(D.lockPlates)
+    local want=pressed and 1 or 0
     R.doorOpen=R.doorOpen+(want-R.doorOpen)*math.min(1,dt*3)
+end
+function Echo:locked(list)
+    for _,index in ipairs(list or {}) do if self.room.plates[index+1].pressed then return true end end
+    return false
+end
+function Echo:updatePower()
+    local R=self.room;local off=false
+    for _,p in ipairs(R.plates) do if p.type=='power' and p.pressed then off=true;break end end
+    if off~=(R.powerOff or false) then R.powerOff=off;self:emit(off and 'powerOff' or 'powerOn') end
+    local list={};for _,c in ipairs(R.crates) do list[#list+1]=c end
+    for _,c in ipairs(list) do
+        if c.holo and not c.gone then
+            if off then c.phased=true
+            elseif c.phased then
+                local twin
+                for _,o in ipairs(R.crates) do
+                    if o~=c and not o.gone and self:pair(o,c) and hypot(o.x-c.x,o.z-c.z)<.75 then twin=o;break end
+                end
+                if twin then c.phased=false;twin.moving=false;self:merge(twin,c)
+                else
+                    local blocked=false;local b=shrink(self:crateBox(c),.02)
+                    for _,o in ipairs(R.crates) do
+                        if o~=c and not o.phased and overlap(b,self:crateBox(o)) then blocked=true;break end
+                    end
+                    if not blocked then c.phased=false end
+                end
+            end
+        end
+    end
 end
 -- Call only during the playable phase, after the player controller's hit test.
 function Echo:step(dt,rewinding,absoluteTime)

@@ -18,6 +18,7 @@ function Start()
     SubscribeToEvent('Update','OutlineCheckUpdate')
 end
 function OutlineCheckUpdate(eventType,eventData)
+    view.view:pumpBuild()
     frames=frames+1
     if frames%120==0 then
         print('OUTLINE_HEARTBEAT: frame='..frames..' dt='..eventData:GetFloat('TimeStep')..' elapsed='..elapsed..' ready='..tostring(view.view.ready))

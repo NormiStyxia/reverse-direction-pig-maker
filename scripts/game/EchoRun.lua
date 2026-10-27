@@ -26,6 +26,7 @@ function Run:load(index)
     self.index=index self.loadId=self.loadId+1
     self.sim=Simulation.new(self.levels[index],self.theme)
     self.t=0 self.phase='unfold' self.playAt=math.huge self.fold=0
+    self.exitWas=nil;self.exitCamera=nil
     self.veil={k=1,r=-.2}
     local P=self.pig
     ---@type {start:number[],exit:number[]}
@@ -94,6 +95,14 @@ function Run:update(realDt,input,camYaw,random)
             if self.audioTick<=0 then self.audioTick=.12;self:emit('rewindTick',{moved=S.lastRewindMoved}) end
         end
     else S:updatePlatesAndDoor(dt) end
+    local exitOn=S:exitOn()
+    if self.exitWas==false and exitOn and live and not S.rewinding then
+        local e=self.levels[self.index].exit
+        self.exitCamera={x=(e[1]+P.pos.x)/2,y=.8,z=(e[2]+P.pos.z)/2+.4,untilAt=self.t+1.4}
+        self:emit('exitBurst')
+    end
+    self.exitWas=exitOn
+    if self.exitCamera and self.t>=self.exitCamera.untilAt then self.exitCamera=nil end
     if self.phase~='unfold' then Contact.collide(S,P.pos) end
     ---@type {start:number[],exit:number[]}
     local L=self.levels[self.index]

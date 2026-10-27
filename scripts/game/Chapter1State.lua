@@ -1,6 +1,8 @@
 -- Frozen ch1-scenes.js story in H5 coordinates. Native rendering consumes state/events.
 -- Choice indices are zero-based. Reverse timer traversal intentionally matches JS.
-local Data=require('game.data.Chapter1Data')
+local Data={};for k,v in pairs(require('game.data.Chapter1Data')) do Data[k]=v end
+local New=require('game.data.Story03Data')
+Data.answers=New.ANSWERS;Data.after=New.AFTER;Data.morning=New.MORNING;Data.tune=require('game.data.Tuning').ch1
 local Actor=require('game.NormiController')
 local Browser=require('game.BrowseState')
 local Layout=require('game.data.PrologueData').normiLayout
@@ -31,9 +33,12 @@ local function add(a,b) for _,v in ipairs(b) do a[#a+1]=v end;return a end
 function Story.new(options) local self=setmetatable({},Story);self:init(options or {});return self end
 function Story:init(options)
     self.mode=options.mode or 'meeting';self.random=options.random or math.random
+    self.morningBranch=options.morningBranch or false;self.branch=New.MEET_BRANCH[self.morningBranch]
+    self.canFindChen=false;self.chenAt=0;self.chenLeaveT=false;self.chenY=.62;self.chenVisible=true;self.mutterT=1.2;self.mutterI=0
     self.normi=options.normi or Actor.new(Layout,self.random);self.tune=copy(Data.tune)
     self.t=0;self.later={};self.fired={};self.seen={};self.events={};self.phase='intro';self.wideFrame=1.32
     self.phone=Browser.new();self.standPhone=self.normi:frameIndex('stand-phone')
+    self.phone.onThought=function(text) self:think(text) end
     self.interactionId=false;self.interactionAt=-99;self.panelClosable=false;self.choiceMode=false;self.waitPanel=false
     self.expr='calm';self.exprId=0;self.result=false;self.answer=false;self.playAt=0
     self.clockMin=887;self.clockShow=false;self.clockSpin=false;self.clockDusk=false;self.clockBack=0
@@ -49,6 +54,7 @@ function Story:init(options)
     self.talkT=1.4;self.idleT=0;self.typeT=0;self.officeTalkT=2;self.duskK=0;self.duskTo=0
     self.noBoxAt=false;self.replied=false;self.people=copy(Data.people)
     for _,p in ipairs(self.people) do p.leaveT=false;p.y=0;p.rz=0;p.visible=true end
+    if self.morningBranch=='leave' then for _,p in ipairs(self.people) do if p.kind=='c' then p.visible=false end end end
     self.baseObs=copy(Data.baseObstacles);self.doorObs=copy(Data.doorObstacle)
     local n=self.normi;n.bounds=copy(Data.bounds);n.bounds.xMin=Data.officeX0+.6;n.bounds.xMax=Data.bounds.halfW
     n.obstacles=add(copy(self.baseObs),{self.doorObs});n:setPosition(-3.9,0,1.6);n.side=1
@@ -59,7 +65,10 @@ function Story:init(options)
         for _,p in ipairs(self.people) do p.visible=false end
     else self:emit('title',{text='第一章 · 下午三点的会'}) end
 end
-function Story:emit(kind,data) local e=data or {};e.kind=kind;e.t=self.t;self.events[#self.events+1]=e end
+function Story:emit(kind,data)
+    if kind=='clearCaptions' then self.dialog=false end
+    local e=data or {};e.kind=kind;e.t=self.t;self.events[#self.events+1]=e
+end
 function Story:drainEvents() local e=self.events;self.events={};return e end
 function Story:after(t,fn) self.later[#self.later+1]={t=t,fn=fn} end
 function Story:once(key,fn) if not self.fired[key] then self.fired[key]=true;fn() end end
@@ -68,7 +77,12 @@ function Story:hm() return string.format('%02d:%02d',math.floor(self.clockMin/60
 function Story:sound(name) self:emit('sound',{name=name}) end
 function Story:say(text,style)
     if not text or self.phase=='done' then return end
+    if style=='inner' then self:think(text);return end
     self:emit('caption',{text=text,style=self.phone.open and 'inner' or (style or 'soft'),speaker='normi'})
+end
+function Story:think(text)
+    local n=utf8.len(text) or 0
+    self.dialog={text=text,at=self.t,hold=n*.055+math.max(2.2,1.3+n*.13),stamp=self:hm(),face=text:sub(1,#'……')=='……' and 'deadpan' or 'puzzled'}
 end
 function Story:talk(who,text) self:emit('caption',{text=text,style='talk',speaker=who}) end
 function Story:express(name,duration)
@@ -96,7 +110,14 @@ end
 function Story:openPanel(title,sub,entries,choices)
     self.phone:show(title,sub);self.phone:push(entries,choices or {});self.normi.override=self.standPhone
 end
-function Story:closePanel() self.phone:hide();self.normi.override=false end
+function Story:closePanel()
+    self.phone:hide();self.normi.override=false
+    local callback=self.afterLook;self.afterLook=false;if callback then callback() end
+end
+function Story:look(title,sub,entries,callback)
+    self.panelClosable=true;self.choiceMode='look';self.afterLook=callback
+    self:openPanel(title,sub,entries,{'收起'})
+end
 function Story:onPanel(id)
     self:sound('tap')
     if id=='close' then if self.panelClosable then self:closePanel() end;return end
@@ -105,7 +126,11 @@ end
 function Story:zones()
     local D=Data.desk
     local function desk(id,object,text,w,z) return {id=id,object=object,text=text,x0=D.x-w,x1=D.x+w,z0=D.z+.6,z1=D.z+z} end
-    if self.mode=='morning' then return self.phase=='play' and {desk('box','档案盒','看看',2.4,3.2)} or {} end
+    if self.mode=='morning' then
+        if self.phase~='play' then return {} end
+        if self.canFindChen then local c=New.CHEN_SEAT;return {{id='chen',object='老陈',text='找他聊聊',x0=c.x-1.1,x1=c.x+1.7,z0=1.4,z1=3.6}} end
+        return {desk('box','档案盒','看看',2.4,3.2)}
+    end
     if self.phase=='desk' then return {desk('pig',Data.after.pigName,Data.after.pigVerb,2.4,3.2)} end
     if self.phase=='walk' then
         if not self.carrying then return {{id='take',object='档案盒',text='拿上',x0=-3.9,x1=-.9,z0=-.7,z1=1.5}} end
@@ -113,9 +138,11 @@ function Story:zones()
         for _,v in ipairs({{'notes','便利贴'},{'seal','小海豹'},{'cup','保温杯'}}) do if not self.seen[v[1]] then out[#out+1]=desk(v[1],v[2],'看看',2.2,3) end end
         return out
     end
-    return {{id='box',object='档案盒',text='看看',x0=-3.9,x1=-.9,z0=-.7,z1=1.5},
+    local out={{id='box',object='档案盒',text='看看',x0=-3.9,x1=-.9,z0=-.7,z1=1.5},
         {id='screen',object='投影',text='看看',x0=-.3,x1=2.9,z0=-.7,z1=1.5},
         {id='clock',object='挂钟',text='看看',x0=3.95,x1=6.8,z0=-5.2,z1=-1.2}}
+    if not self.branch or self.branch.chen then out[#out+1]={id='chen',object='老陈',text='听听',x0=-5.6,x1=-1.2,z0=-3.8,z1=1.5} end
+    return out
 end
 function Story:nearbyInteractions()
     local out={};if not self:walkEnabled() or self.phone.open then return out end
@@ -150,18 +177,34 @@ end
 function Story:onInteract(id)
     local n=self.normi;local A=Data.after
     if self.mode=='morning' then
+        if id=='chen' then self:chenTalk();return end
         if id~='box' then return end
-        n:doTouch('hesitate');self:say('还是空的。');self:once('msg-soon',function() self:after(2.4,function() self:message() end) end);return
+        n:doTouch('hesitate');self:look('档案盒','工位 · '..self:hm(),{{kind='scene',src='./assets/ch1/looks/box.png',prop=true},{kind='line',text='盒子是空的，里面一张纸都没有。'},think('还是空的。')},
+            function() self:once('msg-soon',function() self:after(1.2,function() self:message() end) end) end);return
     end
     if id=='pig' then self:startFold();return end
     if id=='put' then self:closeUp();return end
+    if id=='chen' then
+        local lines=self.branch and self.branch.chen or New.CHEN_TALK
+        if not lines then return end
+        self.talkT=math.max(self.talkT,6.5);self:talk(lines[1][1],lines[1][2])
+        self:after(1.6,function() if self.phase=='play' then self:talk(lines[2][1],lines[2][2]) end end)
+        self:after(3.4,function() if self.phase=='play' then self:say(lines[3],'inner');self:express('deadpan',3.2) end end);return
+    end
     n:doTouch('hesitate');local first=not self.seen[id];self.seen[id]=true
     if id=='take' then self.carrying=true;self.boxVisible=false;self:emit('puff',{pos=vec(Data.box.x,1.6,Data.box.z),count=2});if A.take~='' then self:say(A.take) end;return end
-    if id=='notes' then n:face(-1);self:say(A.notes);self:express('smile',3);return end
-    if id=='seal' then n:face(-1);self:say(A.seal);self:express('deadpan',3);return end
-    if id=='cup' then n:face(1);self:say(A.cup);return end
-    if id=='clock' then n:face(1);self:say('两点四十七。');if first then self:after(2,function() self:say('十一点四十，我还在便利店。');self:express('deadpan',2.6) end) end end
-    if id=='screen' then self:say('这页今晚还得改三遍。');self:express('deadpan',3) end
+    local function scene(path)return {kind='scene',src='./assets/ch1/'..path..'.png',prop=true}end
+    local function line(text)return {kind='line',text=text}end
+    local function at(place)return place..' · '..self:hm()end
+    if id=='notes' then n:face(-1);self:look('便利贴',at('工位'),{scene('looks/notes'),line('显示器边上又多了一张，还是那只猪。'),think(A.notes)});self:express('smile',3);return end
+    if id=='seal' then n:face(-1);self:look('小海豹',at('工位'),{scene('office/prop-seal'),line('桌角的小海豹，眼睛半睁着。'),think(A.seal)});self:express('deadpan',3);return end
+    if id=='cup' then n:face(1);self:look('保温杯',at('工位'),{scene('office/prop-cup'),line('杯底沉着一层茶叶。'),think(A.cup)});return end
+    if id=='clock' then
+        n:face(1);local entries={scene('looks/clock'),line('会议室的挂钟，秒针走得很响。'),think('两点四十七。')}
+        if first then entries[#entries+1]=think('十一点四十，我还在便利店。')end
+        self:look('挂钟',at('会议室'),entries);self:express('deadpan',2.6)
+    end
+    if id=='screen' then self:look('投影',at('会议室'),{scene('looks/monitor'),line('第 14 页投在墙上，「核心循环」那张图。'),think('这页今晚还得改三遍。')});self:express('deadpan',3)end
     if id=='box' then
         n:face(Data.box.x-n.pos.x);self:say('……我什么时候画的。');self:express('surprised',2)
         if first then self:after(2.2,function() self:say('哦，就是现在。');self:express('smile',2.4) end);self:after(5.5,function() self:ask() end) end
@@ -170,10 +213,10 @@ end
 function Story:togglePhone()
     if self.mode~='meeting' or self.phase~='play' then return end
     self:sound('tap');if self.phone.open then self:closePanel();return end
-    self.panelClosable=true;self:openPanel('手机',self:hm(),{{kind='card',name='日程',rows={{'周五','方案 v7'}}},think('周五。……今天就是周五。')},{'收起'});self.choiceMode='phone'
+    self.panelClosable=true;self:openPanel('手机',self:hm(),{{kind='card',name='日程',rows={{'周五','策划案 v7'}}},think('周五。……今天就是周五。')},{'收起'});self.choiceMode='phone'
 end
 function Story:canSkip()
-    if self.mode=='morning' then return self.phase=='play' or self.phase=='msg' end
+    if self.mode=='morning' then return self.phase=='play' or self.phase=='msg' or (self.phase=='chen' and not not self.morningBranch) or self.phase=='fastforward' end
     return self.phase=='play' or self.phase=='ask' or self.phase=='leave' or self.phase=='msg' or (self.phase=='walk' and not self.carrying)
 end
 function Story:takeBox()
@@ -184,20 +227,20 @@ end
 function Story:skip()
     if not self:canSkip() then return false end
     if self.mode=='morning' then
-        self.later={};self:closePanel();self.phase='done';self.result=true;self:emit('finish');return true
+        self.later={};self.afterLook=false
+        if self.phase=='play' or self.phase=='msg' then self:chenTalk(true)
+        else self:closePanel();if self.morningBranch=='leave' then self.chenVisible=false end;self:finishMorning() end
+        return true
     end
     if self.phase=='play' or (self.phase=='ask' and not self.answer) then
         self.later={};self.phase='ask';self.interactionId=false
         if not self.phone.open or self.choiceMode~='answer' then
-            self.panelClosable=false;self.choiceMode='answer'
-            local choices={};for _,a in ipairs(Data.answers) do choices[#choices+1]=a.say end
-            self:openPanel('组会',self:hm(),{leader('诺米，方案周五前再出一版，没问题吧？'),think('上次我说的是……')},choices)
+            self:openAsk()
         end
         self.phone:flush();return true
     end
     if self.phase=='walk' then self:takeBox();return true end
     self.later={};self.waitPanel=false
-    if self.answer=='done' then self.slide=true end
     self.tonightAnswer=self.answer
     for _,p in ipairs(self.people) do p.leaveT=false;p.visible=false end
     self.clockMin=902;self.clockDusk=true;self.replied=true
@@ -207,24 +250,48 @@ end
 function Story:ask()
     if self.phase~='play' then return end
     self.phase='ask';if self.phone.open then self:closePanel() end
-    self:talk('leader','诺米，方案周五前再出一版，没问题吧？');self.normi:face(Data.people[1].home.x-self.normi.pos.x)
-    self:after(2.4,function()
-        self.panelClosable=false;self.choiceMode='answer';local choices={};for _,a in ipairs(Data.answers) do choices[#choices+1]=a.say end
-        self:openPanel('组会',self:hm(),{leader('诺米，方案周五前再出一版，没问题吧？'),think('上次我说的是……')},choices)
-    end)
+    self.normi:face(Data.people[1].home.x-self.normi.pos.x)
+    if self.branch then
+        self:talk('leader',self.branch.ask[1]);self:after(2.4,function() self:talk('leader',self.branch.ask[2]) end)
+        self:after(4.8,function() self:openAsk() end)
+    else
+        self:talk('leader','……总是螺旋上升的嘛。');self:after(2,function() self:say('……怎么有点耳熟。','inner') end)
+        self:after(4.2,function() self:talk('leader',New.ASK) end);self:after(6.6,function() self:openAsk() end)
+    end
+end
+function Story:openAsk()
+    self.panelClosable=false;self.choiceMode='answer'
+    if self.branch then self:openPanel('组会',self:hm(),{leader(self.branch.ask[2]),think(self.branch.think)},{'……行吧'})
+    else local choices={};for _,a in ipairs(Data.answers) do choices[#choices+1]=a.say end
+        self:openPanel('组会',self:hm(),{leader(New.ASK),think(New.ASK_THINK)},choices)
+    end
 end
 function Story:onChoice(i)
-    if self.mode=='morning' then self:closePanel();return end
-    if self.choiceMode=='phone' then self:closePanel();return end
+    if self.choiceMode=='phone' or self.choiceMode=='look' then self:closePanel();return end
+    if self.mode=='morning' then
+        if self.choiceMode=='msg' then
+            if self.waitPanel or self.canFindChen then return end
+            self.phone:push({think('……等等，现在才九点五十八。'),think('这时候老陈应该还没开始改底层！')},{})
+            self:after(1.4,function() self:express('surprised',2.4) end);self.waitPanel='msg';return
+        end
+        if self.choiceMode~='chen' or self.morningBranch then return end
+        local a=New.MORNING_ANSWERS[i+1];if not a then return end
+        self.morningBranch=a.key;self:sound('send');self.phone:push(a.reply,{})
+        self:after(2.4,function() self:express(a.key=='fix' and 'smile' or 'deadpan',4) end);self.waitPanel='chen';return
+    end
     if self.choiceMode=='zhou' then
         if self.replied then return end
         self.replied=true;self:sound('send');local A=Data.after
-        self.phone:push({think(A.reply),zhou(A.back),think(A.recall),think(A['then'])},{})
+        self.phone:push({{kind='me',text=A.reply},zhou(A.back),think(A.recall),think(A['then'])},{})
         self:after(1.6,function() self:express('deadpan',7) end);self.waitPanel='zhou';return
     end
     if self.choiceMode~='answer' or self.answer then return end
+    if self.branch then
+        self.answer=self.morningBranch;self.phone:push({{kind='me',text='……行吧'}},{})
+        self:after(1.2,function() self:express('deadpan',5) end);self.waitPanel='answer';return
+    end
     local a=Data.answers[i+1];if not a then return end
-    self.answer=a.key;self.phone:push(add({think(a.say)},a.reply),{})
+    self.answer=a.key;self.phone:push(add({{kind='me',text=a.say}},a.reply),{})
     self:after(2.4,function() self:express('deadpan',5) end)
     if a.slide then self:after(3.2,function() self.slide=true end) end
     self.waitPanel='answer'
@@ -236,18 +303,33 @@ function Story:dismiss()
         p.leaveT=0;self:emit('tone',{frequency=320-(i-1)*30,duration=.25,gain=.03,wave='triangle',slide=1.4})
     end) end
     self:after(1.2+#order*.45+.4,function() self.clockMin=902;self.clockDusk=true end)
-    self:after(1.2+#order*.45+1.4,function() self:message() end)
+    if self.branch then self:after(1.2+#order*.45+1,function() self.phase='walk';self.replied=true;self:emit('hint',{text=Data.after.goDesk,duration=6}) end)
+    else self:after(1.2+#order*.45+1.4,function() self:message() end) end
 end
 function Story:message()
     if self.mode=='morning' then
-        if self.phase~='play' then return end
+        if self.phase~='play' or self.canFindChen then return end
         self.phase='msg';self:sound('buzz');self.normi:flinch(.35)
-        self:after(.9,function() self.panelClosable=false;self.choiceMode='msg';self:openPanel('领导','09:58',{leader(Data.morning[self.answer] or Data.morning.same)},{}) end)
-        self:after(4.8,function() self:say('……怎么还在上班。','inner');self:express('deadpan',0) end)
-        self:after(8.6,function() self:closePanel();self.phase='done';self.result=true;self:emit('finish') end);return
+        self:after(.9,function() self.panelClosable=false;self.choiceMode='msg';self:openPanel('领导','09:58',{leader(Data.morning[self.answer] or Data.morning.same)},{'……等等'}) end);return
     end
     self.phase='msg';self:sound('buzz');self.normi:flinch(.3)
     self:after(.8,function() self.panelClosable=false;self.choiceMode='zhou';self:openPanel(Data.after.from,self:hm(),{zhou(Data.after.msg)},{Data.after.reply}) end)
+end
+function Story:chenTalk(now)
+    if self.phase=='chen' then return end
+    self.later={};self.waitPanel=false;self.afterLook=false;self.phase='chen';self.canFindChen=true;self.interactionId=false
+    self.normi:face(New.CHEN_SEAT.x-self.normi.pos.x);self.panelClosable=false;self.choiceMode='chen'
+    local choices={};for _,a in ipairs(New.MORNING_ANSWERS) do choices[#choices+1]=a.say end
+    self:openPanel('老陈工位','09:58',New.CHEN_ASK,choices);if now then self.phone:flush() end
+end
+function Story:fastForward()
+    if self.phase=='fastforward' or self.phase=='done' then return end
+    self.phase='fastforward';self.ffT=0;self.interactionId=false
+end
+function Story:finishMorning()
+    if self.phase=='done' then return end
+    assert(self.morningBranch,'Morning cannot finish before choosing an intervention')
+    self.phase='done';self.result={morningBranch=self.morningBranch};self:emit('finish',{result=self.result})
 end
 function Story:closeUp()
     self.phase='pig';self:emit('clearCaptions');local D=Data.desk;self.autoWalk=vec(D.x-2,0,D.z+1.6)
@@ -256,8 +338,9 @@ function Story:closeUp()
     self:after(1.6,function() self:say(Data.after.seePig,'inner');self:express('surprised',3.6) end)
     self:after(2.8,function() self.frozen=true;self.clockBack=1;self:sound('freeze');self:emit('shake',{amount=.08});self:after(.5,function() self:say(Data.after.freeze,'inner') end) end)
     self:after(5.6,function() self.tonightVisible=true;self:emit('flash',{amount=.35});self:emit('puff',{pos=Data.boxSpots[2],count=4});self:sound('chime') end)
-    self:after(6.4,function() self:say(Data.after.tonight,'inner');self:express('surprised',2.4) end)
-    self:after(8.8,function() self.phase='desk';self:emit('hint',{text=Data.after.touch,duration=6.5}) end)
+    self:after(6.4,function() self:say(self.branch and New.TONIGHT[self.morningBranch].line or Data.after.tonight,'inner');self:express('surprised',2.4) end)
+    if self.branch then self:after(8.8,function() self:say(New.BRANCH_FATE,'inner');self:express('deadpan',3) end) end
+    self:after(self.branch and 10.6 or 8.8,function() self.phase='desk';self:emit('hint',{text=Data.after.touch,duration=6.5}) end)
 end
 function Story:startFold()
     if self.phase~='desk' then return end
@@ -269,19 +352,19 @@ function Story:updateFold(dt)
     if T>1.8 and self.normi.visible then self.normi.visible=false;self:emit('puff',{pos=vec(self.normi.pos.x,.3,self.normi.pos.z)}) end
     -- Native camera supplies the projected pivot center; k/r are absolute source timing.
     self.fx.veil={k=smooth(T,1.6,2.4),r=lerp(1.9,-.18,smooth(T,1.8,4.6)),pivot=Data.pivot}
-    if T>4.9 and self.phase~='done' then self.phase='done';self.result={answer=self.answer};self:emit('finish',{result=self.result}) end
+    if T>4.9 and self.phase~='done' then self.phase='done';self.result={answer=self.answer,morningBranch=self.morningBranch,toOfficeEcho=not not self.branch};self:emit('finish',{result=self.result}) end
 end
 function Story:stepMeeting(dt,ctx)
     local T,n,A=self.t,self.normi,Data.after
     if self.phase=='intro' then
         self.fx.veil={k=1-smooth(T,.6,1.6),r=lerp(-.2,1.9,smooth(T,0,1.4)),cx=.42,cy=.55}
         self:once('time',function() self:after(1,function() self.clockShow=true end) end)
-        self:once('wake',function() self:after(1.8,function() self:say('……下午？','inner');self:express('surprised',2.6) end) end)
+        self:once('wake',function() self:after(1.8,function() self:say(self.branch and self.branch.wake or '……下午？','inner');self:express('surprised',2.6) end) end)
         if T>3.2 then self.phase='play';self.fx.veil=false;self.playAt=T;self:emit('hint',{text='WASD 走动 · F 看看 · J / 空格 看手机',duration=6}) end
     end
     if self.phase=='play' or self.phase=='intro' then
         self.talkT=self.talkT-dt
-        if self.talkT<=0 then self.talkT=2.6+self.random()*2;local p=self:pick({self.people[2],self.people[3],self.people[4]});self:talk(p.kind,self:pick(Data.keywords)) end
+        if self.talkT<=0 then self.talkT=2.6+self.random()*2;local c=self:pick(self.branch and self.branch.chat or New.MEET_CHAT);self:talk(c[1],c[2]) end
     end
     if self.phase=='play' then
         self.idleT=hypot(n.vel.x,n.vel.z)<.1 and self.idleT+dt or 0
@@ -306,14 +389,14 @@ function Story:stepMeeting(dt,ctx)
         self.typeT=self.typeT-dt
         if self.typeT<=0 and self:inOffice() then self.typeT=.06+self.random()*.18;self:emit('tone',{frequency=2400+self.random()*900,duration=.018,gain=.006+self.random()*.006,wave='square'}) end
         self.officeTalkT=self.officeTalkT-dt
-        if self.officeTalkT<=0 and self:inOffice() then self.officeTalkT=3+self.random()*2.5;local p=self:pick(Data.officePeople);self:talk(p.head,self:pick(A.chatter)) end
+        if self.officeTalkT<=0 and self:inOffice() then self.officeTalkT=3+self.random()*2.5;local p=self:pick(Data.officePeople);self:talk(p.head,self:pick(self.branch and self.branch.chatter or A.chatter)) end
     end
     if self.autoWalk then
         n:moveStick(self.autoWalk)
         if hypot(n.pos.x-self.autoWalk.x,n.pos.z-self.autoWalk.z)<.15 or self.phase~='pig' then self.autoWalk=false;n:face(1) end
     end
     if self.phase=='walk' and self:inOffice() then
-        for _,p in ipairs(Data.officePeople) do if math.abs(p.home.x-n.pos.x)<1.2 and p.home.z> -2.5 then self:once('pass',function() self:talk(p.head,A.passBy) end);break end end
+        for _,p in ipairs(Data.officePeople) do if math.abs(p.home.x-n.pos.x)<1.2 and p.home.z> -2.5 then self:once('pass',function() self:talk(p.head,self.branch and self.branch.passBy or A.passBy) end);break end end
     end
     if self.doorOpened and self:inOffice() then self.duskTo=math.max(self.duskTo,clamp((-7.6-n.pos.x)/5.2,0,1)) end
     if self.phase=='pig' or self.phase=='desk' or self.phase=='fold' or self.phase=='done' then self.duskTo=1 end
@@ -343,7 +426,30 @@ function Story:stepMorning(dt)
         if T>2.9 then self:once('tick',function() self:sound('tick') end) end
         if T>4 then self.phase='play';self.fx.veil=false;self.fx.haze=0;self.playAt=T;self:say('……早上？','inner');self:express('surprised',2.4);self:after(2.6,function() self:emit('hint',{text='WASD 走动 · F 看看',duration=4}) end) end
     end
-    if self.phase=='play' and T-self.playAt>14 then self:message() end
+    if self.phase=='play' and not self.canFindChen and T-self.playAt>8 then self:message() end
+    if self.waitPanel and #self.phone.queue==0 and not self.phone.choicesWaiting then
+        local w=self.waitPanel;self.waitPanel=false
+        if w=='msg' then self:after(1.6,function()
+            self:closePanel();self.phase='play';self.canFindChen=true;self.chenAt=self.t
+            self:emit('hint',{text='去老陈工位，趁早处理掉卡点',duration=6})
+        end)
+        else self:after(2,function()
+            self:closePanel();if self.morningBranch=='leave' then self.chenLeaveT=0;self:after(1.4,function() self:fastForward() end) else self:fastForward() end
+        end) end
+    end
+    if self.phase=='play' and self.canFindChen then
+        self.mutterT=self.mutterT-dt
+        if self.mutterT<=0 then self.mutterT=4;self:talk({x=New.CHEN_SEAT.x,y=.62+New.CHEN_SEAT.h*.92,z=New.CHEN_SEAT.z},New.CHEN_MUTTER[self.mutterI%#New.CHEN_MUTTER+1]);self.mutterI=self.mutterI+1 end
+        if T-self.chenAt>30 then self:chenTalk() end
+    end
+    if self.chenLeaveT and self.chenVisible then
+        self.chenLeaveT=self.chenLeaveT+dt;local k=smooth(self.chenLeaveT,0,1.1);self.chenY=.62+k*k*7;if k>=1 then self.chenVisible=false end
+    end
+    if self.phase=='fastforward' then
+        self.ffT=self.ffT+dt;local k=smooth(self.ffT,0,2.2);self.clockMin=math.floor(lerp(598,887,k*k)+.5);self.clockSpin=k<1
+        self.fx.haze=smooth(self.ffT,.6,2);self.fx.veil={k=smooth(self.ffT,.4,2),r=lerp(1.9,-.2,smooth(self.ffT,.3,2.2)),cx=.5,cy=.55}
+        if self.ffT>2.4 then self:finishMorning() end
+    end
     self.typeT=self.typeT-dt
     if self.typeT<=0 and self.phase~='intro' then self.typeT=.08+self.random()*.22;self:emit('tone',{frequency=2400+self.random()*900,duration=.018,gain=.005+self.random()*.005,wave='square'}) end
     local tn=self.tune;self.fx.grade={tn.gradeR*.99,tn.gradeG,tn.gradeB};self.fx.exposure=tn.exposure*1.02;self.fx.desat=0;self.fx.sat=tn.saturation

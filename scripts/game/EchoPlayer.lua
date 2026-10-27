@@ -25,7 +25,7 @@ function Player.hitTest(S,P,dt)
         -- Stable tie order matches JS: crates first, then cabinets in room order.
         if not near or d<near.d then near={kind=kind,o=o,d=d} end
     end
-    for _,c in ipairs(R.crates) do if not c.moving then consider('crate',c,S:crateBox(c)) end end
+    for _,c in ipairs(R.crates) do if not c.moving and not c.phased then consider('crate',c,S:crateBox(c)) end end
     for _,k in ipairs(R.cabinets) do if k.ph==0 and not k.auto then consider('cab',k,S:cabBox(k)) end end
     if P.charge>0 and near and near.d<radius+.2 and not P.chargeHits[near.o] then
         local cd=P.chargeDir
@@ -49,7 +49,7 @@ function Player.collide(S,p)
     local list={}
     for _,s in ipairs(S.room.statics) do list[#list+1]=s end
     for _,k in ipairs(S.room.cabinets) do list[#list+1]=S:cabBox(k) end
-    for _,c in ipairs(S.room.crates) do list[#list+1]=S:crateBox(c) end
+    for _,c in ipairs(S.room.crates) do if not c.phased then list[#list+1]=S:crateBox(c) end end
     if S.room.doorOpen<.8 then list[#list+1]=S:doorBox() end
     for _,o in ipairs(list) do
         local x0,x1,z0,z1=o.x0-radius,o.x1+radius,o.z0-radius,o.z1+radius

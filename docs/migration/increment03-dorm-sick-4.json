@@ -1,0 +1,31 @@
+{
+  "sourceCommit": "552a6eb4a73b6be5f33ea1a7b6a17411c216eae5",
+  "sourceExportSha256": "f1c54fef08a6e567e3cc03dca65d37005e00b13ba5517d229ca3dfb795fc1e97",
+  "sourceFiles": {
+    "src/store.js": "61f7c48ed27c3806d6426a62ea1240a5a4bce2545ae8577f1e8ccb4ad86dc766",
+    "src/rewind-levels.js": "925c66b12250a0b27813a8abed85fde5c8cab2736a63993e4c9ef365aa2090fd",
+    "src/store-props.js": "e2267acc50113a9388c08fc0cd214d04935de64adbf3957bc91fc496bc214e8a",
+    "src/night.js": "951e09fe4f95d1433b94d3540c4cd7ca346b19d3c87c975dd83948138703bee0",
+    "src/art.js": "1527ce4cf5ee50b15fcaedc3fd3e82cb84399b0607edccef622906a06f3a54f4",
+    "src/normi.js": "0dacd0989444e7f6a394ccb480e5298152ed12be2dd541fccbf6cc46bf0b7554",
+    "src/pig.js": "468cea527749465fd5c9a3cac9b2b3f6476c11481699e67691989db037e37b5c",
+    "src/ch1-scenes.js": "2dff9fe7beb1c66affdc7c5b37f9c75fcbad4f2dd8d711988499574e651a09ce",
+    "src/ch1-office.js": "5e1e11c2df2fcbd62ce14be82c8667245196dc178fa58aff7e4aefc7a8622546",
+    "src/ch1-art.js": "c528e1325c47519cd9e39b7805639800a02fbd2de233304378c18c1f2d2694ac",
+    "src/meeting.js": "c9b64029267dce78f8193d0ff319b071374df6d4934b5a569f3aefafbe130b51",
+    "config/store-tuning.json": "c762cfdb231376a2b37f23158e8ee47c1a4dd654d79db844860366b372397d09",
+    "config/ch1-tuning.json": "1dae5f70540d5606ba113498d202bf45175721f817c8ef983669adf0ef8101a9"
+  },
+  "nodes": 253,
+  "geometries": 224,
+  "materials": 74,
+  "textures": 54,
+  "instances": 0,
+  "seed": 1781624452,
+  "nativeDataSha256": "ddbad1d3b01e1780ab15c1284f08fc9fc9bdd9f479dc695742c577df189a50b8",
+  "visualAcceptance": false,
+  "notes": [
+    "Exact mesh attributes, instance transforms/colors, texture pixels and hierarchy exported.",
+    "Source custom night/wind/material behaviors require explicit native shaders; export alone does not establish parity."
+  ]
+}

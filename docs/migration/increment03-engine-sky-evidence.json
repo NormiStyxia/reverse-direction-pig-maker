@@ -1,0 +1,17 @@
+{
+  "error": "Could not find resource Cube/Day/DaySpecularHDR_QualityLow.dds",
+  "stage": "frame 0 before user Start()",
+  "manifestVersion": "1.34.10",
+  "resourceUuid": "FPvUaaCNLvNLkedNVoQ1sPhw",
+  "manifestPath": "Cube/Day/DaySpecularHDR_QualityLow.dds",
+  "manifestGroups": [
+    "full",
+    "default"
+  ],
+  "blocking": false,
+  "cachedPlatformHash": "64caabe5",
+  "cachedBytes": 33161,
+  "cachedSha256": "fc99f570b9a6c28cf9d91a367f6a69f4de898a119375a69d23740ec785266526",
+  "status": "UNRESOLVED",
+  "finding": "Official resource exists in manifest and native cache. Bootstrap lookup/load timing remains unverified. No placeholder DDS or engine package modification."
+}

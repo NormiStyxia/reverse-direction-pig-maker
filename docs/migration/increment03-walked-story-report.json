@@ -1,0 +1,283 @@
+{
+  "result": "PASS",
+  "scenarios": [
+    {
+      "scene": "dream",
+      "answer": "same",
+      "frames": 3516,
+      "seconds": 58.6,
+      "phases": [
+        "intro",
+        "phone",
+        "pig",
+        "walk",
+        "swap",
+        "pigwalk",
+        "unswap",
+        "voice",
+        "break",
+        "done"
+      ]
+    },
+    {
+      "scene": "night",
+      "answer": "same",
+      "frames": 2776,
+      "seconds": 46.27,
+      "phases": [
+        "intro",
+        "play",
+        "shot",
+        "go",
+        "out",
+        "done"
+      ]
+    },
+    {
+      "scene": "store",
+      "answer": "same",
+      "frames": 3205,
+      "seconds": 53.42,
+      "phases": [
+        "intro",
+        "play",
+        "dark",
+        "pig",
+        "fold",
+        "done"
+      ]
+    },
+    {
+      "scene": "meeting",
+      "answer": "same",
+      "frames": 4166,
+      "seconds": 69.43,
+      "phases": [
+        "intro",
+        "play",
+        "ask",
+        "leave",
+        "msg",
+        "walk",
+        "pig",
+        "desk",
+        "fold",
+        "done"
+      ]
+    },
+    {
+      "scene": "meeting",
+      "answer": "late",
+      "frames": 4232,
+      "seconds": 70.53,
+      "phases": [
+        "intro",
+        "play",
+        "ask",
+        "leave",
+        "msg",
+        "walk",
+        "pig",
+        "desk",
+        "fold",
+        "done"
+      ]
+    },
+    {
+      "scene": "meeting",
+      "answer": "done",
+      "frames": 4188,
+      "seconds": 69.8,
+      "phases": [
+        "intro",
+        "play",
+        "ask",
+        "leave",
+        "msg",
+        "walk",
+        "pig",
+        "desk",
+        "fold",
+        "done"
+      ]
+    },
+    {
+      "scene": "morning",
+      "answer": "fix",
+      "frames": 2504,
+      "seconds": 41.73,
+      "phases": [
+        "intro",
+        "play",
+        "msg",
+        "chen",
+        "fastforward",
+        "done"
+      ]
+    },
+    {
+      "scene": "morning",
+      "answer": "wreck",
+      "frames": 2504,
+      "seconds": 41.73,
+      "phases": [
+        "intro",
+        "play",
+        "msg",
+        "chen",
+        "fastforward",
+        "done"
+      ]
+    },
+    {
+      "scene": "morning",
+      "answer": "leave",
+      "frames": 2577,
+      "seconds": 42.95,
+      "phases": [
+        "intro",
+        "play",
+        "msg",
+        "chen",
+        "fastforward",
+        "done"
+      ]
+    },
+    {
+      "scene": "meetingAgain",
+      "answer": "fix",
+      "frames": 3103,
+      "seconds": 51.72,
+      "phases": [
+        "intro",
+        "play",
+        "ask",
+        "leave",
+        "walk",
+        "pig",
+        "desk",
+        "fold",
+        "done"
+      ]
+    },
+    {
+      "scene": "meetingAgain",
+      "answer": "wreck",
+      "frames": 3092,
+      "seconds": 51.53,
+      "phases": [
+        "intro",
+        "play",
+        "ask",
+        "leave",
+        "walk",
+        "pig",
+        "desk",
+        "fold",
+        "done"
+      ]
+    },
+    {
+      "scene": "meetingAgain",
+      "answer": "leave",
+      "frames": 3069,
+      "seconds": 51.15,
+      "phases": [
+        "intro",
+        "play",
+        "ask",
+        "leave",
+        "walk",
+        "pig",
+        "desk",
+        "fold",
+        "done"
+      ]
+    },
+    {
+      "scene": "dorm",
+      "answer": "sick",
+      "frames": 2682,
+      "seconds": 44.7,
+      "phases": [
+        "rewind",
+        "intro",
+        "play",
+        "dorm",
+        "pig",
+        "desk",
+        "fold",
+        "done"
+      ]
+    },
+    {
+      "scene": "dorm",
+      "answer": "pc",
+      "frames": 2491,
+      "seconds": 41.52,
+      "phases": [
+        "rewind",
+        "intro",
+        "play",
+        "dorm",
+        "pig",
+        "desk",
+        "fold",
+        "done"
+      ]
+    },
+    {
+      "scene": "dorm",
+      "answer": "off",
+      "frames": 2670,
+      "seconds": 44.5,
+      "phases": [
+        "rewind",
+        "intro",
+        "play",
+        "dorm",
+        "pig",
+        "desk",
+        "fold",
+        "done"
+      ]
+    },
+    {
+      "scene": "dormEnd",
+      "answer": "sick",
+      "frames": 1638,
+      "seconds": 27.3,
+      "phases": [
+        "after",
+        "jam",
+        "screen",
+        "done"
+      ]
+    },
+    {
+      "scene": "dormEnd",
+      "answer": "pc",
+      "frames": 1638,
+      "seconds": 27.3,
+      "phases": [
+        "after",
+        "jam",
+        "screen",
+        "done"
+      ]
+    },
+    {
+      "scene": "dormEnd",
+      "answer": "off",
+      "frames": 1638,
+      "seconds": 27.3,
+      "phases": [
+        "after",
+        "jam",
+        "screen",
+        "done"
+      ]
+    }
+  ],
+  "scope": "Lua 5.4 player-action routes: movement/interaction/choices and natural timers. No position/phase/time writes or skip. Does not prove native rendering, physical devices or cross-process storage."
+}

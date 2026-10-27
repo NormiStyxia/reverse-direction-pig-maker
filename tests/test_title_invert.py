@@ -8,6 +8,7 @@ manifest=json.loads((INC/'manifest.json').read_text())
 for name,expected in manifest['files'].items():
     if (INC/name).is_file(): assert hashlib.sha256((INC/name).read_bytes()).hexdigest()==expected,name
 lua=LuaRuntime(unpack_returned_tuples=True)
+lua.execute("package.path='scripts/?.lua;'..package.path")
 Title=lua.execute((ROOT/'scripts/game/TitleState.lua').read_text())
 def compare(actual,expected,path):
     if isinstance(expected,dict):

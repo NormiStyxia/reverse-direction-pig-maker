@@ -2,12 +2,27 @@
 -- Full-screen logical-pixel layout (mode B), unlike the fixed-size title.
 local Layout=require('game.StoryPanelLayout')
 local Motion=require('game.StoryPanelMotion')
+local Extras=require('render.PhoneExtras')
 local Canvas={}
 Canvas.__index=Canvas
 local INK={41,58,48,255};local LIGHT={240,237,223,255};local GREEN={175,225,135,255}
 local WHITE={255,255,248,242};local CHOICE={243,250,234,204};local MUTED={143,154,137,255}
 local function rgba(c) return nvgRGBA(c[1],c[2],c[3],c[4] or 255) end
 local function inside(x,y,r) return x>=r.x and y>=r.y and x<r.x+r.w and y<r.y+r.h end
+-- The frozen font lacks these two Unicode vertical bars. Draw their actual
+-- shapes instead of platform-dependent missing-glyph boxes; keep all other
+-- characters in the frozen face and share advances with wrapping/hit layout.
+local function symbolRuns(text,visit)
+    local from=1
+    for i,code in utf8.codes(text)do
+        if code==0x25AF or code==0x25AE then
+            if i>from then visit(text:sub(from,i-1),false)end
+            local ch=utf8.char(code);visit(ch,true);from=i+#ch
+        end
+    end
+    if from<=#text then visit(text:sub(from),false)end
+end
+local function hasBars(text)return text:find('▯',1,true) or text:find('▮',1,true)end
 local function box(vg,x,y,w,h,c,r)
     nvgBeginPath(vg);nvgRoundedRect(vg,x,y,math.max(0,w),math.max(0,h),r or 0);nvgFillColor(vg,rgba(c));nvgFill(vg)
 end
@@ -52,13 +67,37 @@ end
 function Canvas:measure(text,size)
     assert(self.fontReady,'STORY_FONT_NOT_READY')
     local key=size..':'..text
-    if not self.metrics[key] then self:fontSize(size);self.metrics[key]=nvgTextBounds(self.vg,0,0,text) end
+    if not self.metrics[key] then
+        -- Dream chat changes glyphs every 70ms. Bound cached measurements so
+        -- reading it for a long time cannot retain every generated string.
+        self.metricCount=(self.metricCount or 0)+1
+        if self.metricCount>4096 then self.metrics={};self.metricCount=1 end
+        self:fontSize(size)
+        if hasBars(text)then
+            local width=0;symbolRuns(text,function(run,bar)width=width+(bar and size*.6 or nvgTextBounds(self.vg,0,0,run))end);self.metrics[key]=width
+        else self.metrics[key]=nvgTextBounds(self.vg,0,0,text)end
+    end
     return self.metrics[key]
 end
 function Canvas:text(text,x,y,size,c,shadow)
     self:fontSize(size)
-    if shadow then nvgFillColor(self.vg,nvgRGBA(15,31,12,220));nvgText(self.vg,x,y+1,text) end
-    nvgFillColor(self.vg,rgba(c or INK));nvgText(self.vg,x,y,text)
+    if self.story and self.story.mode=='dream' then
+        if c==LIGHT then c={1,64,196,255}elseif c==INK then c={11,29,79,255}elseif c==MUTED then c={53,121,241,255}end
+    end
+    local function draw(yy,color)
+        nvgFillColor(self.vg,color)
+        if not hasBars(text)then nvgText(self.vg,x,yy,text);return end
+        local sx=x
+        symbolRuns(text,function(run,bar)
+            if bar then
+                nvgBeginPath(self.vg);nvgRect(self.vg,sx+size*.13,yy+size*.12,size*.34,size*.8)
+                if run=='▮'then nvgFill(self.vg)else nvgStrokeColor(self.vg,color);nvgStrokeWidth(self.vg,math.max(.7,size*.055));nvgStroke(self.vg)end
+                sx=sx+size*.6
+            else nvgText(self.vg,sx,yy,run);sx=sx+nvgTextBounds(self.vg,0,0,run)end
+        end)
+    end
+    if shadow then draw(y+1,self.story and self.story.mode=='dream' and nvgRGBA(250,252,255,230) or nvgRGBA(15,31,12,220))end
+    draw(y,rgba(c or INK))
 end
 function Canvas:lines(lines,x,y,size,lineH,c,shadow)
     for i,line in ipairs(lines) do self:text(line,x,y+(i-1)*lineH+(lineH-Layout.normalHeight(size))/2,size,c,shadow) end
@@ -81,14 +120,20 @@ function Canvas:image(path,x,y,w,h,cover)
     local k=cover and math.max(w/im.w,h/im.h) or math.min(w/im.w,h/im.h)
     local dw,dh=im.w*k,im.h*k
     nvgSave(self.vg);nvgIntersectScissor(self.vg,x,y,w,h)
-    nvgBeginPath(self.vg);nvgRoundedRect(self.vg,x,y,w,h,cover and 5 or 0)
+    nvgBeginPath(self.vg)
+    if cover=='circle' then nvgCircle(self.vg,x+w/2,y+h/2,math.min(w,h)/2)
+    else nvgRoundedRect(self.vg,x,y,w,h,cover and 5 or 0) end
     nvgFillPaint(self.vg,nvgImagePattern(self.vg,x+(w-dw)/2,y+(h-dh)/2,dw,dh,0,im.id,1));nvgFill(self.vg);nvgRestore(self.vg)
 end
 function Canvas:update(dt)
     self.elapsed=self.elapsed+dt
     local p,b=self.story.phone,self.story.browse
+    if self.pointerId and self.press and self.press.message and not self.dragged and not self.longPressed and self.elapsed-(self.pressAt or self.elapsed)>=.45 then
+        Extras.action(self,self.press.id);self.longPressed=true
+    end
     local channel=b.k>=.02 and 'browse' or (p.k>=.02 and 'phone' or false)
-    if channel~=self.channel then self:cancelPointer();self.channel=channel;self.scrollBottom=true end
+    if channel~=self.channel then self:cancelPointer();Extras.reset(self);self.channel=channel;self.scrollBottom=true end
+    if not p.open or p.view~='chat' then Extras.reset(self)end
     if p.open and not self.wasOpen then self.placement.layoutSide=false;self.lastView=false end
     self.wasOpen=p.open
     Layout.place(self.placement,self.actorLeft,self.actorRight);b:place(self.actorLeft,self.actorRight)
@@ -126,6 +171,7 @@ function Canvas:pointerDown(x,y,id)
     local hit=self:hitTest(x,y);local inThread=self.thread and inside(x,y,self.thread)
     if not hit and not inThread then return self.sceneActions and self.sceneActions:down(px,py,id or 'mouse') or false end
     self.pointerId=id or 'mouse';self.press=hit;self.dragged=false;self.startX=x;self.startY=y;self.pointerY=y
+    self.pressAt=self.elapsed;self.longPressed=false
     return true
 end
 function Canvas:pointerMove(x,y,id)
@@ -133,7 +179,7 @@ function Canvas:pointerMove(x,y,id)
     if self.pointerId~=(id or 'mouse') then return end
     x=x/self.dpr;y=y/self.dpr
     if math.abs(x-self.startX)+math.abs(y-self.startY)>6 then self.dragged=true end
-    if self.dragged and not self.press and self.channel then
+    if self.dragged and (not self.press or self.press.message) and self.channel then
         self.scroll[self.channel]=math.max(0,math.min(self.maxScroll,self.scroll[self.channel]+self.pointerY-y))
         self.scrollBottom=false
     end
@@ -142,9 +188,15 @@ end
 function Canvas:pointerUp(x,y,id)
     if self.sceneActions and self.sceneActions:up(x,y,id or 'mouse') then return true end
     if self.pointerId~=(id or 'mouse') then return false end
-    local pressed=self.press;local dragged=self.dragged;self:cancelPointer()
+    local pressed=self.press;local dragged=self.dragged or self.longPressed;self:cancelPointer()
     local hit=self:hitTest(x/self.dpr,y/self.dpr)
     if not dragged and pressed and hit and hit.key==pressed.key and self:inputEnabled() then self:dispatch(hit.id);return true end
+    return false
+end
+function Canvas:contextMenu(x,y)
+    if not self:inputEnabled() or self.channel~='phone' then return false end
+    local hit=self:hitTest(x/self.dpr,y/self.dpr)
+    if hit and hit.message then self:cancelPointer();Extras.action(self,hit.id);return true end
     return false
 end
 function Canvas:wheel(delta,x,y)
@@ -155,56 +207,65 @@ function Canvas:wheel(delta,x,y)
 end
 function Canvas:dispatch(id)
     if self.channel=='browse' then self.story:onBrowse(id)
+    elseif Extras.action(self,id) then
     elseif id~='send' or self.ready then self.story:onPhone(id) end
     self:update(0)
 end
 function Canvas:drawHeader(p,isBrowse)
+    local left=p.wide and math.max(p.x,68)or p.x
+    local right=p.wide and math.min(p.x+p.w,self.w-140)or p.x+p.w
     local phone,b=self.story.phone,self.story.browse
     local title=isBrowse and b.title or (phone.view=='chat' and phone.contact or '消息')
     local subtitle=isBrowse and b.sub or phone.subtitle
-    local close=isBrowse
+    local close=isBrowse and (not self.story.story or self.story.story.panelClosable)
     for _,item in ipairs(phone.buttons) do if item.id=='close' then close=true end end
     local offset=close and (self.touchUI and 48 or (p.small and 32.8 or 40.8)) or 0
-    if close then self:text('‹',p.x,p.y,35,LIGHT,true);self:addHit('close','close',p.x,p.y,self.touchUI and 44 or 26,self.touchUI and 44 or 42) end
-    local available=p.w-offset-48
+    if close then self:text('‹',left,p.y,35,LIGHT,true);self:addHit('close','close',left,p.y,self.touchUI and 44 or 26,self.touchUI and 44 or 42) end
+    local available=right-left-offset-48
     local lines=Layout.wrap(title,math.max(1,available),p.contactSize,function(t,s)return self:measure(t,s)end)
     -- Source is a single header flex row; reserve enough height when narrow text wraps.
     local titleLine=Layout.normalHeight(p.contactSize)
-    self:lines(lines,p.x+offset,p.y,p.contactSize,titleLine,LIGHT,true)
-    self:text(subtitle,p.x+offset,p.y+#lines*titleLine+3,p.small and 11 or 13,LIGHT,true)
-    local metaLine=Layout.normalHeight(p.metaSize);local titleH=#lines*titleLine+3+Layout.normalHeight(p.small and 11 or 13)
+    self:lines(lines,left+offset,p.y,p.contactSize,titleLine,LIGHT,true)
+    self:text(subtitle,left+offset,p.y+#lines*titleLine+3,p.subtitleSize or (p.small and 11 or 13),LIGHT,true)
+    local metaLine=Layout.normalHeight(p.metaSize);local titleH=#lines*titleLine+3+Layout.normalHeight(p.subtitleSize or (p.small and 11 or 13))
     local metaH=isBrowse and metaLine or metaLine*2+3;local metaY=p.y+(titleH-metaH)/2
     local clock=isBrowse and b.clock or phone.time
-    self:text(clock,p.x+p.w-self:measure(clock,p.metaSize),metaY,p.metaSize,LIGHT,true)
-    if not isBrowse then local battery=phone.battery..'%';self:text(battery,p.x+p.w-self:measure(battery,p.metaSize),metaY+metaLine+3,p.metaSize,LIGHT,true) end
+    self:text(clock,right-self:measure(clock,p.metaSize),metaY,p.metaSize,LIGHT,true)
+    if not isBrowse then local battery=phone.batteryText or phone.battery..'%';self:text(battery,right-self:measure(battery,p.metaSize),metaY+metaLine+3,p.metaSize,LIGHT,true) end
     p.headerH=p.headerH+(#lines-1)*titleLine
     box(self.vg,p.x,p.y+p.headerH-1,p.w,1,{65,87,63,46})
 end
 function Canvas:drawChoices(p,list,bottom,hasInput)
-    local buttons,height=Layout.choices(list,p.w,p.small,function(t,s)return self:measure(t,s)end,self.touchUI)
+    local buttons,height=Layout.choices(list,p.w,p.small,function(t,s)return self:measure(t,s)end,self.touchUI,p.wide)
     local inputH=hasInput and 54 or 0
     local top=bottom-height-inputH-13
     box(self.vg,p.x,top,p.w,1,{240,237,223,56})
     for _,b in ipairs(buttons) do
         local y=top+13+b.y;local c=b.id=='chat' and {128,182,101,255} or (b.quietReply and {239,228,207,179} or CHOICE)
+        if self.story.mode=='dream' then c={250,252,255,235}end
         box(self.vg,p.x+b.x,y,b.w,b.h,c,6)
+        if self.story.mode=='dream' then nvgStrokeColor(self.vg,nvgRGBA(1,64,196,153));nvgStrokeWidth(self.vg,1);nvgStroke(self.vg)end
         self:lines(b.lines,p.x+b.x+b.px+1,y+(b.h-#b.lines*Layout.normalHeight(b.size))/2,b.size,Layout.normalHeight(b.size),b.id=='chat' and LIGHT or INK)
         self:addHit(b.id,b.text,p.x+b.x,y,b.w,b.h)
     end
     if hasInput then self:drawInput(p,bottom-44) end
+    if hasInput then top=Extras.grid(self,p,top)end
     return top
 end
 function Canvas:drawInput(p,y)
+    local offset=Extras.input(self,p,y);if offset>0 then local q={};for k,v in pairs(p)do q[k]=v end;q.x=q.x+offset;q.w=q.w-offset;p=q end
     local phone=self.story.phone;local hasDraft=phone.draft~=''
-    local sendW=58;local clearW=hasDraft and 27 or 0
+    local dream=self.story.mode=='dream'
+    local sendW=dream and 0 or 58;local clearW=hasDraft and 27 or 0
     local draftW=math.max(20,p.w-sendW-8-(hasDraft and clearW+8 or 0))
     box(self.vg,p.x,y,draftW,44,{250,251,244,230},6)
     nvgSave(self.vg);nvgIntersectScissor(self.vg,p.x+13,y,draftW-26,44)
-    local text=hasDraft and self.typed or '选一句，或者什么都不说';local size=hasDraft and 18 or 15
+    local text=hasDraft and self.typed or phone.placeholder or '选一句，或者什么都不说';local size=p.wide and 12 or (hasDraft and 18 or 15)
     local offset=math.max(0,self:measure(text,size)-(draftW-30))
     self:text(text,p.x+13-offset,y+(44-size)/2,size,hasDraft and INK or MUTED)
     if hasDraft and self.elapsed%1<.5 then box(self.vg,p.x+14+self:measure(text,size)-offset,y+12,2,19.8,{95,174,74,255}) end
     nvgRestore(self.vg)
+    if dream then return end
     local sendX=p.x+p.w-sendW
     if hasDraft then self:text('✕',sendX-8-clearW+6,y+13,15,LIGHT,true);self:addHit('clear','clear',sendX-8-clearW,y,clearW,44) end
     box(self.vg,sendX,y+4,sendW,36,self.ready and {7,193,96,255} or {225,230,218,217},6)
@@ -228,12 +289,26 @@ function Canvas:drawMessage(m,x,y,width,p,motion,opacity)
     local avatarX=m.me and x+width-p.avatar or x
     local bx=m.me and avatarX-p.messageGap-layout.w or avatarX+p.avatar+p.messageGap
     local by=y+layout.nameH
-    self:image(m.me and 'store/avatar-me.png' or (m.avatar or 'store/avatar-them.png'),avatarX,y,p.avatar,p.avatar,true)
-    if layout.nameH>0 then self:text(m.name,bx+2,y,13,LIGHT,true) end
+    local avatar=m.me and 'store/avatar-me.png' or (m.avatar or 'store/avatar-them.png')
+    if self.story.mode=='dream' then avatar='increment03/avatars/'..avatar:match('([^/]+)$'):gsub('%.[^.]+$','.png')end
+    self:image(avatar,avatarX,y,p.avatar,p.avatar,true)
+    if layout.nameH>0 then self:text(m.name,bx+2,y,p.wide and 10 or 13,LIGHT,true) end
+    if m.sticker then self:image('stickers/'..m.sticker..'.png',bx,by,layout.w,layout.bubbleH)else
     box(self.vg,bx,by+2,layout.w,layout.bubbleH,{40,58,31,18},5)
-    local c=m.me and GREEN or WHITE;box(self.vg,bx,by,layout.w,layout.bubbleH,c,5)
+    local dream=self.story.mode=='dream'
+    local c=dream and {250,252,255,237} or m.me and GREEN or WHITE;box(self.vg,bx,by,layout.w,layout.bubbleH,c,5)
+    local truth=dream and (m.truthUntil or 0)>self.story.t
+    if dream then nvgStrokeColor(self.vg,truth and nvgRGBA(1,64,196,255)or nvgRGBA(53,121,241,140));nvgStrokeWidth(self.vg,truth and 2 or 1.5);nvgStroke(self.vg)end
     nvgSave(self.vg);nvgTranslate(self.vg,m.me and bx+layout.w-1 or bx+1,by+20);nvgRotate(self.vg,math.pi/4);box(self.vg,-5,-5,10,10,c,1);nvgRestore(self.vg)
-    self:lines(layout.lines,bx+layout.px,by+layout.py,layout.size,layout.lineH,INK)
+    if dream and m.gl then
+        nvgSave(self.vg);nvgIntersectScissor(self.vg,bx+(m.gx or 0),by+layout.bubbleH*(m.gt or 0),layout.w,layout.bubbleH*.4)
+        self:lines(layout.lines,bx+layout.px+(m.gx or 0)+3,by+layout.py,layout.size,layout.lineH,{53,121,241,191})
+        self:lines(layout.lines,bx+layout.px+(m.gx or 0)-3,by+layout.py,layout.size,layout.lineH,{1,64,196,140})
+        self:lines(layout.lines,bx+layout.px+(m.gx or 0),by+layout.py,layout.size,layout.lineH,truth and {1,64,196,255}or INK)
+        nvgRestore(self.vg)
+    else self:lines(layout.lines,bx+layout.px,by+layout.py,layout.size,layout.lineH,truth and {1,64,196,255}or INK)end
+    end
+    Extras.message(self,m,bx,by,layout,p)
     if m.status=='failed' then
         box(self.vg,bx-26,by+layout.bubbleH/2-9,18,18,{224,83,61,255},9);self:text('!',bx-20,by+layout.bubbleH/2-7,13,{255,255,255,255})
     end
@@ -259,37 +334,46 @@ function Canvas:drawLock(p,top,bottom)
 end
 function Canvas:browseEntry(e,x,y,width,p,draw)
     local measure=function(t,s)return self:measure(t,s)end
-    if e.kind=='thought' or e.kind=='msg' then
-        local m={text=e.text,me=e.kind=='thought',name=e.name,avatar=e.avatar}
+    if e.kind=='thought' or e.kind=='msg' or e.kind=='me' then
+        local m={text=e.text,me=e.kind~='msg',name=e.name,avatar=e.avatar}
         if draw then return self:drawMessage(m,x,y,width,p) end
         return Layout.message(m,width,p,measure).h
+    elseif e.kind=='scene' then
+        local h=math.min(self.h*(p.wide and .36 or .42),width*(e.prop and .8 or .6))
+        local w=e.prop and math.min(width,h) or width
+        if draw then self:image((e.src or ''):gsub('^%./assets/',''):gsub('^assets/',''),x+(width-w)/2,y,w,h) end
+        return h
     elseif e.kind=='card' then
-        local ideal=measure(e.name,20)+64
-        for _,row in ipairs(e.rows) do ideal=math.max(ideal,64+10+measure(row[2],16)) end
-        local w=math.min(width*.92,math.max(220,ideal+36+(e.img and 96 or 0)))
-        local contentW=math.max(1,w-36-(e.img and 96 or 0))
-        local lines=Layout.wrap(e.name,math.max(1,contentW-64),20,measure)
-        local rows={};local contentH=#lines*Layout.normalHeight(20)+(e.img and 20 or #e.rows*4)
-        for _,row in ipairs(e.rows) do
-            local valueLines=Layout.wrap(row[2],math.max(1,contentW-74),16,measure)
-            local rh=#valueLines*Layout.normalHeight(16)+5;contentH=contentH+rh
+        local ns,rs,ss=p.wide and 13 or 20,p.wide and 12 or 16,p.wide and 10 or 13
+        local pad=p.wide and 10 or 18;local labelW=p.wide and 48 or 74;local imageSize=p.wide and 56 or 84
+        local imageW=e.img and imageSize+12 or 0;local sourceRows=e.rows or {}
+        local ideal=measure(e.name,ns)+(p.wide and labelW or 64)
+        for _,row in ipairs(sourceRows) do ideal=math.max(ideal,labelW+measure(row[2],rs)) end
+        local w=math.min(width*.92,math.max(p.wide and 160 or 220,ideal+pad*2+imageW))
+        local contentW=math.max(1,w-pad*2-imageW)
+        local lines=Layout.wrap(e.name,math.max(1,contentW-(p.wide and (e.price and labelW or 0) or 64)),ns,measure)
+        local rows={};local contentH=#lines*Layout.normalHeight(ns)+(e.img and (p.wide and 12 or 20) or #sourceRows*4)
+        for _,row in ipairs(sourceRows) do
+            local valueLines=Layout.wrap(row[2],math.max(1,contentW-labelW),rs,measure)
+            local rh=#valueLines*Layout.normalHeight(rs)+5;contentH=contentH+rh
             rows[#rows+1]={label=row[1],lines=valueLines,h=rh}
         end
-        local extra=e.img and math.max(0,84-contentH)/6 or 0
-        local h=math.max(e.img and 84 or 0,contentH)+26
+        local extra=e.img and math.max(0,imageSize-contentH)/6 or 0
+        local h=math.max(e.img and imageSize or 0,contentH)+(p.wide and 15 or 26)
         if draw then
             -- phArrive's forwards fill overrides the card's static rotation in the H5.
             nvgSave(self.vg);nvgTranslate(self.vg,x,y)
             box(self.vg,3,3,w,h,{43,33,29,76},6);box(self.vg,0,0,w,h,{43,33,29,255},6);box(self.vg,2,2,w-4,h-4,{251,248,239,242},5)
-            if e.img then self:image('store/goods/'..e.img..'.png',18,(h-84)/2,84,84) end
-            local tx=18+(e.img and 96 or 0)
-            self:lines(lines,tx,14+extra/2,20,Layout.normalHeight(20),{43,33,29,255})
-            if e.price then self:text(e.price,w-14-measure(e.price,18),12,18,{176,68,47,255}) end
-            local ry=14+#lines*Layout.normalHeight(20)+extra+4
+            if e.img then self:image('store/goods/'..e.img..'.png',pad,(h-imageSize)/2,imageSize,imageSize) end
+            local tx=pad+imageW
+            local top=p.wide and 7.5 or 14
+            self:lines(lines,tx,top+extra/2,ns,Layout.normalHeight(ns),{43,33,29,255})
+            if e.price then local ps=p.wide and 13 or 18;self:text(e.price,w-(p.wide and 10 or 14)-measure(e.price,ps),p.wide and 7 or 12,ps,{176,68,47,255}) end
+            local ry=top+#lines*Layout.normalHeight(ns)+extra+4
             for _,row in ipairs(rows) do
                 for dx=0,contentW-1,4 do box(self.vg,tx+dx,ry,math.min(2,contentW-dx),1,{43,33,29,46}) end
-                self:text(row.label,tx,ry+5+extra/2+3,13,{122,116,102,255})
-                self:lines(row.lines,tx+74,ry+5+extra/2,16,Layout.normalHeight(16),{60,58,51,255});ry=ry+row.h+extra+4
+                self:text(row.label,tx,ry+5+extra/2+3,ss,{122,116,102,255})
+                self:lines(row.lines,tx+labelW,ry+5+extra/2,rs,Layout.normalHeight(rs),{60,58,51,255});ry=ry+row.h+extra+4
             end
             nvgRestore(self.vg)
         end
@@ -301,21 +385,24 @@ function Canvas:browseEntry(e,x,y,width,p,draw)
         if draw then local tw=measure(e.text,13);box(self.vg,x,y+18,(width-tw-20)/2,1,{240,237,223,89});self:text(e.text,x+(width-tw)/2,y+10,13,{240,237,223,179});box(self.vg,x+(width+tw)/2+10,y+18,(width-tw-20)/2,1,{240,237,223,89}) end
         return 25.6
     end
-    local lines=Layout.wrap(e.text or '',math.max(1,width-8),16,measure)
-    if draw then self:lines(lines,x+4,y,16,19.2,LIGHT,true) end
-    return #lines*Layout.normalHeight(16)
+    local size=p.wide and 12 or 16
+    local lines=Layout.wrap(e.text or '',math.max(1,width-8),size,measure)
+    if draw then self:lines(lines,x+4,y,size,size*1.2,LIGHT,true) end
+    return #lines*Layout.normalHeight(size)
 end
 function Canvas:render()
     if self.disposed or not self.fontReady then return end
-    local vg=self.vg;self.hits={};self.thread=false
+    local vg=self.vg;self.hits={};self.thread=false;self.reactAnchor=false
     nvgBeginFrame(vg,self.w,self.h,self.dpr)
     if self.sceneActions then self.sceneActions:render() end
     if self.probeBackdrop then box(vg,0,0,self.w,self.h,{29,26,36,255});self:text('NVG 界面校验 · 非剧情场景',20,20,16,LIGHT) end
-    if self.channel then
+    if self.channel=='browse'and self.story.browse.presentation=='look'then
+        self.panel=false;require('render.LookCard').draw(self,self.story.browse)
+    elseif self.channel then
         local isBrowse=self.channel=='browse';local state=isBrowse and self.story.browse or self.story.phone
         local placement=isBrowse and self.story.browse or self.placement
-        local p=Layout.panel(self.w,self.h,placement,state.k);self.panel=p
-        if self.touchUI then p.y=math.max(72,p.y) end
+        local p=Layout.panel(self.w,self.h,placement,state.k);if self.story.mode=='dream' and not isBrowse then p.x=p.x+(state.jitter or 0)end;self.panel=p
+        if self.touchUI and not p.wide then p.y=math.max(72,p.y) end
         nvgGlobalAlpha(vg,math.min(1,state.k*1.2));self:drawHeader(p,isBrowse)
         local list={};if isBrowse then for i,text in ipairs(state.choices) do list[#list+1]={id='choice:'..(i-1),text=text,quietReply=i==#state.choices and #state.choices>1} end else list=state.buttons end
         local footer=self:drawChoices(p,list,p.bottom,not isBrowse and state.view=='chat')
@@ -324,7 +411,7 @@ function Canvas:render()
         else
             local x,width=p.x+3,math.max(1,p.w-6);local entries=isBrowse and state.entries or Layout.transcript(state)
             local heights={};local total=20
-            local gap=isBrowse and 14 or p.threadGap
+            local gap=isBrowse and (p.wide and 8 or 14) or p.threadGap
             for i,e in ipairs(entries) do
                 heights[i]=isBrowse and self:browseEntry(e,x,0,width,p,false) or Layout.message(e,width,p,function(t,s)return self:measure(t,s)end).h
                 total=total+heights[i]+(i>1 and gap or 0)
@@ -350,13 +437,21 @@ function Canvas:render()
                 y=y+heights[i]+gap
             end
             nvgRestore(vg)
+            if not isBrowse then Extras.reactionBar(self,p)end
             if self.maxScroll>0 and h>0 then
                 local bar=math.max(20,h*h/total);box(vg,p.x+p.w-2,top+(h-bar)*self.scroll[self.channel]/self.maxScroll,2,bar,{240,237,223,100},1)
             end
         end
     end
+    if self.story.mode=='dream'and self.channel=='phone' and self.panel then
+        local p=self.panel;local offset=(self.story.t*60/1.6)%6
+        nvgSave(vg);nvgGlobalAlpha(vg,self.story.phone.k);nvgIntersectScissor(vg,p.x,p.y,p.w,p.bottom-p.y)
+        for y=p.y-6+offset,p.bottom,6 do box(vg,p.x,y,p.w,2,{53,121,241,23})end
+        nvgRestore(vg)
+    end
     if self.sceneHUD then nvgSave(vg);nvgGlobalAlpha(vg,1);self.sceneHUD(self);nvgRestore(vg) end
     if self.externalHUD then nvgSave(vg);nvgGlobalAlpha(vg,1);self.externalHUD(self);nvgRestore(vg) end
+    require('render.TimelinePortal').draw(self)
     nvgEndFrame(vg)
 end
 function Canvas:dispose()

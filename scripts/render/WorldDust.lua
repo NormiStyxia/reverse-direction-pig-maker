@@ -60,7 +60,9 @@ function Dust.new(view)
     self.mainMaterial=Material:new();assert(self.mainMaterial:SetSurfaceShader('Shaders/BLGL/WorldDust.shader'))
     self.nearMaterial=Material:new();assert(self.nearMaterial:SetSurfaceShader('Shaders/BLGL/NearDust.shader'))
     self.mainNode,self.mainMesh=mesh(view.scene,'WorldDust',Pattern.main,false,self.mainMaterial)
-    self.nearNode,self.nearMesh=mesh(self.scene,'NearDust',Pattern.near,true,self.nearMaterial)
+    self.nearNode,self.nearMesh=mesh(self.camera.node,'NearDust',Pattern.near,true,self.nearMaterial)
+    -- timeline.show() hides both world dust groups while its own 3D stars stay.
+    if view.data and view.data.chapter=='timeline'then self.ready=true;return self end
     -- Derived from exact paintDot with RGB decoded once, alpha unchanged. Runtime
     -- builds CPU mipmaps: averaging encoded sRGB darkened subpixel dust.
     -- The linear derivative makes mip averaging match WebGL's sRGB texture.
@@ -77,9 +79,32 @@ function Dust.new(view)
     end)
     return self
 end
+function Dust:updateNearFigures()
+    local v=self.view
+    if not v.ready then return end
+    if not self.nearFigures then
+        self.nearFigures={}
+        for _,source in ipairs(v.data.nodes)do
+            if source.type=='Mesh' and ((source.sourceLayers or 1)&2)~=0 then
+                local node=self.scene:CreateChild('NearFigure'..source.id)
+                local draw=node:CreateComponent('StaticModel');draw.model=v:model(source.geometry,#source.materials)
+                for slot,id in ipairs(source.materials)do draw:SetMaterial(slot-1,v:sourceMaterial(source,id))end
+                draw.castShadows=false;draw.viewMask=1
+                self.nearFigures[#self.nearFigures+1]={node=node,source=v.nodes[source.id]}
+            end
+        end
+        if #self.nearFigures>0 then print('NATIVE_NEAR_FIGURES: '..#self.nearFigures..'; frozen near layer outside main ink/DOF')end
+    end
+    for _,f in ipairs(self.nearFigures)do
+        f.node.enabled=f.source.enabled
+        f.node.position=f.source.worldPosition;f.node.rotation=f.source.worldRotation;f.node.scale=f.source.worldScale
+    end
+end
 function Dust:update(dt)
     angle=angle+(dt or 0)*.01
     local c=self.view.camera;local q=self.view.cameraNode.worldRotation
+    self.camera.node.position=self.view.cameraNode.worldPosition;self.camera.node.rotation=q
+    self:updateNearFigures()
     self.camera.nearClip=c.nearClip;self.camera.farClip=c.farClip;self.camera.fov=c.fov
     self.camera.autoAspectRatio=c.autoAspectRatio;self.camera.aspectRatio=c.aspectRatio
     local tangent=math.tan(math.rad(c.fov)*.5)

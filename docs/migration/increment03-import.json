@@ -1,0 +1,13 @@
+{
+  "sourceTreeSha256": "1e4ec744204da5269a0b9989fab42d91f1bd9703f12f94db4ad95d7603acefdf",
+  "sourceFiles": 262,
+  "levels": {
+    "prologue": 6,
+    "chapter1": 5,
+    "office": 4,
+    "dorm": 4
+  },
+  "nodes": 9,
+  "assetsUpdated": 0,
+  "status": "DATA_IMPORTED_NATIVE_ACCEPTANCE_PENDING"
+}

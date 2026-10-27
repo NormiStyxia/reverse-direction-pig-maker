@@ -1,0 +1,105 @@
+{
+  "result": "PASS",
+  "sourceSha256": "048a5dc17941b0dc8c1516a16aa5a5ae88b6e05052fca372969bbbf8f27387c8",
+  "master": 0.9,
+  "sampleRate": 44100,
+  "clips": [
+    {
+      "id": "dream-crack-tone",
+      "hz": 900,
+      "dur": 0.3,
+      "gain": 0.03,
+      "type": "triangle",
+      "slide": 0.4,
+      "frames": 15435,
+      "peak": 0.026080848649144173,
+      "maxQuantizationError": 0.00001525878826666785,
+      "sha256": "d44a76982b952b976e56f33a091765b762176bf445b3d1abbca7bb6306b8902c"
+    },
+    {
+      "id": "dream-fall-tone",
+      "hz": 52,
+      "dur": 1.6,
+      "gain": 0.12,
+      "type": "triangle",
+      "slide": 0.7,
+      "frames": 72765,
+      "peak": 0.10671321302652359,
+      "maxQuantizationError": 0.00001525915303091617,
+      "sha256": "a5cf227cabd8b90249f83694782f1c15e432cc9e0e1da9f6171bcb3101e544e0"
+    },
+    {
+      "id": "dream-pig-land-tone",
+      "hz": 330,
+      "dur": 0.25,
+      "gain": 0.04,
+      "type": "sine",
+      "slide": 0.6,
+      "frames": 13230,
+      "peak": 0.03505995497107506,
+      "maxQuantizationError": 0.00001525832740879602,
+      "sha256": "5d78e58392ee6dff86b76be8f0053e20cfa18cb868a850a6619e77cc00a9f62e"
+    },
+    {
+      "id": "dream-swap-tone",
+      "hz": 330,
+      "dur": 0.5,
+      "gain": 0.05,
+      "type": "triangle",
+      "slide": 0.6,
+      "frames": 24256,
+      "peak": 0.04403316602110863,
+      "maxQuantizationError": 0.000015258003031697054,
+      "sha256": "ab823fa4cea9b5a4cf9d10c835b1a89414dea839a430b8a1c437901417da6af7"
+    },
+    {
+      "id": "dream-unswap-tone",
+      "hz": 440,
+      "dur": 0.5,
+      "gain": 0.05,
+      "type": "triangle",
+      "slide": 1.6,
+      "frames": 24256,
+      "peak": 0.04392504692077637,
+      "maxQuantizationError": 0.00001525914009908782,
+      "sha256": "a78e3cd39de639f3169a43ee7b09839efca9257e83cad864bbdc1899a131148c"
+    },
+    {
+      "id": "dream-rewind-tone",
+      "hz": 180,
+      "dur": 2.2,
+      "gain": 0.05,
+      "type": "sawtooth",
+      "slide": 6,
+      "frames": 99225,
+      "peak": 0.043291375041007996,
+      "maxQuantizationError": 0.000015259079702888492,
+      "sha256": "a5e88c70933a518d93224eb33fdf7f4c5761ae29df76e70b0d7eea2cd6a46f9c"
+    },
+    {
+      "id": "dorm-withdraw-tone",
+      "hz": 220,
+      "dur": 0.35,
+      "gain": 0.05,
+      "type": "triangle",
+      "slide": 0.5,
+      "frames": 17640,
+      "peak": 0.04422755166888237,
+      "maxQuantizationError": 0.000015257370165497504,
+      "sha256": "9b3e79d2d0c85f2e6d64d4efa49d593d9074db3ace3492cc608316504396467c"
+    },
+    {
+      "id": "dorm-dive-tone",
+      "hz": 880,
+      "dur": 0.3,
+      "gain": 0.04,
+      "type": "triangle",
+      "slide": 1.6,
+      "frames": 15435,
+      "peak": 0.03488104045391083,
+      "maxQuantizationError": 0.000015255993218886085,
+      "sha256": "8b4f00e7584f15be23c7c25f5d42ad399b150dfd99ac00d3ffe280d4a97a6c22"
+    }
+  ],
+  "scope": "Frozen WebAudio to PCM16 waveform fidelity; not native device playback"
+}

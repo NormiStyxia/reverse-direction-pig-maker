@@ -17,6 +17,7 @@ function Style:update(tune,fx,time,actor,dt)
     local w,h=math.max(1,graphics:GetWidth()),math.max(1,graphics:GetHeight())
     set(m,'cNear',c.nearClip);set(m,'cFar',c.farClip);set(m,'depth_reverse',c:UseReverseZ() and 1 or 0)
     set(m,'res',Vector2(w,h));set(m,'time',time);set(m,'pxScale',h/1000)
+    -- fx.ink is the final blue-ramp silhouette control, not the outline switch.
     set(m,'lineOn',tune.lines==false and 0 or 1);set(m,'lineWidth',math.max(1,h/900)*1.6*(tune.lineScale or 1))
     set(m,'paperOn',tune.paper==false and 0 or 1)
     set(m,'wobbleOn',tune.wobble==false and 0 or (tune.wobbleAmp or 1))

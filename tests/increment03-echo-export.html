@@ -1,0 +1,39 @@
+<!doctype html><meta charset="utf-8">
+<style>@font-face{font-family:'LXGW WenKai';src:url('/assets/fonts/LXGWWenKai-subset.ttf')}body{margin:0}</style>
+<script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {exportBuildLevel, LEVELS} from '/src/rewind-levels.js';
+import {CH1_LEVELS, CH1_OFFICE_LEVELS, CH1_DORM_LEVELS} from '/src/ch1-levels.js';
+import {Pig} from '/src/pig.js';
+import {serialize} from '/export-scene.js';
+try {
+ await document.fonts.load('20px "LXGW WenKai"');await document.fonts.ready;
+ const seed=0x6a316e84;let rng=seed;Math.random=()=>{rng=(Math.imul(rng,1664525)+1013904223)>>>0;return rng/4294967296};
+ const load=async path=>{const i=new Image();i.src=path;await i.decode();return i};
+ const art={};for(const [key,file] of Object.entries({doodle:'pig-doodle.png',bag:'takeout-bag.png',window:'window-afternoon.jpg',skyline:'skyline-afternoon.jpg'}))art[key]=await load('/assets/ch1/'+file);
+ const atlas=await load('/assets/pig-atlas-normi-round.png');
+ const answer=new URLSearchParams(location.search).get('answer')||'same';const theme=new URLSearchParams(location.search).get('theme')||'meeting';const levels={store:LEVELS,meeting:CH1_LEVELS,office:CH1_OFFICE_LEVELS,dorm:CH1_DORM_LEVELS}[theme];if(!levels)throw Error('Invalid theme');
+ window.echoExport=[];
+ for(let index=0;index<levels.length;index++){
+  const L=levels[index],scene=new THREE.Scene(),room=exportBuildLevel(L,index,{theme,art,answer}),pig=new Pig(scene,atlas);
+  pig.pos.set(...[L.start[0],0,L.start[1]]);pig.update(0,{x:0,y:0,spin:false},0,false);scene.add(room.group);
+  // Native merger reuses an exported exact source 'now' crate, never a generic cube.
+  const merged=['a','b'].map(origin=>{const c=room.makeCrate({x:0,z:0,kind:'now',origin});c.mesh.visible=false;return c});scene.updateMatrixWorld(true);
+  const data=serialize([room.group,pig.mesh,...pig.ghosts.map(g=>g.mesh)],(nm,mm)=>{
+   const crate=c=>{const h=c.holoFx;return {id:nm.get(c.mesh),glow:c.glow.map(m=>mm.get(m)),holo:h?{seed:h.seed,mats:h.mats.map(m=>mm.get(m)),
+    edge:h.group?mm.get(h.group.children[1].material):0,scan:h.group?mm.get(h.group.children[2].material):0,
+    base:mm.get((h.base||h.group.children[3]).material),baseNode:nm.get(h.base||h.group.children[3]),sprite:h.mesh?nm.get(h.mesh):0}:null}};
+   return {root:nm.get(room.group),pig:nm.get(pig.mesh),ghosts:pig.ghosts.map(g=>nm.get(g.mesh)),crates:room.crates.map(crate),merged:crate(merged[0]),mergedByOrigin:Object.fromEntries(merged.map(c=>[c.origin,crate(c)])),
+    cabinets:room.cabinets.map(k=>({pivot:nm.get(k.pivot),body:nm.get(k.body)})),panes:room.panes.map(p=>({id:nm.get(p.g),side:p.side})),
+    curtain:room.curtain?{id:nm.get(room.curtain),material:mm.get(room.curtain.material)}:null,
+    glow:mm.get(room.glow.material),sign:mm.get(room.signMat),plates:room.plates.map(p=>mm.get(p.mat)),exit:mm.get(room.exitMat),exitNode:nm.get(room.exit),ring:nm.get(room.ring),ringMat:mm.get(room.ringMat),
+    dashed:{id:nm.get(room.dashed),material:mm.get(room.dashed.material)},papers:room.papers.map(q=>({id:nm.get(q.m),material:mm.get(q.mat),ph:q.ph,r:q.r,spin:q.spin})),
+    hands:room.hands.map(h=>nm.get(h)),rain:nm.get(room.rain),rainSeeds:theme==='store'?room.rainSeed:[]};
+  });
+  Object.assign(data,{schema:1,seed,theme,chapter:'echo',answer,index,definition:L,coordinates:'Three RH; native renderer flips Z once'});
+  window.echoExport.push(data);
+ }
+ window.exportReady=true;
+}catch(e){window.exportError=e.stack;console.error(e)}
+</script>

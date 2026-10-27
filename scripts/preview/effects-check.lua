@@ -32,6 +32,7 @@ function Start()
     SubscribeToEvent('Update','EffectsCheckUpdate')
 end
 function EffectsCheckUpdate(eventType,eventData)
+    view.view:pumpBuild()
     if not view.view.ready then return end
     local dt=eventData:GetFloat('TimeStep')
     local w,h=graphics:GetWidth(),graphics:GetHeight()

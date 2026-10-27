@@ -1,0 +1,36 @@
+{
+  "result": "PASS",
+  "scenarios": [
+    "same/fix",
+    "same/wreck",
+    "same/leave",
+    "late/fix",
+    "late/wreck",
+    "late/leave",
+    "done/fix",
+    "done/wreck",
+    "done/leave",
+    "dorm/sick",
+    "skip/sick",
+    "dorm/pc",
+    "skip/pc",
+    "dorm/off",
+    "skip/off"
+  ],
+  "coverage": [
+    "morning 3x3 branches",
+    "required choices survive skip",
+    "second meeting to office echoes",
+    "dorm three branches",
+    "dorm echoes handoff",
+    "withdrawal and Game Jam ending",
+    "screen return result"
+  ],
+  "notCovered": [
+    "native rendering",
+    "physical input",
+    "puzzle completion",
+    "dream and 23:12",
+    "timeline navigation"
+  ]
+}

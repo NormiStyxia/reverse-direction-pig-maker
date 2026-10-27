@@ -10,6 +10,7 @@ function Browse:init()
     self.title='';self.sub='';self.closeLabel='';self.clock='';self.layoutSide=false
 end
 function Browse:show(title,sub)
+    self.presentation=nil;self.lookCard=nil
     self.open=true;self.layoutSide=false;self:retitle(title,sub)
     self.entries={};self.choices={};self.queue={};self.nextAt=self.elapsed+.25
     self.pendingChoices=false;self.choicesWaiting=false
@@ -25,21 +26,27 @@ function Browse:push(entries,choices)
 end
 -- Increment 02: finish queued text without dismissing the player's choices.
 function Browse:flush()
-    for _,e in ipairs(self.queue) do self.entries[#self.entries+1]=e end
+    for _,e in ipairs(self.queue) do self:showEntry(e) end
     self.queue={}
     if self.pendingChoices then self.choicesWaiting=self.pendingChoices;self.pendingChoices=false end
     if self.choicesWaiting then self.choices=self.choicesWaiting;self.choicesWaiting=false end
     self.nextAt=self.elapsed
 end
+function Browse:showEntry(e)
+    if e.kind=='thought' and self.onThought then self.onThought(e.text)
+    else self.entries[#self.entries+1]=e end
+end
 function Browse:update(dt)
     self.elapsed=self.elapsed+dt
     local target=self.open and 1 or 0
-    self.k=self.k+(target-self.k)*(1-math.exp(-dt*(self.open and 7 or 9)))
+    local rate=self.presentation=='look' and math.min(1,dt*(self.open and 6 or 9))or(1-math.exp(-dt*(self.open and 7 or 9)))
+    self.k=self.k+(target-self.k)*rate
     if math.abs(self.k-target)<.002 then self.k=target end
     if self.k<.02 then return end
     if #self.queue>0 and self.elapsed>=self.nextAt then
-        local e=table.remove(self.queue,1);self.entries[#self.entries+1]=e
-        local delays={line=.75,thought=.95,msg=1.5,pic=1.4,divider=.5}
+        local e=table.remove(self.queue,1);self:showEntry(e)
+        local n=utf8.len(e.text or '') or 0
+        local delays={line=.75,thought=self.onThought and n*.055+math.max(2.2,1.3+n*.13)-.3 or .95,me=1.1,msg=1.5,pic=1.4,scene=1.6,divider=.5}
         self.nextAt=self.elapsed+(delays[e.kind] or 1.2)
         if #self.queue==0 and self.pendingChoices then
             self.choicesWaiting=self.pendingChoices;self.pendingChoices=false;self.choicesAt=self.nextAt

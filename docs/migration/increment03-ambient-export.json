@@ -1,0 +1,607 @@
+{
+  "dreamSourceSha256": "aab2c01c930836246bcbe2a4e7258c5f9b684e61d83ebb9cdb815fca171c4ddc",
+  "dreamRandomSwellPool": 24,
+  "sourceSha256": "048a5dc17941b0dc8c1516a16aa5a5ae88b6e05052fca372969bbbf8f27387c8",
+  "gain": 0.25,
+  "noiseSeed": 6316,
+  "stems": [
+    {
+      "id": "dream-burst",
+      "dream": "swell",
+      "args": [
+        0.5,
+        0.06,
+        2400,
+        300
+      ],
+      "seconds": 0.55,
+      "peak": 0.002898941747844219,
+      "frames": 24255,
+      "sha256": "6d941b373c1b06e4c3d1732f2ee4b212c1328448c75c8ec27afb773ab5e67cd5"
+    },
+    {
+      "id": "dream-hold",
+      "dream": "swell",
+      "args": [
+        3.4,
+        0.09,
+        180,
+        4200
+      ],
+      "seconds": 3.45,
+      "peak": 0.00029368785908445716,
+      "frames": 152145,
+      "sha256": "0b9a1471e736ff552de21291fcb745652470b679eb5bb141c70eb80315ac70d4"
+    },
+    {
+      "id": "dream-swap",
+      "dream": "swell",
+      "args": [
+        1,
+        0.06,
+        1600,
+        200
+      ],
+      "seconds": 1.05,
+      "peak": 0.002530882367864251,
+      "frames": 46305,
+      "sha256": "18060230628e9cab3e00ef07a39f8118e76a7a69da18c4ad3406f03f60875037"
+    },
+    {
+      "id": "dream-unswap",
+      "dream": "swell",
+      "args": [
+        1,
+        0.06,
+        200,
+        1600
+      ],
+      "seconds": 1.05,
+      "peak": 0.007187564391642809,
+      "frames": 46305,
+      "sha256": "b2e9ffd4c405af4a338786d1d4d64258d48ae5d4e4332e842f29778146b9c284"
+    },
+    {
+      "id": "dream-murmur",
+      "dream": "murmur",
+      "args": [],
+      "seconds": 2.6,
+      "peak": 0.002814765553921461,
+      "frames": 114660,
+      "sha256": "1bf97b804f9b296cef083c10ba82dc86f451578ec26fbee339f153bd3f1ab9ea"
+    },
+    {
+      "id": "dream-rewind",
+      "dream": "swell",
+      "args": [
+        2.2,
+        0.11,
+        160,
+        5200
+      ],
+      "seconds": 2.25,
+      "peak": 0.0035288995131850243,
+      "frames": 99225,
+      "sha256": "0777ee69ffeb9117d1225308950ae57dc5a81a439c5c51a172a16d03fc2665f4"
+    },
+    {
+      "id": "dream-air-0",
+      "dream": "swell",
+      "args": [
+        2.2410806499887257,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 2.2910806499887255,
+      "peak": 0.015339146368205547,
+      "frames": 101036,
+      "sha256": "9b61f674d4981b19bf15ff34cf9094d5643f5a4395bac1e23298e8377bc1ad54"
+    },
+    {
+      "id": "dream-air-1",
+      "dream": "swell",
+      "args": [
+        1.4049904566258191,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 1.4549904566258192,
+      "peak": 0.13374145328998566,
+      "frames": 64165,
+      "sha256": "25c55a1ff198a987ea40cdae78107dac5f1d24271733c766a809b853b9b88170"
+    },
+    {
+      "id": "dream-air-2",
+      "dream": "swell",
+      "args": [
+        2.3758830645587294,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 2.4258830645587293,
+      "peak": 0.00939913559705019,
+      "frames": 106981,
+      "sha256": "3b4c5b9680d47f6241431b59d8af96af61f629945f4572b6ab6d2d6716522c10"
+    },
+    {
+      "id": "dream-air-3",
+      "dream": "swell",
+      "args": [
+        2.394102592114359,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 2.444102592114359,
+      "peak": 0.00883918534964323,
+      "frames": 107784,
+      "sha256": "afc80d4df4814eda442f81885ac995dd81e3932e0038daaf075d35857b282e74"
+    },
+    {
+      "id": "dream-air-4",
+      "dream": "swell",
+      "args": [
+        2.2532071264926343,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 2.303207126492634,
+      "peak": 0.014638615772128105,
+      "frames": 101571,
+      "sha256": "a3c46bedfc710867c467a37ac788fed500e987cd03bda2b09e3972fd5dfdcdfa"
+    },
+    {
+      "id": "dream-air-5",
+      "dream": "swell",
+      "args": [
+        2.228293125145137,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 2.278293125145137,
+      "peak": 0.016123607754707336,
+      "frames": 100472,
+      "sha256": "065b99ee30e50c918666b063f2dd0aedaa66fa240eb81df4e5cb43619f7df60b"
+    },
+    {
+      "id": "dream-air-6",
+      "dream": "swell",
+      "args": [
+        2.250200182525441,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 2.300200182525441,
+      "peak": 0.014808536507189274,
+      "frames": 101438,
+      "sha256": "501c84e85f981eb5b08e5d2591b8ca6ea8b6f51271ea94edd59e3c86f33b3f90"
+    },
+    {
+      "id": "dream-air-7",
+      "dream": "swell",
+      "args": [
+        2.094886132609099,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 2.144886132609099,
+      "peak": 0.028020087629556656,
+      "frames": 94589,
+      "sha256": "f54a3e3f4339f8b922a3a4876f3515e2867166c6b926ac9c0419956ce9b5d8f0"
+    },
+    {
+      "id": "dream-air-8",
+      "dream": "swell",
+      "args": [
+        1.9759491336066275,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 2.0259491336066273,
+      "peak": 0.04728391394019127,
+      "frames": 89344,
+      "sha256": "cd37612ded3f4ad8074d0c190555daa8cb856d11fd95d577c0daaacaf85cd96c"
+    },
+    {
+      "id": "dream-air-9",
+      "dream": "swell",
+      "args": [
+        2.367684544622898,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 2.417684544622898,
+      "peak": 0.009665890596807003,
+      "frames": 106619,
+      "sha256": "a06ca4199764e0f435ffe82d594a02f3c4b91ce8a92f1d3aad187e47253d5e46"
+    },
+    {
+      "id": "dream-air-10",
+      "dream": "swell",
+      "args": [
+        1.7527064023073762,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 1.8027064023073762,
+      "peak": 0.13207842409610748,
+      "frames": 79499,
+      "sha256": "2fb0f001e4f89889140c2ef5f6add355421e78cad6fbfabba8c63fdcb6e31989"
+    },
+    {
+      "id": "dream-air-11",
+      "dream": "swell",
+      "args": [
+        2.260368658322841,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 2.3103686583228407,
+      "peak": 0.014243636280298233,
+      "frames": 101887,
+      "sha256": "cc7ce208378a71bc36689ed70b03b3abedc5fea8a4cd21f9c8fc601c32f2165d"
+    },
+    {
+      "id": "dream-air-12",
+      "dream": "swell",
+      "args": [
+        1.7770627996418624,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 1.8270627996418625,
+      "peak": 0.11801815032958984,
+      "frames": 80573,
+      "sha256": "698d53284534d2b3c5e821aaf39faa719c69d3ef3a973ebca1a8bb5444b09956"
+    },
+    {
+      "id": "dream-air-13",
+      "dream": "swell",
+      "args": [
+        2.0926418440416454,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 2.1426418440416453,
+      "peak": 0.028293607756495476,
+      "frames": 94490,
+      "sha256": "d7dc3914de7175b0e1eb0d46ede1c43e443974fe9c3c744712f98e130ae7a3a4"
+    },
+    {
+      "id": "dream-air-14",
+      "dream": "swell",
+      "args": [
+        2.3015213928651064,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 2.351521392865106,
+      "peak": 0.012216425500810146,
+      "frames": 103702,
+      "sha256": "da37cc3d4d6a7daf3b4df7b6b67a580cdebe4b2a2ec776b26ba0b1b4744e171d"
+    },
+    {
+      "id": "dream-air-15",
+      "dream": "swell",
+      "args": [
+        1.5325267641805111,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 1.5825267641805112,
+      "peak": 0.14528782665729523,
+      "frames": 69789,
+      "sha256": "26d8f4720d5509c58f4d9605b4029d110db7955d4401c80c7c38a6c191c93595"
+    },
+    {
+      "id": "dream-air-16",
+      "dream": "swell",
+      "args": [
+        1.748215538309887,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 1.798215538309887,
+      "peak": 0.13482506573200226,
+      "frames": 79301,
+      "sha256": "b17a69695ddfd0a15c57c53655ecd465fa65a544bb5bdf5b5f55ccdbc6fd95ff"
+    },
+    {
+      "id": "dream-air-17",
+      "dream": "swell",
+      "args": [
+        2.1049732375890016,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 2.1549732375890014,
+      "peak": 0.026826485991477966,
+      "frames": 95034,
+      "sha256": "ff6a770ebb0aeaab9cbec0d8702603b811773a9d206499495a3afa3150f5290b"
+    },
+    {
+      "id": "dream-air-18",
+      "dream": "swell",
+      "args": [
+        2.2143658058252185,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 2.2643658058252183,
+      "peak": 0.017035163938999176,
+      "frames": 99858,
+      "sha256": "785bff134a6bd89af9ba2fc637888a5fd68e48af6b39f13fab1439cd7950de75"
+    },
+    {
+      "id": "dream-air-19",
+      "dream": "swell",
+      "args": [
+        1.8790091947652399,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 1.92900919476524,
+      "peak": 0.07265914976596832,
+      "frames": 85069,
+      "sha256": "8e472ae9efb1953aacf2ed0787a23b2ce4daea4b69acf48a0202b23539f9b3ef"
+    },
+    {
+      "id": "dream-air-20",
+      "dream": "swell",
+      "args": [
+        1.4159845838788896,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 1.4659845838788896,
+      "peak": 0.1377536505460739,
+      "frames": 64649,
+      "sha256": "ac1328b2c2dd18471640189d55961a1b44e9408f4b1c449acb86172cd6143ffc"
+    },
+    {
+      "id": "dream-air-21",
+      "dream": "swell",
+      "args": [
+        2.3755489816889166,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 2.4255489816889164,
+      "peak": 0.009409816935658455,
+      "frames": 106966,
+      "sha256": "18d241bf48b18a366679f6ac895ef6b09c377a8b685b6ea63159d76006cd38fb"
+    },
+    {
+      "id": "dream-air-22",
+      "dream": "swell",
+      "args": [
+        2.304813716886565,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 2.354813716886565,
+      "peak": 0.012070506811141968,
+      "frames": 103847,
+      "sha256": "68fee081d6cda839c5d056bb7add35f2b8008a748a82130f50dadda2df6ca824"
+    },
+    {
+      "id": "dream-air-23",
+      "dream": "swell",
+      "args": [
+        1.68816858259961,
+        1,
+        300,
+        2400
+      ],
+      "seconds": 1.73816858259961,
+      "peak": 0.14525814354419708,
+      "frames": 76653,
+      "sha256": "979b17a57aa801b5b048bfeeefa47ea02a1e4600c596a14c7c33215f5c4178f4"
+    },
+    {
+      "id": "hum",
+      "node": "humG",
+      "seconds": 2,
+      "peak": 0.25800400972366333,
+      "frames": 88200,
+      "sha256": "07251f6148c8c2c64df44f498997026561a935f6102f092ba587d3a9a0bfb7dc"
+    },
+    {
+      "id": "room",
+      "node": "roomG",
+      "seconds": 2,
+      "peak": 0.10909110307693481,
+      "frames": 88200,
+      "sha256": "4ce07da0c27dbdf3921eaff95bebafc724d3525b0b133049a2a460c87e803126"
+    },
+    {
+      "id": "cic",
+      "node": "cicG",
+      "seconds": 2,
+      "peak": 0.15889780223369598,
+      "frames": 88200,
+      "sha256": "18a1330ec7be6e3f2e6a55af43fc26ac5724bca2de5266e137c6c2d5cd87d77c"
+    },
+    {
+      "id": "cri",
+      "node": "criG",
+      "seconds": 10,
+      "peak": 0.11033719033002853,
+      "frames": 441000,
+      "sha256": "63bd97b0f3c091f9cf6062c26b4c1675bc798c08bde272f9a2d1654607ad6f75"
+    },
+    {
+      "id": "ring",
+      "node": "ringG",
+      "seconds": 2,
+      "peak": 0.24996569752693176,
+      "frames": 88200,
+      "sha256": "9af4fcefc557756a7032ca1a2d9cbb0e61bdfea76c5973256240766fdf0d7be2"
+    },
+    {
+      "id": "rain",
+      "node": "rainG",
+      "seconds": 2,
+      "peak": 0.32927757501602173,
+      "frames": 88200,
+      "sha256": "2ad6fc86be490bbb1085ba2197a697dbe61cf2b6cc91522dc06390721f608362"
+    },
+    {
+      "id": "pad-110",
+      "f": 110,
+      "seconds": 10,
+      "peak": 0.24999991059303284,
+      "frames": 441000,
+      "sha256": "0799d96563a1c38292bee05808e7855cc147f592e71257213d04c0e6d4e0102d"
+    },
+    {
+      "id": "pad-110.7",
+      "f": 110.7,
+      "seconds": 10,
+      "peak": 0.25,
+      "frames": 441000,
+      "sha256": "695e2afce369ba3858cf2356a9c6db6a5b9615a4c2c9cccaeecf6a6513c43864"
+    },
+    {
+      "id": "pad-164.4",
+      "f": 164.4,
+      "seconds": 10,
+      "peak": 0.25,
+      "frames": 441000,
+      "sha256": "7f76c03cd1e29d0e45bc0fad75cc30aae9a4b3bc2f4ba67f2648398250bbe38c"
+    },
+    {
+      "id": "wind-500",
+      "filter": 500,
+      "seconds": 2,
+      "peak": 0.11886830627918243,
+      "frames": 88200,
+      "sha256": "ff569bcebdeaff6c6db146d66e3fa8b7611db622aab61334cda7f62429899763"
+    },
+    {
+      "id": "wind-550",
+      "filter": 550,
+      "seconds": 2,
+      "peak": 0.12684497237205505,
+      "frames": 88200,
+      "sha256": "c71dd3c24f7aacdf55845741a57555b6af3b792a3c3216f9920fddb97e55f0e0"
+    },
+    {
+      "id": "wind-600",
+      "filter": 600,
+      "seconds": 2,
+      "peak": 0.13360081613063812,
+      "frames": 88200,
+      "sha256": "29da6827daa46f8f3eb2f7a3491fe578ac148ea3d90b413bcaccc01298c61c23"
+    },
+    {
+      "id": "wind-650",
+      "filter": 650,
+      "seconds": 2,
+      "peak": 0.13925772905349731,
+      "frames": 88200,
+      "sha256": "7cc77f1a9918186fb41ad32ec8575231c2839ef5959ecd05128a9396da0998e3"
+    },
+    {
+      "id": "wind-700",
+      "filter": 700,
+      "seconds": 2,
+      "peak": 0.1438388079404831,
+      "frames": 88200,
+      "sha256": "3a9bfffa0a9276d015f812f97e50917ea4cf7e38126c215193ac2a2586f2ebe6"
+    },
+    {
+      "id": "wind-750",
+      "filter": 750,
+      "seconds": 2,
+      "peak": 0.14732001721858978,
+      "frames": 88200,
+      "sha256": "9da8798a88033e7eb4a226605c59313424205f3851bb3a89c0d60bb6cdb6d4bc"
+    },
+    {
+      "id": "wind-800",
+      "filter": 800,
+      "seconds": 2,
+      "peak": 0.14967146515846252,
+      "frames": 88200,
+      "sha256": "644a7a99e39326f5746a75e52e52cb3431ed39d147439d1a178e47439454e741"
+    },
+    {
+      "id": "wind-850",
+      "filter": 850,
+      "seconds": 2,
+      "peak": 0.15088538825511932,
+      "frames": 88200,
+      "sha256": "e5b4ddeb982956d10da1772821f12144cc5e678222de6db9edeced263bfe523a"
+    },
+    {
+      "id": "wind-900",
+      "filter": 900,
+      "seconds": 2,
+      "peak": 0.1509888917207718,
+      "frames": 88200,
+      "sha256": "8659909abbc1948be097b5b3ae6fc0089b275e723c4392837fc0f305442f4422"
+    },
+    {
+      "id": "wind-950",
+      "filter": 950,
+      "seconds": 2,
+      "peak": 0.15004439651966095,
+      "frames": 88200,
+      "sha256": "30be70b20bb759a7feadf0c0572662e6e6bbd3fceea37612ad7a7826091496bd"
+    },
+    {
+      "id": "wind-1000",
+      "filter": 1000,
+      "seconds": 2,
+      "peak": 0.1508297622203827,
+      "frames": 88200,
+      "sha256": "2dca4718693eb23bd4f32b2c7cc48665b47d764b0a4671c86f0ca4073142da7e"
+    },
+    {
+      "id": "wind-1050",
+      "filter": 1050,
+      "seconds": 2,
+      "peak": 0.15592709183692932,
+      "frames": 88200,
+      "sha256": "acb31aaf0d1d80a274d6e9a52df10a16e86f9d47b68f2c0a4c9ccab080429e1f"
+    },
+    {
+      "id": "wind-1100",
+      "filter": 1100,
+      "seconds": 2,
+      "peak": 0.16004425287246704,
+      "frames": 88200,
+      "sha256": "fbb1ff8450b4c2d1b5721d55c66d4f15a96e33f4d27e3138a286f4cfc3672e07"
+    },
+    {
+      "id": "hum-negative",
+      "derivedFrom": "hum",
+      "operation": "PCM sign inversion",
+      "sha256": "e57b98007bd1648b6301a377ec1d2419dfd7ccce7913822e2bd3b5b5abad5c40"
+    }
+  ],
+  "scope": "Source filters/noise and frequencies; native gain/pitch control. Dream wind uses 50 Hz interpolation; not device acoustic parity."
+}

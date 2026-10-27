@@ -4,6 +4,7 @@ local Store=require('render.StoreRenderer')
 local Panel=require('render.StoryOverlay')
 local Dynamics=require('game.StoreDynamics')
 local Diagnostics=require('game.Diagnostics')
+local Captions=require('render.CaptionOverlay')
 local Probe={}
 Probe.__index=Probe
 function Probe.new()
@@ -11,8 +12,9 @@ function Probe.new()
 end
 function Probe:init()
     self.story=Story.new();self.view=Store.new();self.screen=Panel.new(self.story)
+    self.captions=Captions.new()
     self.active=true;self.paused=false;self.focused=true;self.keyDriven=false;self.caption='';self.captionUntil=0;self.hint='';self.hintUntil=0
-    self.screen.sceneActions=require('render.SceneActions').new(self.screen,function() return self.story end,true)
+    self.screen.sceneActions=require('render.SceneActions').new(self.screen,function() if self.view.ready then return self.story end end,true)
     self.reference=false
     self.post=require('render.ScenePost').new(self.view);self.post:setEnabled(true)
     self.bridge=require('game.SceneBridge').new()
@@ -24,6 +26,7 @@ function Probe:init()
     print('STORE_PROBE: native source geometry; WASD/arrows move, J/Space phone, F interact, Tab select; F6 pause, F8 title')
 end
 function Probe:update(dt)
+    self.view:pumpBuild()
     if not self.view.ready or self.paused or not self.focused then self.screen:update(dt);self:updatePost(0);return end
     self:events()
     dt=math.min(.05,dt)
@@ -45,6 +48,7 @@ function Probe:update(dt)
     self:events()
     self.view.bridgeDistance=self.bridge.distance
     self.view:update(dt,self.story)
+    require('game.AudioPlayback').get():environment(dt,self.story,'store',self.view.dynamics.door.open)
     self.post.effects:update(dt)
     self.post.particles.model:update(dt)
     self.screen:place(self.view:actorScreen(self.story));self.screen:update(dt)
@@ -57,12 +61,14 @@ end
 function Probe:focus(on) self.focused=on;self.keyDriven=false;self.screen:cancelPointer();self.story.normi:release() end
 function Probe:events()
     for _,event in ipairs(self.story:drainEvents()) do
+        self.captions:event(event,self.story.t)
         require('game.AudioPlayback').get():event(event,'store')
         self.post.effects:event(event)
         self.post.particles.model:event(event)
         if event.kind=='caption' then self.caption=event.text;self.captionUntil=self.story.t+4.5
         elseif event.kind=='hint' then self.hint=event.text;self.hintUntil=self.story.t+(event.duration or 5)
         elseif event.kind=='clearCaptions' then self.captionUntil=0
+        elseif event.kind=='spawnRider' then self.view:spawnRider(self.story)
         elseif event.kind=='doorForce' then self.view.dynamics:forceDoor(event.duration)
         elseif event.kind=='finish' then self.finished=true;print('STORE_PROBE_DONE: transition to native prologue echo') end
     end
@@ -76,7 +82,7 @@ function Probe:stageFrame()
     self.story=Story.new({random=function() return .37 end})
     self.post.effects:reset()
     self.post.particles.model:reset()
-    self.view.dynamics=Dynamics.new(function() return .37 end);self:events()
+    self.view.walker=nil;self.view.dynamics=Dynamics.new(function() return .37 end);self:events()
     local reached=false
     for _=1,4000 do
         self.story:update(.05,{camYaw=0,moving=false});self:events()
@@ -151,6 +157,7 @@ function Probe:key(key,repeated)
     elseif key==KEY_ESCAPE then if self.story.browse.open then self.story:closeBrowse() else self.story:closePhone() end end
 end
 function Probe:hud(canvas)
+    require('render.DialogOverlay').draw(canvas,self.story)
     local light={240,237,223,255}
     if Diagnostics.enabled then
     canvas:text('原生场景接入校验 · 光影/后处理尚未验收',20,18,15,light,true)
@@ -158,12 +165,8 @@ function Probe:hud(canvas)
     end
     if not self.view.ready then canvas:text('正在加载…',20,18,18,light,true);return end
     if Diagnostics.enabled then canvas:text(self.story:hm()..'  '..self.story.phase..(self.paused and ' · 暂停' or ''),20,68,16,light,true) end
-    if self.captionUntil>self.story.t then
-        local width=canvas:measure(self.caption,20);canvas:text(self.caption,math.max(16,(canvas.w-width)/2),canvas.h-100,20,light,true)
-    end
-    if self.hintUntil>self.story.t then
-        local width=canvas:measure(self.hint,16);canvas:text(self.hint,math.max(16,(canvas.w-width)/2),canvas.h-60,16,light,true)
-    end
+    self.captions:draw(canvas,self.story,self.view)
+    Captions.hint(canvas,self.hint,self.hintUntil-self.story.t)
 end
 function Probe:dispose() if self.post then self.post:dispose() end;self.screen:dispose();self.view:dispose() end
 return Probe

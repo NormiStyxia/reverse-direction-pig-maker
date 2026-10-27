@@ -29,6 +29,7 @@ function Start()
     SubscribeToEvent('Update','PipelineCheckUpdate')
 end
 function PipelineCheckUpdate(eventType,eventData)
+    view.view:pumpBuild()
     if not view.view.ready then return end
     local w,h=graphics:GetWidth(),graphics:GetHeight()
     if w~=width or h~=height then

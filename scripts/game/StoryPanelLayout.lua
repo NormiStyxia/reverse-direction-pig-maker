@@ -29,32 +29,40 @@ function Layout.wrap(text,width,size,measure)
 end
 function Layout.panel(w,h,placement,k)
     local small=w<=800
+    local wide=w/h>=2
     local width=math.max(.12,placement.layoutSide=='right' and 1-placement.frostEdge or placement.frostEdge)*w
     -- On portrait phones the original half-panel leaves <200px for controls.
     -- Keep desktop geometry exact; keep text and touch controls usable below 600px.
     if w<600 then width=math.max(width,math.min(w-16,340)) end
     local outerX=placement.layoutSide=='right' and w-width or 0
-    local near=small and 26 or math.max(36,math.min(92,w*.07));local far=small and 14 or 32
+    local near=wide and 18 or (small and 26 or math.max(36,math.min(92,w*.07)));local far=wide and 12 or (small and 14 or 32)
     local x=outerX+(placement.layoutSide=='right' and near or far)
     local padding=small and 10 or 14
     local y=h*(small and .03 or .05)+padding+(1-k)*18
     local bottom=h*(small and .88 or .92)-padding+(1-k)*18
     local headerH=Layout.normalHeight(small and 20 or 24)+3+Layout.normalHeight(small and 11 or 13)+(small and 10 or 16)+1
+    if wide then
+        return {x=x,y=8+(1-k)*18,w=math.max(1,width-near-far),bottom=h-8+(1-k)*18,headerH=48,gap=6,
+            wide=true,small=true,outerX=outerX,outerW=width,contactSize=13,metaSize=10,subtitleSize=10,
+            avatar=24,messageGap=6,bubbleSize=math.max(12,math.min(14,h*.028)),lineHeight=1.45,
+            bubblePadX=8,bubblePadY=6,threadGap=8}
+    end
     return {x=x,y=y,w=math.max(1,width-near-far),bottom=bottom,headerH=headerH,gap=small and 12 or 20,
         small=small,outerX=outerX,outerW=width,contactSize=small and 20 or 24,metaSize=small and 11 or 14,
         avatar=small and 32 or 44,messageGap=small and 7 or 11,bubbleSize=small and 17 or 20,
         lineHeight=small and 1.45 or 1.55,bubblePadX=small and 10 or 13,bubblePadY=small and 8 or 10,
         threadGap=small and 15 or 22}
 end
-function Layout.choices(list,width,small,measure,touch)
+function Layout.choices(list,width,small,measure,touch,wide)
     local buttons={};local x,y,rowH=0,0,0
     local size=small and 14 or 16;local px,py=small and 9 or 12,small and 7 or 8
+    if wide then size=12;px=9;py=7 end
     for _,item in ipairs(list) do
         if item.id~='close' then
             local bx,by=px,py;local fontSize=size
-            if item.id=='chat' then bx=24;by=10 end
-            if item.terse then fontSize=18 end
-            if item.quietReply then fontSize=15 end
+            if item.id=='chat' and not wide then bx=24;by=10 end
+            if item.terse and not wide then fontSize=18 end
+            if item.quietReply and not wide then fontSize=15 end
             local bw=math.min(width,math.max(touch and 44 or 0,measure(item.text,fontSize)+2*bx+2))
             local lines=Layout.wrap(item.text,math.max(1,bw-2*bx-2),fontSize,measure)
             local bh=math.max(touch and 44 or 0,#lines*Layout.normalHeight(fontSize)+2*by+2)
@@ -78,12 +86,13 @@ function Layout.transcript(phone)
     for _,m in ipairs(phone.msgs) do if not m.them and m.status~='recalled' then lastOwn=m.id end end
     local all={}
     for i,m in ipairs(phone.history) do
-        all[#all+1]={id='h'..(i-1),me=m.me,history=true,stamp=m.stamp,text=m.text,name=m.name,avatar=m.avatar}
+        all[#all+1]={id='h'..(i-1),me=m.me,history=true,stamp=m.stamp,text=m.text,sticker=m.sticker,name=m.name,avatar=m.avatar,truthUntil=m.truthUntil,gl=m.gl,gx=m.gx,gt=m.gt}
     end
     for _,m in ipairs(phone.msgs) do
         local row={};for key,value in pairs(m) do row[key]=value end;row.me=not m.them;all[#all+1]=row
     end
     for _,m in ipairs(all) do
+        m.reacts=phone.reacts and phone.reacts[m.id] or {}
         local stamp=m.stamp or (m.time and (not previous or previous.history or m.minute-previous.minute>=3) and m.time) or false
         if m.stamp or m.time then previous=m end
         m.displayStamp=stamp and stamp~=lastStamp and stamp or false
@@ -96,15 +105,23 @@ function Layout.message(m,width,p,measure)
     -- Lua's byte-based [] cannot safely classify Chinese punctuation.
     local terse=true
     for _,cp in utf8.codes(m.text) do if not ({[63]=true,[46]=true,[0xff1f]=true,[0x3002]=true,[0x2026]=true,[0xff01]=true})[cp] then terse=false;break end end
-    local font=terse and 22 or p.bubbleSize
-    local px,py=terse and 14 or p.bubblePadX,terse and 8 or p.bubblePadY
+    local font=terse and not p.wide and 22 or p.bubbleSize
+    local px,py=terse and not p.wide and 14 or p.bubblePadX,terse and not p.wide and 8 or p.bubblePadY
     local maxWidth=width*(p.small and 1 or .95)-p.avatar-p.messageGap
     local bubbleW=math.min(maxWidth,measure(m.text,font)+2*px)
     local lines=Layout.wrap(m.text,math.max(1,bubbleW-2*px),font,measure)
-    local nameH=not m.me and m.name and Layout.normalHeight(13)+4 or 0
+    local nameH=not m.me and m.name and Layout.normalHeight(p.wide and 10 or 13)+4 or 0
     local bubbleH=#lines*font*p.lineHeight+2*py
+    if m.sticker then bubbleW=math.min(maxWidth,p.wide and 64 or p.small and 88 or 124);bubbleH=bubbleW end
+    local reactions={};local rx,ry=0,0
+    local rw,rh=p.wide and 34 or 44,p.wide and 26 or 30
+    for _,key in ipairs(m.reacts or {})do
+        if rx>0 and rx+rw>maxWidth then rx=0;ry=ry+rh+6 end
+        reactions[#reactions+1]={key=key,x=rx,y=ry,w=rw,h=rh};rx=rx+rw+6
+    end
+    local reactH=#reactions>0 and ry+rh+6 or 0
     local stampH=m.displayStamp and Layout.normalHeight(13)+14 or 0
-    return {w=bubbleW,h=stampH+math.max(p.avatar,nameH+bubbleH+(m.showRead and Layout.normalHeight(12)+6 or 0)),
+    return {w=bubbleW,h=stampH+math.max(p.avatar,nameH+bubbleH+reactH+(m.showRead and Layout.normalHeight(12)+6 or 0)),reactions=reactions,reactH=reactH,
         bubbleH=bubbleH,nameH=nameH,stampH=stampH,lines=lines,size=font,px=px,py=py,lineH=font*p.lineHeight}
 end
 return Layout

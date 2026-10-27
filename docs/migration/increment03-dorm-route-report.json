@@ -1,0 +1,78 @@
+{
+  "result": "PASS",
+  "theme": "dorm",
+  "levelsSolved": 4,
+  "inputFrames": 6068,
+  "usesTeleportOrLevelJump": false,
+  "events": [
+    {
+      "frame": 1,
+      "kind": "loadLevel",
+      "level": 1
+    },
+    {
+      "frame": 157,
+      "kind": "levelPlayable",
+      "level": 1
+    },
+    {
+      "frame": 1037,
+      "kind": "exitReached",
+      "level": 1
+    },
+    {
+      "frame": 1121,
+      "kind": "loadLevel",
+      "level": 2
+    },
+    {
+      "frame": 1278,
+      "kind": "levelPlayable",
+      "level": 2
+    },
+    {
+      "frame": 2401,
+      "kind": "exitReached",
+      "level": 2
+    },
+    {
+      "frame": 2485,
+      "kind": "loadLevel",
+      "level": 3
+    },
+    {
+      "frame": 2642,
+      "kind": "levelPlayable",
+      "level": 3
+    },
+    {
+      "frame": 3709,
+      "kind": "exitReached",
+      "level": 3
+    },
+    {
+      "frame": 3793,
+      "kind": "loadLevel",
+      "level": 4
+    },
+    {
+      "frame": 3950,
+      "kind": "levelPlayable",
+      "level": 4
+    },
+    {
+      "frame": 5898,
+      "kind": "exitReached",
+      "level": 4
+    },
+    {
+      "frame": 6043,
+      "kind": "echoFinished",
+      "level": 4
+    }
+  ],
+  "notCovered": [
+    "native replay",
+    "visual acceptance"
+  ]
+}

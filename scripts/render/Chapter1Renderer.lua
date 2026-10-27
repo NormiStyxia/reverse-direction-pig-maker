@@ -14,7 +14,7 @@ local function colorMix(a,b,k) local c,d=rgb(a),rgb(b);return {mix(c[1],d[1],k),
 local function param(m,k,v) m:SetShaderParameter(k,Variant(v)) end
 function Renderer.new(story,look) local self=setmetatable({},Renderer);self:init(story,look);return self end
 function Renderer:init(story,look)
-    self.data=require('game.data.Chapter1'..(story.mode=='morning' and 'Morning' or 'Meeting')..'Scene')
+    self.data=require('game.data.Chapter03'..(story.mode=='morning' and 'Morning' or 'Meeting')..'Scene')
     self.view=MeshScene.new(self.data);self.ready=false;self.time=0;self.camYaw=0
     self.look=look or {x=0,y=2.05,z=-1.1};self.camDist=1;self.camPitch=math.rad(16)
     self.normiMaterial=0;self.slideMaterial=0
@@ -61,7 +61,7 @@ function Renderer:lighting(story)
     v:updatePointUniforms()
 end
 function Renderer:updateCamera(dt,story,snap)
-    local n=story.normi.pos;local request=story:cam();local k=snap and 1 or math.min(1,dt*3.2)
+    local n=story.normi.pos;local request=story:cam();snap=snap or request and request.snap;local k=snap and 1 or math.min(1,dt*3.2)
     local target=request and request.target or {x=clamp(n.x,-4,4)*.7,y=2.05,z=n.z*.45-1.1}
     local look=self.look;look.x=mix(look.x,target.x,k);look.y=mix(look.y,target.y,k);look.z=mix(look.z,target.z,k)
     k=snap and 1 or math.min(1,dt*2)
@@ -83,14 +83,18 @@ function Renderer:actor(story)
     if id~=self.normiMaterial then self:material(H.normi,id);self.normiMaterial=id end
     local columns=face and 3 or self.data.normiLayout.columns;local rows=face and 3 or self.data.normiLayout.rows
     frame=face and frame or n.pose
-    local uv=Vector4(1/columns,1/rows,(frame%columns)/columns,math.floor(frame/columns)/rows)
-    param(v.materials[id],'map_uv',uv);param(v.materials[id],'emit_uv',uv)
+    v:setActorFrame(id,frame,columns,rows)
 end
 function Renderer:update(dt,story)
     local v,H=self.view,self.data.handles
     if not v.ready then return end
     self.ready=true;self.time=story.t
     self:updateCamera(dt,story);self:actor(story)
+    if H.chen and H.chen~=0 then
+        self:visible(H.chen,story.chenVisible)
+        local c=require('game.data.Story03Data').CHEN_SEAT
+        v.nodes[H.chen].position=Vector3(c.x,story.chenY,-c.z);v.nodes[H.chen].rotation=Quaternion(-math.deg(self.camYaw),Vector3(0,1,0))
+    end
     for i,id in ipairs(H.clockHands) do
         local minutes=story.clockMin;local angle=i==1 and -((minutes/60)%12)/12*360 or -(minutes%60)/60*360
         v.nodes[id].rotation=Quaternion(angle,Vector3(0,0,1))
@@ -106,6 +110,7 @@ function Renderer:update(dt,story)
     for _,id in ipairs(H.billboards) do v.nodes[id].rotation=Quaternion(0,Vector3(0,1,0)) end
     self:visible(H.box,story.boxVisible);self:visible(H.deskBox,story.deskBoxVisible)
     local sm=story.slide and H.titleSlideMaterial or self.data.nodes[H.screen].materials[1]
+    if story.morningBranch=='wreck' then sm=H.wreckSlideMaterial end
     if sm~=self.slideMaterial then self:material(H.screen,sm);self.slideMaterial=sm end
     if H.tablePig~=0 then
         local p=Catalog.pivot;local pig=story.pig;local node=v.nodes[H.tablePig];self:visible(H.tablePig,pig.visible)

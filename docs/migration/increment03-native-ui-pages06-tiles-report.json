@@ -1,0 +1,14 @@
+{
+  "run": "fa326e8e-9395-404a-a211-64e787579d83",
+  "entry": "validation/Increment03UIPages.lua",
+  "officialResult": "FAIL",
+  "summary": {
+    "lua_errors": 0,
+    "resource_errors": 0,
+    "engine_errors": 2,
+    "total_errors": 2
+  },
+  "maxFrameTimeMs": 371.4209899902344,
+  "uiRoutePass": true,
+  "evidence": "validation/increment03/native/ui-pages06-tiles-report"
+}

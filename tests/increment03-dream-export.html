@@ -1,0 +1,41 @@
+<!doctype html><meta charset="utf-8">
+<style>@font-face{font-family:'LXGW WenKai';src:url('/assets/fonts/LXGWWenKai-subset.ttf')}body{margin:0}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {DreamIntro} from '/src/dream.js';
+import {Pig} from '/src/pig.js';
+import {CH1_TUNE_DEFAULTS} from '/src/ch1-tuning.js';
+import {asPaperFigure} from '/src/store.js';
+import {Normi} from '/src/normi.js';
+import {serialize} from '/export-scene.js';
+try {
+ await document.fonts.load('20px "LXGW WenKai"');await document.fonts.ready;
+ const seed=0x6a316e84;let rng=seed;Math.random=()=>{rng=(Math.imul(rng,1664525)+1013904223)>>>0;return rng/4294967296;};
+ const load=async path=>{const i=new Image();i.src=path;await i.decode();return i};
+ const art={};for(const [key,file] of Object.entries({backdrop:'dream/backdrop.jpg',silhouette:'dream/silhouette.png',dial:'dream/dial.png',doodle:'ch1/pig-doodle.png'}))art[key]=await load('/assets/'+file);
+ const atlas=await load('/assets/c0/normi-motion-atlas.png');
+ const layout=await(await fetch('/assets/c0/normi-motion-atlas.json')).json();
+ const tune={...CH1_TUNE_DEFAULTS,...await(await fetch('/config/ch1-tuning.json')).json()};
+ const scene=new THREE.Scene();scene.background=new THREE.Color('#161b24');scene.fog=new THREE.Fog('#161b24',34,150);
+ const camera=new THREE.PerspectiveCamera(24,1920/1080,1,1400);
+ const normi=new Normi(scene,atlas,layout);normi.stick.visible=false;asPaperFigure(normi.mesh);
+ const sun=new THREE.DirectionalLight(0xffffff,1),hemi=new THREE.HemisphereLight();sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+ Object.assign(sun.shadow.camera,{left:-20,right:20,top:20,bottom:-20,near:.5,far:70});scene.add(sun,sun.target,hemi);
+ const audio=new Proxy({},{get:()=>()=>{}}),phone={open:false,k:0,root:document.createElement('div'),screen:{reacts:{}},config(){},set(){},setButtons(){},update(){}};
+ const guide=new Pig(scene,await load('/assets/pig-atlas-normi-round.png'));
+ const ch=new DreamIntro({scene,camera,normi,guide,art,tune,audio,phone,deferIntro:true,world:{rooms:[],rocks:[],island:{},sky:{},lights:{sun,hemi}},hooks:{shake(){},flash(){},puff(){}},caption(){},clearCaptions(){},ui:{title(){},hint(){}}});
+ scene.updateMatrixWorld(true);
+ const data=serialize([ch.group,normi.mesh,guide.mesh],(nm,mm)=>{
+  const convert=v=>{if(v==null)return null;if(v.isObject3D)return nm.get(v);if(v.isMaterial)return mm.get(v);if(v.isVector2||v.isVector3)return v.toArray();if(v.isEuler)return [v.x,v.y,v.z];if(Array.isArray(v))return v.map(convert);if(typeof v==='object')return Object.fromEntries(Object.entries(v).map(([k,x])=>[k,convert(x)]));return v;};
+  const h={root:nm.get(ch.group),normi:nm.get(normi.mesh),normiBaseMaterial:mm.get(normi.mat),normiFaceMaterial:mm.get(normi.mat),guide:nm.get(guide.mesh)};
+  for(const key of ['backdrop','slabs','stair','doors','clocks','sprout','ring','ticks','frags','drift','sil','ghosts','words','doodle','hero','heroMats','heroBits','heroHands','heroArcs','heroStars','parts','driftOff'])h[key]=convert(ch[key]);
+  return h;
+ });
+ Object.assign(data,{schema:1,seed,chapter:'dream',tune,normiLayout:layout,bounds:normi.bounds,obstacles:normi.obstacles,start:normi.pos.toArray(),coordinates:'Three RH; native renderer flips Z once'});
+ window.chapterExport=[data];
+ const renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true});renderer.setSize(1920,1080);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;document.body.appendChild(renderer.domElement);
+ window.renderReference=()=>{camera.position.set(0,8,22);camera.lookAt(0,2,0);renderer.render(scene,camera);return {position:camera.position.toArray(),fov:24}};
+ window.renderReference();window.exportReady=true;
+}catch(e){window.exportError=e.stack;console.error(e)}
+</script>

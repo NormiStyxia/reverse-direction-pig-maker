@@ -1,0 +1,66 @@
+<!doctype html><meta charset="utf-8">
+<style>@font-face{font-family:'LXGW WenKai';src:url('/assets/fonts/LXGWWenKai-subset.ttf')}body{margin:0}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {TimelinePage} from '/src/timeline.js';
+import {Pig} from '/src/pig.js';
+import {CH1_TUNE_DEFAULTS} from '/src/ch1-tuning.js';
+import {asPaperFigure} from '/src/store.js';
+import {Normi} from '/src/normi.js';
+import {serialize} from '/export-scene.js';
+try {
+ await document.fonts.load('20px "LXGW WenKai"');await document.fonts.ready;
+ const seed=0x6a316e84;let rng=seed;Math.random=()=>{rng=(Math.imul(rng,1664525)+1013904223)>>>0;return rng/4294967296;};
+ const load=async path=>{const i=new Image();i.src=path;await i.decode();return i};
+ const art={};for(const [key,file] of Object.entries({backdrop:'dream/backdrop.jpg',silhouette:'dream/silhouette.png',dial:'dream/dial.png',doodle:'ch1/pig-doodle.png'}))art[key]=await load('/assets/'+file);
+ const atlas=await load('/assets/c0/normi-motion-atlas.png');
+ const layout=await(await fetch('/assets/c0/normi-motion-atlas.json')).json();
+ const tune={...CH1_TUNE_DEFAULTS,...await(await fetch('/config/ch1-tuning.json')).json()};
+ const scene=new THREE.Scene();scene.background=new THREE.Color('#161b24');scene.fog=new THREE.Fog('#161b24',34,150);
+ const camera=new THREE.PerspectiveCamera(24,1920/1080,1,1400);
+ const normi=new Normi(scene,atlas,layout);normi.stick.visible=false;asPaperFigure(normi.mesh);
+ const sun=new THREE.DirectionalLight(0xffffff,1),hemi=new THREE.HemisphereLight();sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+ Object.assign(sun.shadow.camera,{left:-20,right:20,top:20,bottom:-20,near:.5,far:70});scene.add(sun,sun.target,hemi);
+ const ch=new TimelinePage({scene,camera});
+ await Promise.all([ch.dialTex,...Object.values(ch.shotTex)].map(tex=>new Promise((resolve,reject)=>{const check=()=>{if(tex.image?.complete&&tex.image.naturalWidth)resolve();else setTimeout(check,20)};check();setTimeout(()=>reject(Error('Timeline texture loading timed out')),15000)})));
+ ch.build();scene.add(ch.g);normi.mesh.visible=false;
+ const locked=ch.shards[0].face.clone();locked.material=new THREE.MeshBasicMaterial({color:0xf4f7fd,fog:false});locked.visible=false;
+ // The base renderer needs an inert actor handle, but timeline.js has no actor.
+ // Do not serialize/upload its unused 3072x5376 animation atlas on this page.
+ normi.mesh.material=locked.material;
+ scene.updateMatrixWorld(true);
+ const data=serialize([ch.g,normi.mesh,locked],(nm,mm)=>{
+  const convert=v=>{if(v==null)return null;if(v.isObject3D)return nm.get(v);if(v.isMaterial)return mm.get(v);if(v.isVector2||v.isVector3)return v.toArray();if(v.isEuler)return [v.x,v.y,v.z];if(Array.isArray(v))return v.map(convert);if(typeof v==='object')return Object.fromEntries(Object.entries(v).map(([k,x])=>[k,convert(x)]));return v;};
+  const h={root:nm.get(ch.g),normi:nm.get(normi.mesh),normiBaseMaterial:mm.get(locked.material),normiFaceMaterial:mm.get(locked.material),lockedMaterial:mm.get(locked.material)};
+  for(const key of ['cells','shards','crackMat','hands','arcs','stars','space','builds','handsBg','haze','sheets','crystals'])h[key]=convert(ch[key]);return h;
+ });
+ Object.assign(data,{schema:1,seed,chapter:'timeline',tune,normiLayout:layout,coordinates:'Three RH; native renderer flips Z once'});
+ window.chapterExport=[data];
+ const renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true});renderer.setSize(1920,1080);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;document.body.appendChild(renderer.domElement);
+ window.renderReference=()=>{camera.position.set(0,8,22);camera.lookAt(0,2,0);renderer.render(scene,camera);return {position:camera.position.toArray(),fov:24}};
+ window.renderReference();window.exportReady=true;
+ // Same frozen source geometry and Post, stepped to an explicit simulation
+ // time for native image comparison. Never used by the shipped game.
+ window.renderAligned=async(width,height,selected='2312')=>{
+  const link=document.createElement('link');link.rel='stylesheet';link.href='/style.css';document.head.append(link);await new Promise(r=>{link.onload=r});
+  const {Post}=await import('/src/post.js');const {progress}=await import('/src/timeline.js');
+  // main.js leaves the scene background null, so the near-layer target clears
+  // transparent; the raw export above instead has an opaque reference backdrop.
+  scene.background=null;renderer.autoClear=false;renderer.shadowMap.autoUpdate=false;renderer.toneMapping=THREE.NoToneMapping;
+  sun.position.set(-20.9,13,6);sun.target.position.set(-13.9,0,-1.5);sun.target.updateMatrixWorld();
+  ch.world={rooms:[],rocks:[],lights:{sun,hemi}};ch.post=new Post(renderer,scene,camera);
+  renderer.setSize(width,height);camera.aspect=width/height;camera.updateProjectionMatrix();ch.post.setSize(width,height);
+  for(const id of ['2312','2338','echo1','1447','echo2','0958','echo3','0815','echo4'])progress.unlock(id);
+  ch.show({dest:selected,onPick:()=>{}});
+  await document.fonts.load('700 46px "LXGW WenKai"');await document.fonts.ready;
+  for(let i=0;i<600;i++)ch.update(1/60);
+  Object.assign(ch.post.blue,{k:1,lo:.1,hi:.8,ink:0});ch.post.m.final.uniforms.edgeK.value=.12;
+  ch.post.render(ch.t);
+  const state={time:ch.t,si:ch.si,camera:{position:camera.position.toArray(),fov:camera.fov},par:ch.par,clock:ch.clock,settings:ch.post.settings,
+   shards:ch.shards.map(s=>({position:s.grp.position.toArray(),rotation:s.grp.rotation.toArray().slice(0,3),scale:s.grp.scale.toArray()})),
+   labels:[...ch.labs].map(e=>({text:e.textContent,rect:JSON.parse(JSON.stringify(e.getBoundingClientRect())),font:getComputedStyle(e).fontSize,weight:getComputedStyle(e).fontWeight,fontFamily:getComputedStyle(e).fontFamily})),fonts:[...document.fonts].map(f=>({family:f.family,weight:f.weight,status:f.status}))};
+  window.alignedState=state;return state;
+ };
+}catch(e){window.exportError=e.stack;console.error(e)}
+</script>

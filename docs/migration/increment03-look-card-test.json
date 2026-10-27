@@ -1,0 +1,12 @@
+{
+  "result": "PASS",
+  "source": "frozen LookCard class and current CSS in isolated Chrome",
+  "layouts": 20,
+  "checks": 220,
+  "maxPixelError": 0.0379999999999967,
+  "nativeHomeSpace": "Only when the added home control would overlap, keep card dimensions and reserve x>=72; ordinary 16:9 desktop placement unchanged.",
+  "notCovered": [
+    "native rasterization",
+    "physical touch"
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "result": "PASS",
+  "levelsSolved": 5,
+  "inputFrames": 6113,
+  "usesTeleportOrLevelJump": false,
+  "events": [
+    {
+      "frame": 1,
+      "kind": "loadLevel",
+      "level": 1
+    },
+    {
+      "frame": 157,
+      "kind": "levelPlayable",
+      "level": 1
+    },
+    {
+      "frame": 835,
+      "kind": "exitReached",
+      "level": 1
+    },
+    {
+      "frame": 919,
+      "kind": "loadLevel",
+      "level": 2
+    },
+    {
+      "frame": 1076,
+      "kind": "levelPlayable",
+      "level": 2
+    },
+    {
+      "frame": 1664,
+      "kind": "exitReached",
+      "level": 2
+    },
+    {
+      "frame": 1748,
+      "kind": "loadLevel",
+      "level": 3
+    },
+    {
+      "frame": 1905,
+      "kind": "levelPlayable",
+      "level": 3
+    },
+    {
+      "frame": 3096,
+      "kind": "exitReached",
+      "level": 3
+    },
+    {
+      "frame": 3180,
+      "kind": "loadLevel",
+      "level": 4
+    },
+    {
+      "frame": 3337,
+      "kind": "levelPlayable",
+      "level": 4
+    },
+    {
+      "frame": 4679,
+      "kind": "exitReached",
+      "level": 4
+    },
+    {
+      "frame": 4763,
+      "kind": "loadLevel",
+      "level": 5
+    },
+    {
+      "frame": 4920,
+      "kind": "levelPlayable",
+      "level": 5
+    },
+    {
+      "frame": 5877,
+      "kind": "exitReached",
+      "level": 5
+    },
+    {
+      "frame": 6028,
+      "kind": "echoFinished",
+      "level": 5
+    }
+  ],
+  "runtime": "Lua 5.4",
+  "notCovered": [
+    "native realtime route",
+    "visual acceptance",
+    "other solution routes"
+  ]
+}

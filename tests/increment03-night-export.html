@@ -1,0 +1,39 @@
+<!doctype html><meta charset="utf-8">
+<style>@font-face{font-family:'LXGW WenKai';src:url('/assets/fonts/LXGWWenKai-subset.ttf')}body{margin:0}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {PrologueOffice} from '/src/prologue-office.js';
+import {CH1_TUNE_DEFAULTS} from '/src/ch1-tuning.js';
+import {asPaperFigure} from '/src/store.js';
+import {Normi} from '/src/normi.js';
+import {serialize} from '/export-scene.js';
+try {
+ await document.fonts.load('20px "LXGW WenKai"');await document.fonts.ready;
+ const seed=0x6a316e84;let rng=seed;Math.random=()=>{rng=(Math.imul(rng,1664525)+1013904223)>>>0;return rng/4294967296;};
+ const load=async path=>{const i=new Image();i.src=path;await i.decode();return i};
+ const art={office:{}};
+ for(const [key,file] of Object.entries({doodle:'ch1/pig-doodle.png',skyline:'ch1/skyline-night.jpg',asleep:'dream/normi-asleep.png'}))art[key]=await load('/assets/'+file);
+ for(const key of ['coworker-headphones','coworker-bun','coworker-coffee','coworker-glasses','prop-succulent','prop-seal','prop-cup','prop-snack','prop-headphones','prop-notes','desk-mug','desk-pothos','desk-files','desk-dino','desk-drinks','desk-tissue','leaving-headphones','leaving-bun','leaving-coffee','leaving-glasses'])art.office[key]=await load('/assets/ch1/office/'+key+'.png');
+ const atlas=await load('/assets/c0/normi-motion-atlas.png');
+ const layout=await(await fetch('/assets/c0/normi-motion-atlas.json')).json();
+ const tune={...CH1_TUNE_DEFAULTS,...await(await fetch('/config/ch1-tuning.json')).json()};
+ const scene=new THREE.Scene();scene.background=new THREE.Color('#161b24');scene.fog=new THREE.Fog('#161b24',34,150);
+ const camera=new THREE.PerspectiveCamera(24,1920/1080,1,1400);
+ const normi=new Normi(scene,atlas,layout);normi.stick.visible=false;asPaperFigure(normi.mesh);
+ const sun=new THREE.DirectionalLight(0xffffff,1),hemi=new THREE.HemisphereLight();sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+ Object.assign(sun.shadow.camera,{left:-20,right:20,top:20,bottom:-20,near:.5,far:70});scene.add(sun,sun.target,hemi);
+ const audio=new Proxy({},{get:()=>()=>{}}),phone={open:false,k:0,screen:{reacts:{}},config(){},set(){},setButtons(){},update(){}};
+ const ch=new PrologueOffice({scene,camera,normi,art,tune,audio,phone,deferIntro:true,world:{rooms:[],rocks:[],island:{},sky:{},lights:{sun,hemi}},hooks:{shake(){},flash(){},puff(){}},caption(){},clearCaptions(){},ui:{title(){},hint(){}}});
+ scene.updateMatrixWorld(true);
+ const data=serialize([ch.group,normi.mesh],(nm,mm)=>({root:nm.get(ch.group),normi:nm.get(normi.mesh),normiBaseMaterial:mm.get(normi.mat),normiFaceMaterial:mm.get(normi.mat),
+ archive:nm.get(ch.archive),asleep:nm.get(ch.asleep),chair:nm.get(ch.office.myChair),screen:nm.get(ch.myScreen),
+ people:Object.entries(ch.people).map(([who,p])=>({who,id:nm.get(p.mesh),stand:nm.get(p.stand),home:p.home.toArray(),phase:p.phase,walkTo:p.walkTo})),
+ lamps:ch.lamps.map(l=>({id:nm.get(l.l),tube:mm.get(l.tube.material),who:l.who})),screenLight:nm.get(ch.screenLight),billboards:ch.office.billboards.map(n=>nm.get(n))}));
+ Object.assign(data,{schema:1,seed,chapter:'night',tune,normiLayout:layout,bounds:normi.bounds,obstacles:normi.obstacles,start:normi.pos.toArray(),coordinates:'Three RH; native renderer flips Z once'});
+ window.chapterExport=[data];
+ const renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true});renderer.setSize(1920,1080);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;document.body.appendChild(renderer.domElement);
+ window.renderReference=()=>{camera.position.set(0,8,22);camera.lookAt(0,2,0);renderer.render(scene,camera);return {position:camera.position.toArray(),fov:24}};
+ window.renderReference();window.exportReady=true;
+}catch(e){window.exportError=e.stack;console.error(e)}
+</script>

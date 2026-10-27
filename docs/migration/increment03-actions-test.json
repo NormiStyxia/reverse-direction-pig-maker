@@ -1,0 +1,17 @@
+{
+  "result": "PASS",
+  "frozenLayouts": 30,
+  "checks": 1114,
+  "maxPixelError": 0.025625000000104592,
+  "dprs": [
+    1,
+    2,
+    3
+  ],
+  "touchOnlyExtension": "Night prompt retains a separate 44px object-cycle target; frozen coarse CSS hides Tab.",
+  "notCovered": [
+    "GPU text rasterization",
+    "hardware touchscreen"
+  ],
+  "realStateLayouts": 10
+}

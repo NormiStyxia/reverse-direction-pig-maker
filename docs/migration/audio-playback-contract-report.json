@@ -1,5 +1,5 @@
 {
   "result": "PASS",
-  "checks": 12,
-  "scope": "native API mock: rate reset, original gain, overlap, .12s delayed chime, old-room cancellation, late async resources, finish/replay/dispose; dynamic typing explicitly pending; not device playback"
+  "checks": 13,
+  "scope": "native API mock: rate reset, original gain, overlap, .12s delayed chime, old-room cancellation, late async resources, finish/replay/dispose; dynamic typing routed with sound lifetime retained; PCM engine API checked separately; not device playback"
 }

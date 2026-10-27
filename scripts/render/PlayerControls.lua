@@ -19,6 +19,7 @@ function Controls:layout(c)
         return out,s
     end
     if s.ending or s.covered then return out,s end
+    add('home','‹',16,16,44,44)
     if s.canSkip then add('skip',self.mobile and '跳过' or '跳过  Esc',c.w-126,16,108,44) end
     if s.echo then
         add('pause',self.mobile and '暂停' or '暂停  Esc',c.w-126,16,108,44)

@@ -1,0 +1,17 @@
+{
+  "result": "PASS",
+  "checks": [
+    "dream walk to swap",
+    "pig movement to unswap",
+    "voice and break to night",
+    "wake, departure, reply, box and elevator",
+    "timeline lock, wrap, floor gate, portal result"
+  ],
+  "usesTeleport": false,
+  "notCovered": [
+    "native rendering",
+    "OS keyboard and touch",
+    "audio",
+    "19 puzzle solutions"
+  ]
+}
