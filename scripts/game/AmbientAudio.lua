@@ -26,12 +26,13 @@ function Ambient:loop(id,gain,pitch)
         sound:SetLooped(true);local n=self.scene:CreateChild('Ambient-'..id);local source=n:CreateComponent('SoundSource');source:SetDeclickEnabled(false)
         source:Play(sound,0,0);v={node=n,source=source};self.loops[id]=v
     end
-    if v then v.source:SetGain(math.max(0,gain)*3.6);v.source:SetFrequency(44100*(pitch or 1))end
+    if v then v.source:SetGain(math.max(0,gain)*(self.busGain or 0));v.source:SetFrequency(44100*(pitch or 1))end
 end
 function Ambient:update(dt,story,scope,door)
     -- Wait for the entire group: phase-related stems must start together,
     -- including currently silent bands and the inverted hum waveform.
     for _,id in ipairs(ids)do if not self.sounds[id] then return end end
+    self.busGain=story.mode=='dream'and 3.6 or scope=='store'and .12*.9 or 0
     self.time=self.time+dt;local dream=story.mode=='dream';local values=self.values
     local mode=dream and 'dream' or 'world'
     if self.mode~=mode then
@@ -51,7 +52,7 @@ function Ambient:update(dt,story,scope,door)
         return
     end
     self.dreamGain=0
-    local night=(scope=='store' or story.mode=='night' or story.theme=='store')and 1 or 0
+    local night=(scope=='store'and story.mode~='store-day' or story.mode=='night' or story.theme=='store')and 1 or 0
     if scope=='store' then self.power=story.power or 1 elseif story.mode or story.theme~='store'then self.power=1 end
     local stress=scope=='echo' and .4 or story.sv or 0;local quiet=math.max(0,stress-.3)/.7
     local cut=scope=='echo' and .45 or story.fx and story.fx.audioFade or 0

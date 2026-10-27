@@ -1,0 +1,15 @@
+{
+  "result": "PASS",
+  "layouts": 25,
+  "geometryChecks": 144,
+  "dprs": [
+    1,
+    2,
+    3
+  ],
+  "input": "two pointer ownership, release/cancel, disabled gates, dream move-only",
+  "notCovered": [
+    "hardware touchscreen",
+    "GPU raster equality"
+  ]
+}

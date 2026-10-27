@@ -217,21 +217,27 @@ function Post:updateGame(story,canvas,dt,kind,pose,bridge)
         local stress=story.sv or 0
         fx={grade={1,.97,.98},exposure=1+.08*story.power,kFar=tune.dofFar*(1+stress*.35),kNear=tune.dofNear,
             desat=stress*.12,vignette=smooth(stress,.3,1)*.5,haze=fx.haze,veil=fx.veil}
+        if story.mode=='store-day'then
+            local k=story.duskK or 0
+            fx.grade={tune.gradeR+(1.07-tune.gradeR)*k,tune.gradeG+(.98-tune.gradeG)*k,tune.gradeB+(.88-tune.gradeB)*k}
+            fx.exposure=tune.exposure*(1-.1*k)
+        end
     elseif kind=='echo' then
         local k=pose and pose.rwK or 0;local meeting=story.theme~='store'
         local base=({meeting={1.04,1,.93},office={1.06,.99,.94},dorm={1.03,1,.96},store={.9,.98,1.04}})[story.theme]
         local cold=meeting and {.82,.92,1.12} or {.78,.92,1.16};local grade={}
         for i=1,3 do grade[i]=base[i]+(cold[i]-base[i])*k*.8;if not meeting then grade[i]=grade[i]*({.86/.9,.93/.98,1.1/1.04})[i] end end
-        fx={grade=grade,exposure=meeting and (1-k*.06) or 1,kFar=meeting and 4 or 7,kNear=44,veil=story.veil}
+        fx={grade=grade,exposure=meeting and (1-k*.06) or 1,kFar=meeting and 4 or 7,kNear=44,veil=story.veil,blue=story.fx and story.fx.blue}
     end
     if story.postSettings then
         local resolved={};for k,v in pairs(tune)do resolved[k]=v end
         for k,v in pairs(story.postSettings)do resolved[k]=v end;tune=resolved
     end
+    if kind=='echo'and (story.topK or 0)>0 then fx.kFar=fx.kFar*(1-story.topK);fx.kNear=fx.kNear*(1-story.topK)end
     self.style:update(tune,fx,story.t,focusActor,dt)
     local f=self.final.material;local g=fx.grade or {1,1,1}
     parameter(f,'shock',self.effects.shock);parameter(f,'shockSeed',self.effects.shockSeed);parameter(f,'flash',self.effects.flash)
-    local blue=bridge and bridge.blue or (fx.blue or (kind=='echo' and pose and pose.rwK*.6 or 0))
+    local blue=fx.blue or (bridge and bridge.blue) or ( (kind=='echo' and pose and pose.rwK*.6 or 0))
     parameter(f,'blue',blue);parameter(f,'blueSweep',bridge and bridge.sweep or 0)
     parameter(f,'blueLo',fx.blueLo or (kind=='store' and .015 or .035));parameter(f,'blueHi',fx.blueHi or (kind=='store' and .26 or .4))
     if bridge and bridge.blue>0 then

@@ -12,6 +12,14 @@ function Layout.place(state,left,right)
     state.clearCenter=state.layoutSide=='right' and state.frostEdge/2 or (1+state.frostEdge)/2
     state.clearWidth=state.layoutSide=='right' and state.frostEdge or 1-state.frostEdge
 end
+-- phone.js deliberately gives chat 54–60% of the viewport; Browse uses
+-- its own object-relative split. Do not share the two frost boundaries.
+function Layout.placePhone(state,left,right)
+    Layout.place(state,left,right)
+    state.frostEdge=state.layoutSide=='right' and math.min(.46,math.max(.4,right+.03))or math.max(.54,math.min(.6,left-.03))
+    state.clearCenter=state.layoutSide=='right' and state.frostEdge/2 or (1+state.frostEdge)/2
+    state.clearWidth=state.layoutSide=='right' and state.frostEdge or 1-state.frostEdge
+end
 function Layout.utf8Prefix(text,count)
     local nextByte=utf8.offset(text,count+1)
     return nextByte and text:sub(1,nextByte-1) or text
@@ -30,12 +38,13 @@ end
 function Layout.panel(w,h,placement,k)
     local small=w<=800
     local wide=w/h>=2
+    local compact=w>h and h<=600
     local width=math.max(.12,placement.layoutSide=='right' and 1-placement.frostEdge or placement.frostEdge)*w
     -- On portrait phones the original half-panel leaves <200px for controls.
     -- Keep desktop geometry exact; keep text and touch controls usable below 600px.
     if w<600 then width=math.max(width,math.min(w-16,340)) end
     local outerX=placement.layoutSide=='right' and w-width or 0
-    local near=wide and 18 or (small and 26 or math.max(36,math.min(92,w*.07)));local far=wide and 12 or (small and 14 or 32)
+    local near=wide and 18 or (small and 26 or math.max(28,math.min(56,w*.04)));local far=wide and 12 or (small and 14 or 32)
     local x=outerX+(placement.layoutSide=='right' and near or far)
     local padding=small and 10 or 14
     local y=h*(small and .03 or .05)+padding+(1-k)*18
@@ -46,6 +55,13 @@ function Layout.panel(w,h,placement,k)
             wide=true,small=true,outerX=outerX,outerW=width,contactSize=13,metaSize=10,subtitleSize=10,
             avatar=24,messageGap=6,bubbleSize=math.max(12,math.min(14,h*.028)),lineHeight=1.45,
             bubblePadX=8,bubblePadY=6,threadGap=8}
+    end
+    if compact then
+        near=22;far=16;x=outerX+(placement.layoutSide=='right'and near or far)
+        return {x=x,y=10+(1-k)*18,w=math.max(1,width-near-far),bottom=h-10+(1-k)*18,headerH=50,gap=8,
+            small=true,outerX=outerX,outerW=width,contactSize=16,metaSize=11,subtitleSize=11,
+            avatar=30,messageGap=8,bubbleSize=math.max(12,math.min(15,h*.034)),lineHeight=1.45,
+            bubblePadX=10,bubblePadY=7,threadGap=12}
     end
     return {x=x,y=y,w=math.max(1,width-near-far),bottom=bottom,headerH=headerH,gap=small and 12 or 20,
         small=small,outerX=outerX,outerW=width,contactSize=small and 20 or 24,metaSize=small and 11 or 14,

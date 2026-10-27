@@ -1,0 +1,47 @@
+[
+  {
+    "source": "assets/audio/music-dream.m4a",
+    "sha256": "161afc4c2dd593c44cbc871998c344ef4e010a03758a10df98d023a0c96ea817",
+    "output": "assets/audio/increment04/music-dream.wav",
+    "frames": 7283180,
+    "rate": 44100,
+    "channels": 2,
+    "overlap": 79380
+  },
+  {
+    "source": "assets/audio/music-night.m4a",
+    "sha256": "ca327e8ed008df825ae058a88a36fb8ef5b7bbbff00b3f784a87b39d119841be",
+    "output": "assets/audio/increment04/music-night.wav",
+    "frames": 7575020,
+    "rate": 44100,
+    "channels": 2,
+    "overlap": 79380
+  },
+  {
+    "source": "assets/audio/music-puzzle.m4a",
+    "sha256": "1d8fd483a5f788a3bd5ff9b7b4049cf295be84a233ab5a174f47dc35bfcbf750",
+    "output": "assets/audio/increment04/music-puzzle.wav",
+    "frames": 5749228,
+    "rate": 44100,
+    "channels": 2,
+    "overlap": 79380
+  },
+  {
+    "source": "assets/audio/music-dawn.m4a",
+    "sha256": "079c6dc0e004185f984176d4b025e735bf02001ba232c6e18b5fd57a10c63cca",
+    "output": "assets/audio/increment04/music-dawn.wav",
+    "frames": 7990764,
+    "rate": 44100,
+    "channels": 2,
+    "overlap": 79380
+  },
+  {
+    "source": "assets/audio/rewind.wav",
+    "sha256": "fce36207e596cd7a248a606e61109832ea179e804b2399a3bab8cc6e63bfe182",
+    "output": "assets/audio/increment04/rewind.wav",
+    "frames": 172872,
+    "rate": 44100,
+    "channels": 1,
+    "overlap": 2646
+  }
+]

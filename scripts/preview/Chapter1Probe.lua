@@ -13,6 +13,7 @@ function Probe:init(mode,look,answer,options)
     local Model=mode=='timeline' and require('game.TimelineState') or mode=='dream' and require('game.DreamState') or mode=='night' and require('game.NightOfficeState') or mode=='dorm' and require('game.DormState') or Story
     local Renderer=mode=='timeline' and require('render.TimelineRenderer') or mode=='dream' and require('render.DreamRenderer') or mode=='night' and require('render.NightOfficeRenderer') or mode=='dorm' and require('render.DormRenderer') or View
     self.story=Model.new(options);self.view=Renderer.new(self.story,look);self.screen=Canvas.new(self.story.browse and self.story or Panels.new(self.story))
+    self.screen.loading=true;self.screen.loadingAlpha=1
     self.captions=Captions.new()
     self.screen.lookProject=function(target)
         local view=self.view.view;local point=Vector3(target.x,target.y,-target.z)
@@ -31,6 +32,9 @@ function Probe:init(mode,look,answer,options)
     canvas.pointerDown=function(c,x,y,id) if self.ending.active then self.ending:down(c,x,y,id);return true end;return down(c,x,y,id) end
     canvas.pointerUp=function(c,x,y,id) if self.ending.active then self.ending:up(c,x,y,id);return true end;return up(c,x,y,id) end
     canvas.cancelPointer=function(c) self.ending:cancel();cancel(c) end
+    self.screen.sceneBackdrop=function(canvas)
+        if self.view.ready and not self.ending.active then require('render.DialogOverlay').draw(canvas,self.story,'background')end
+    end
     self.screen.sceneHUD=function(canvas) self:hud(canvas) end
     if mode=='timeline' then require('render.TimelineOverlay').attach(self.screen,self.view,self.story) end
     print('CHAPTER1_NATIVE: '..self.story.mode..'; WASD/F/J/Tab, choices 1/2/3; F4 staged model replay, F5 reference, F6 pause, F7 morning diagnostic, F8 title')
@@ -49,7 +53,12 @@ function Probe:events()
 end
 function Probe:update(dt)
     self.view.view:pumpBuild()
-    if not self.view.view.ready then return end
+    if not self.view.view.ready then Captions.loadStep(self.screen,dt,false);self.screen:update(dt);return end
+    if self.screen.loading or not self.screen.fontReady then
+        self.view:update(0,self.story);self.screen:place(self.view:actorScreen(self.story));self.screen:update(dt)
+        self.post:updateGame(self.story,self.screen,0,'chapter')
+        Captions.loadStep(self.screen,dt,true);return
+    end
     dt=math.min(.05,dt)
     self.ending:update(dt)
     if not self.paused and self.focused then
@@ -147,9 +156,10 @@ function Probe:hud(canvas)
     canvas:text('WASD 移动 · J 手机 · F 交互 · 1/2/3 回答 · F4 阶段 · F5 对照 · F6 暂停 · F7 早晨 · F8 标题',20,42,14,c,true)
     end
     if not self.view.ready then canvas:text('正在加载…',20,18,18,c,true);return end
-    require('render.DialogOverlay').draw(canvas,s)
+    require('render.DialogOverlay').draw(canvas,s,'foreground')
     if self.view.hud then self.view:hud(canvas,s)end
     if Diagnostics.enabled then canvas:text(s:hm()..'  '..s.phase..(self.paused and ' · 暂停' or ''),20,68,16,c,true) end
+    Captions.clock(canvas,s)
     self.captions:draw(canvas,s,self.view)
     Captions.hint(canvas,self.hint,self.hintUntil-s.t)
     if s.screenT and s.screenT>1.7 then

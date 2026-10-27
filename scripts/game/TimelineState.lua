@@ -12,7 +12,7 @@ local function mins(text)local h,m=text:match('(%d+):(%d+)');return tonumber(h)*
 local function backTo(cur,text)return cur-((cur-mins(text))%720)end
 local function fwdTo(cur,text)return cur+((mins(text)-cur)%720)end
 function T.new(options)
-    options=options or {};local s=setmetatable({},T);s.mode='timeline';s.t=0;s.phase='timeline';s.events={};s.later={};s.fired={};s.tweens={};s.transforms={};s.alphas={};s.H=copy(Scene.handles);s.nodes=Nodes;s.si=1;s.aspect=options.aspect or 16/9
+    options=options or {};local s=setmetatable({},T);s.backLabel=options.backLabel;s.mode='timeline';s.t=0;s.phase='timeline';s.events={};s.later={};s.fired={};s.tweens={};s.transforms={};s.alphas={};s.H=copy(Scene.handles);s.nodes=Nodes;s.si=1;s.aspect=options.aspect or 16/9
     s.unlocked={};s.passed={};s.floor={};local progress=options.progress or options.save and options.save:timeline()or {nodes={'2312'},floors={}}
     for _,id in ipairs(progress.nodes)do s.unlocked[id]=true end;for id,n in pairs(progress.floors)do s.passed[id]=n end
     for i,n in ipairs(Nodes)do if n.id==options.dest and s.unlocked[n.id]then s.si=i end end
@@ -28,6 +28,7 @@ end
 function T:tr(id)
     if not self.transforms[id]then local n=Scene.nodes[id];self.transforms[id]={p=copy(n.position),s=copy(n.scale),r=n.rotation and copy(n.rotation) or nil,visible=n.visible}end;return self.transforms[id]
 end
+function T:back()self.result={back=true};self:emit('finish',{result=self.result})end
 function T:canSkip()return false end
 function T:controlEnabled()return false end
 function T:walkEnabled()return false end

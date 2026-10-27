@@ -449,10 +449,32 @@ function Renderer:updateWalker(dt,story)
     node.position=vec(w.pos);node.rotation=quat(w.quaternion);node.scale=Vector3(w.scale,1,1)
     for _,draw in ipairs(self.sourceDrawables[id])do draw.castShadows=w.castShadow end
 end
+-- Frozen daylight values are linearized exactly once, matching THREE.Color.
+function Renderer:dayLighting(story)
+    local T=require('game.data.Tuning').store;local k=story.duskK or 0
+    local function color(hex)
+        local n=tonumber(hex:gsub('#',''),16)
+        local function l(v)v=v/255;return v<=.04045 and v/12.92 or ((v+.055)/1.055)^2.4 end
+        return {l((n>>16)&255),l((n>>8)&255),l(n&255)}
+    end
+    local function mix(a,b,t)a=color(a);b=color(b);return Vector3(a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t,a[3]+(b[3]-a[3])*t)end
+    local sky=mix(T.hemiSky,'#e0a888',k*.55);local ground=mix(T.hemiGround,T.hemiGround,0)
+    local sun=mix(T.sunColor,'#ffa25e',k*.85);local fog=mix('#dbe8cc','#e2b08a',k*.7)
+    self.sun.node.position=Vector3(-8+12*k,11-5.5*k,20);self.sun.node:LookAt(Vector3(-1,0,2))
+    self.sun.color=Color(sun.x,sun.y,sun.z);self.sun.brightness=T.sunIntensity*(1-.22*k)
+    self.zone.fogColor=Color(fog.x,fog.y,fog.z)
+    for _,m in ipairs(self.litMaterials)do
+        parameter(m,'hemi_sky',sky);parameter(m,'hemi_ground',ground)
+        parameter(m,'hemi_intensity',T.hemiIntensity*(1-.18*k));parameter(m,'shadow_step',T.shadowStep)
+        parameter(m,'night_kind',0)
+    end
+    for _,m in pairs(self.materials)do parameter(m,'night_kind',0)end
+    for _,id in ipairs(self.data.handles.ceiling)do self.lights[id].color=Color(.957,.965,.894)end
+end
 function Renderer:updateDynamics(dt,story)
     local Data=self.data or Data
     local p=story.normi.pos;local d=self.dynamics;local H=Data.handles
-    d:update(dt,{stress=story.sv,time=self.time,power=story.power,flickBoost=story.flickBoost,
+    d:update(dt,{day=story.mode=='store-day',stress=story.sv,time=self.time,power=story.power,flickBoost=story.flickBoost,
         fold=story.fx.fold,pos={p.x,p.y,p.z},walkers=self.walker and {self.walker}or {}})
     for _,flat in ipairs(d.flats) do
         local node=self.nodes[H.flats[flat.name]]
@@ -482,7 +504,9 @@ function Renderer:updateDynamics(dt,story)
     local power=story.power
     local function linear(v) v=v/255;return v<=.04045 and v/12.92 or ((v+.055)/1.055)^2.4 end
     local function mix(a,b) return linear(a)+(linear(b)-linear(a))*power end
-    if self.lastPower~=power then
+    if story.mode=='store-day'then
+        self:dayLighting(story)
+    elseif self.lastPower~=power then
         for _,m in ipairs(self.litMaterials) do
             parameter(m,'hemi_sky',Vector3(mix(125,154),mix(143,170),mix(163,187)))
             parameter(m,'hemi_ground',Vector3(mix(29,52),mix(33,58),mix(37,60)))
@@ -538,7 +562,7 @@ function Renderer:update(dt,story)
     self:setActorFrame(Data.nodes[Data.handles.normi].materials[1],actor.pose,layout.columns,layout.rows)
     if self.visible[Data.handles.archive]~=story.archiveVisible then self:setSourceVisible(Data.handles.archive,story.archiveVisible) end
     for i,id in ipairs(Data.handles.clockHands) do
-        local total=23*60+38+story.clock
+        local total=story.clockMin or 23*60+38+story.clock
         local angle=i==1 and -((total/60)%12)/12*360 or -(total%60)/60*360
         self.nodes[id].rotation=Quaternion(angle,Vector3(0,0,1))
     end

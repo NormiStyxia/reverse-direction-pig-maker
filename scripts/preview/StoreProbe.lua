@@ -7,11 +7,11 @@ local Diagnostics=require('game.Diagnostics')
 local Captions=require('render.CaptionOverlay')
 local Probe={}
 Probe.__index=Probe
-function Probe.new()
-    local self=setmetatable({},Probe);self:init();return self
+function Probe.new(options)
+    local self=setmetatable({},Probe);self:init(options);return self
 end
-function Probe:init()
-    self.story=Story.new();self.view=Store.new();self.screen=Panel.new(self.story)
+function Probe:init(options)
+    self.story=options and options.day and require('game.DayStoreState').new(options)or Story.new();self.view=Store.new();self.screen=Panel.new(self.story)
     self.captions=Captions.new()
     self.active=true;self.paused=false;self.focused=true;self.keyDriven=false;self.caption='';self.captionUntil=0;self.hint='';self.hintUntil=0
     self.screen.sceneActions=require('render.SceneActions').new(self.screen,function() if self.view.ready then return self.story end end,true)
@@ -22,12 +22,21 @@ function Probe:init()
     self.diagnostic=false
     ---@type table|false
     self.route=false
+    self.screen.loading=true;self.screen.loadingAlpha=1
+    self.screen.sceneBackdrop=function(canvas)
+        if self.view.ready then require('render.DialogOverlay').draw(canvas,self.story,'background')end
+    end
     self.screen.sceneHUD=function(canvas) self:hud(canvas) end
     print('STORE_PROBE: native source geometry; WASD/arrows move, J/Space phone, F interact, Tab select; F6 pause, F8 title')
 end
 function Probe:update(dt)
     self.view:pumpBuild()
-    if not self.view.ready or self.paused or not self.focused then self.screen:update(dt);self:updatePost(0);return end
+    if not self.view.ready then Captions.loadStep(self.screen,dt,false);self.screen:update(dt);return end
+    if self.screen.loading or not self.screen.fontReady then
+        self.view:update(0,self.story);self.screen:place(self.view:actorScreen(self.story));self.screen:update(dt);self:updatePost(0)
+        Captions.loadStep(self.screen,dt,true);return
+    end
+    if self.paused or not self.focused then self.screen:update(dt);self:updatePost(0);return end
     self:events()
     dt=math.min(.05,dt)
     ---@type number
@@ -157,7 +166,8 @@ function Probe:key(key,repeated)
     elseif key==KEY_ESCAPE then if self.story.browse.open then self.story:closeBrowse() else self.story:closePhone() end end
 end
 function Probe:hud(canvas)
-    require('render.DialogOverlay').draw(canvas,self.story)
+    Captions.clock(canvas,self.story)
+    require('render.DialogOverlay').draw(canvas,self.story,'foreground')
     local light={240,237,223,255}
     if Diagnostics.enabled then
     canvas:text('原生场景接入校验 · 光影/后处理尚未验收',20,18,15,light,true)

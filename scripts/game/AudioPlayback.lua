@@ -20,6 +20,7 @@ function Playback.get()
     local self=setmetatable({scene=Scene(),sounds={},active={},queue={},clock=0,generation=0,disposed=false,unhandledTones=0},Playback)
     shared=self
     self.ambient=require('game.AmbientAudio').new(self.scene)
+    self.score=require('game.Soundtrack').new(self.scene)
     for id,path in pairs(Clips) do
         cache:GetResourceAsync('Sound',path,function(sound)
             if self.disposed then return end
@@ -37,8 +38,11 @@ function Playback:reset()
 end
 function Playback:environment(dt,story,scope,door)
     self.ambient:update(math.max(0,dt),story,scope,door)
+    local v=story.normi and story.normi.vel
+    if v then self.score:footsteps(dt,math.sqrt(v.x*v.x+v.z*v.z))end
 end
 function Playback:event(event,scope)
+    if self.score:event(event,scope)then return end
     if event.kind=='loadLevel' then
         -- Frozen later() callbacks carry the room loadId; old delayed chimes cancel.
         self.generation=self.generation+1
@@ -83,6 +87,6 @@ function Playback:update(dt)
     self.queue=remaining
 end
 function Playback:dispose()
-    self:reset();self.ambient:dispose();self.disposed=true;self.scene:Dispose()
+    self:reset();self.score:dispose();self.ambient:dispose();self.disposed=true;self.scene:Dispose()
 end
 return Playback

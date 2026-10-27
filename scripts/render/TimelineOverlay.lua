@@ -55,7 +55,7 @@ function Overlay.draw(state,c)
  end
  nvgSave(vg);nvgGlobalAlpha(vg,s.ui.op)
  local hy=math.max(12,c.h*.04);local hx=wide and 64 or mobile and 68 or math.max(16,c.w*.035)
- outline(c,'‹',mobile and 24 or 12,hy+7,30,BLUE,PAPER,2);hit(mobile and 12 or 8,hy,mobile and 44 or 28,44,function()s.result={back=true};s:emit('finish',{result=s.result})end);reserved[#reserved+1]={x=mobile and 12 or 8,y=hy,w=mobile and 44 or 28,h=44}
+ outline(c,'‹',mobile and 24 or 12,hy+7,30,BLUE,PAPER,2);hit(mobile and 12 or 8,hy,mobile and 44 or 28,44,function()s:back()end);reserved[#reserved+1]={x=mobile and 12 or 8,y=hy,w=mobile and 44 or 28,h=44}
  local hs=wide and 10 or small and 11 or 18;local cs=wide and 11 or small and 12 or 20
  outline(c,'TIME REWIND',hx,hy,hs,BLUE,PAPER,2,hs*.3,false,true)
  local lineY=hy+normalHeight(hs)+10;rect(c,hx-2,lineY-2,30,6,PAPER);rect(c,hx,lineY,26,2,BLUE)
@@ -105,6 +105,7 @@ function Overlay.draw(state,c)
   end
  end
  state.labelBoxes=labels
+ if s.backLabel then outline(c,s.backLabel,58,hy+15,12,BLUE,PAPER,2)end
  nvgSave(vg);nvgGlobalAlpha(vg,s.lab.op)
  -- Frozen .big has z-index:2. Draw/hit its chips above every other label.
  local paintOrder={};for _,b in ipairs(labels)do if not b.big then paintOrder[#paintOrder+1]=b end end

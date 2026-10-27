@@ -26,6 +26,7 @@ function Dorm.new(options)
         s.dormChoice=options.dormChoice or 'sick';s.phase='after';s.afterT=0;s.clockMin=s.dormChoice=='off' and 1110 or 496
         s.duskK=s.dormChoice=='off' and 1 or 0;s.duskTo=s.duskK;s.parcel=s.dormChoice=='pc'
         n:setPosition(D.x-1.9,0,D.z+1.7);n:face(1);s:showDeskPig(true);s.fx.haze=0
+        if options.assemble then s.assembled=true;s.assembleT=0;s.afterT=-2.2;s.fx.veil=false;s.fx.blue=.92 end
     end
     return s
 end
@@ -52,7 +53,7 @@ function Dorm:skip()
     self.later={}
     if self.phase=='rewind' or self.phase=='intro' then self:closePanel();self:toPlay()
     elseif self.phase=='play' then self:openDorm(true)
-    elseif self.phase=='after' or self.phase=='jam' then self.phoneThen=false;self.fx.veil=false;self:closePanel();self:emit('clearCaptions');self:boxOut(true);self:screenOn(true);self:startScreen()
+    elseif self.phase=='after' or self.phase=='jam' then if self.assembleT then self.assembleT=9;self.fx.blue=0 end;self.phoneThen=false;self.fx.veil=false;self:closePanel();self:emit('clearCaptions');self:boxOut(true);self:screenOn(true);self:startScreen()
     else
         self.waitPanel=false;self:closePanel()
         if self.dormChoice=='pc' then self:dropParcel() end
@@ -130,8 +131,13 @@ function Dorm:startScreen()
     self.phase='screen';self.screenT=0;self.interactionId=false;self:emit('clearCaptions')
 end
 function Dorm:updateAfter(dt)
+    if self.assembleT then
+        self.assembleT=self.assembleT+dt;self.fx.blue=.92*(1-smooth(self.assembleT,.6,2.6))
+        if self.assembleT>1.6 and not self.landed then self.landed=true;self:sound('tap')end
+    end
     self.afterT=self.afterT+dt;local t=self.afterT
-    self.fx.veil=t<2.2 and {k=1-smooth(t,1,2),r=mix(-.2,1.9,smooth(t,0,1.8)),pivot=pivot} or false
+    if t<0 then return end
+    self.fx.veil=not self.assembled and t<2.2 and {k=1-smooth(t,1,2),r=mix(-.2,1.9,smooth(t,0,1.8)),pivot=pivot} or false
     self:once('free-box',function() self:after(1.6,function() self:boxOut() end) end)
     self:once('free-msg',function() self:after(3.4,function()
         self:sound('buzz');self.normi:flinch(.3);self.panelClosable=false;self.choiceMode=false;self:openPanel('手机',self:hm(),Data.DORM_FREE);self:express('surprised',3.2)

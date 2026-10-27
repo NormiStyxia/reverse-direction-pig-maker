@@ -52,6 +52,11 @@ offline:tick(.4);assert(#c.writes==1)
 c.writes[1].events.error(-1,'offline');offline:tick(5);assert(#c.writes==2)
 c.writes[1].events.ok();assert(not offline.persisted)
 c.writes[2].events.ok();assert(offline.persisted)
+-- Increment04: offline meeting answers union with remotely tried answers.
+local tried,tapi=fixture();tried:noteTried('done')
+remote(tried,tapi,{chapters={ch1={tried={'same','late','same'}}}})
+assert(#tried:tried()==3);local seen={};for _,v in ipairs(tried:tried())do seen[v]=true end
+assert(seen.same and seen.late and seen.done)
 -- No save writes simply for loading / playing Level Mode.
 local empty,d=fixture();remote(empty,d,nil);empty:tick(100);assert(#d.writes==0)
 -- Corrupt remote data is retained by the service, never replaced with an empty save.

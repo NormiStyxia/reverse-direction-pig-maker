@@ -15,7 +15,7 @@ end
 ---@param levels {start:number[],exit:number[]}[]
 function Run:init(levels,theme)
     self.levels=levels; self.theme=theme or 'store'; self.pig=Pig.new()
-    self.events={}; self.hitstop=0; self.loadId=0;self.audioTick=0
+    self.thoughtSeen={};self.events={}; self.hitstop=0; self.loadId=0;self.audioTick=0
     self.pig.spinDir=-1 self.pig.spinFrame=.05
     self:load(1)
 end
@@ -26,7 +26,7 @@ function Run:load(index)
     self.index=index self.loadId=self.loadId+1
     self.sim=Simulation.new(self.levels[index],self.theme)
     self.t=0 self.phase='unfold' self.playAt=math.huge self.fold=0
-    self.exitWas=nil;self.exitCamera=nil
+    self.exitWas=nil;self.exitCamera=nil;self.dialog=nil;self.thoughtAt=nil
     self.veil={k=1,r=-.2}
     local P=self.pig
     ---@type {start:number[],exit:number[]}
@@ -34,6 +34,12 @@ function Run:load(index)
     P.pos.x=L.start[1] P.pos.y=0 P.pos.z=L.start[2]
     P.vel.x=0 P.vel.y=0 P.vel.z=0 P.facing=0 P.charge=0
     self:emit('loadLevel',{index=index,definition=L})
+end
+function Run:controlEnabled()return self.phase=='play'end
+function Run:think(text)
+    if not text then return end
+    local n=utf8.len(text)or #text
+    self.dialog={text=text,at=self.t,hold=n*.055+math.max(2.2,1.3+n*.13),stamp='第 '..self.index..' 层 · '..self.levels[self.index].name,face='puzzled'}
 end
 function Run:leave(nextIndex,duration)
     self.phase='out' self.outT=0 self.outDur=duration or 1.4 self.nextIndex=nextIndex
@@ -45,7 +51,7 @@ function Run:restart()
     self:leave(self.index,.7) return true
 end
 function Run:update(realDt,input,camYaw,random)
-    if self.phase=='done' then return end
+    if self.phase=='done'or self.phase=='finale'then return end
     local dt=math.min(.05,realDt)
     if self.hitstop>0 then self.hitstop=self.hitstop-dt dt=dt*.05 end
     self.lastDt=dt
@@ -72,6 +78,7 @@ function Run:update(realDt,input,camYaw,random)
             self.phase='play' self.playAt=T S.playAt=T self.veil=nil self.fold=1
             P.squash=1.1 P:setFrame(0)
             self:emit('levelPlayable',self.index)
+            if not self.thoughtSeen[self.index]then self.thoughtSeen[self.index]=true;self.thoughtAt=self.t+(self.theme=='store'and self.index==1 and .15 or .35)end
             self:emit('puff',{x=P.pos.x,y=P.pos.y,z=P.pos.z,count=4})
         end
     end
@@ -85,6 +92,7 @@ function Run:update(realDt,input,camYaw,random)
         end
         return
     end
+    if self.thoughtAt and self.t>=self.thoughtAt then self.thoughtAt=nil;self:think(require('game.data.LevelThoughts')[self.theme..':'..(self.index-1)])end
     live=self.phase=='play'
     S.rewinding=live and P.spinning and P.spinSpeed>.35
     if live then
@@ -109,12 +117,15 @@ function Run:update(realDt,input,camYaw,random)
     local dx,dz=P.pos.x-L.exit[1],P.pos.z-L.exit[2]
     if live and S:exitOn() and math.sqrt(dx*dx+dz*dz)<.8 then
         self:emit('exitReached',self.index)
-        self:leave(self.index+1,self.index==#self.levels and 2.4 or 1.4)
+        if self.storyFinale and self.index==#self.levels then self.phase='finale';self.veil=nil;self:emit('spiralFinale')
+        else self:leave(self.index+1,self.index==#self.levels and 2.4 or 1.4)end
     end
     for _,event in ipairs(S:drainEvents()) do
         if event.kind=='hitstop' then self.hitstop=math.max(self.hitstop,event.data)
         elseif event.kind=='merge' then self.hitstop=math.max(self.hitstop,.1)
-        elseif event.kind=='cabinetDown' then self.hitstop=math.max(self.hitstop,.05) end
+        elseif event.kind=='cabinetDown' then self.hitstop=math.max(self.hitstop,.05)
+            if event.data.auto and not self.firstFall then self.firstFall=true;self:think('货架怎么自己倒了？！路被堵死了……');self:emit('firstAutoFall')end
+        end
         self:emit(event.kind,event.data)
     end
 end

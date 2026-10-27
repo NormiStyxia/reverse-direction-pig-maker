@@ -5,6 +5,7 @@ local Catalog=require('game.LevelCatalog')
 local View=require('render.EchoRenderer')
 local Screen=require('render.EchoOverlay')
 local Diagnostics=require('game.Diagnostics')
+local Captions=require('render.CaptionOverlay')
 local Probe={}
 Probe.__index=Probe
 function Probe.new(look,theme,answer,startLevel,onProgress)
@@ -18,6 +19,13 @@ function Probe:init(look,theme,answer,startLevel,onProgress)
     self.onProgress=onProgress
     self.allowFixtureProgress=false
     self.view=View.new(self.run,look);self.screen=Screen.new(self.run)
+    self.screen.projectTag=function(crate)
+        local v=self.view.view;if not v.ready then return end
+        local world=Vector3(crate.x,1.45,-crate.z)
+        if v.cameraNode:WorldToLocal(world).z<=0 then return end
+        local p=v.camera:WorldToScreenPoint(world);return p.x,p.y
+    end
+    self.card=require('render.MechanismCard').new();self.card:setLevel(self.run.theme,self.run.index);self.screen.card=self.card;self.screen.top=require('render.EchoTopView').new(self.view,self.run)
     self.screen.exitPoint=function()
         local v=self.view.view;if not v.ready then return end
         local e=self.run.levels[self.run.index].exit;local w=Vector3(e[1],1.2,-e[2])
@@ -41,6 +49,10 @@ function Probe:events()
         require('game.SpriteParticles').shared:event(e)
         self.screen:event(e)
         if self.onProgress then self.onProgress(e) end
+        if e.kind=='loadLevel'then self.card:setLevel(self.run.theme,self.run.index)end
+        if e.kind=='levelPlayable'and not(self.run.theme=='store'and self.run.index==1)then self.cardAt=self.run.t+1.1 end
+        if e.kind=='firstAutoFall'then self.cardAt=self.run.t+1.2 end
+        if e.kind=='exitReached'and self.history and self.view.ready then self.view:update(0,self.run);self.history:capture(self.view,self.run)end
         if e.kind=='merge' then self.view.pose:merge(e.data,self.run.t) end
         if e.kind=='loadLevel' or e.kind=='levelPlayable' or e.kind=='exitReached' or e.kind=='echoFinished' then
             print('ECHO_FLOW: '..e.kind..' level='..e.level..' load='..e.loadId)
@@ -68,18 +80,44 @@ function Probe:syncScene()
     -- Own the scene/post lifetime together. Renderer:update can load a new room
     -- too; letting it do so first hid the loadId change and left the old Post
     -- attached to a disposed room, displaying raw rendering from floor 2 on.
-    if self.run.loadId~=self.view.loadId then if self.post then self.post:dispose();self.post=nil end;self.view:load(self.run) end
+    if self.run.loadId~=self.view.loadId then
+        self.screen:cancelPointer();self.charge=false;self.restart=false
+        self.screen.loadingAlpha=1;self.screen.loadingFrames=0
+        if self.post then self.post:dispose();self.post=nil end
+        if self.history then self.history:park()end
+        self.view:load(self.run)
+    end
     if self.post and self.post.view~=self.view.view then self.post:dispose();self.post=nil end
     if not self.post then self.post=require('render.ScenePost').new(self.view.view);self.post:setEnabled(true) end
     self.view.view:pumpBuild()
-    self.screen.loading=not self.view.view.ready
-    return not self.screen.loading
+    self.screen.loading=not self.view.view.ready or (self.screen.loadingAlpha or 1)>0
+    return self.view.view.ready
 end
 function Probe:update(dt)
     if self.screen.ending.active then self.screen.ending:update(dt);return end
+    if self.cardAt and self.run.t>=self.cardAt then self.cardAt=nil;if self.card:encounter()then self.screen:cancelPointer()end end
+    if self.card and self.card.open then self.charge=false;self.restart=false;return end
     if self.playerPaused then return end -- freeze renderer randomness as well as simulation
     self.view.bridgeDistance=self.bridge.distance
-    if not self:syncScene()then return end
+    if not self:syncScene()then Captions.loadStep(self.screen,dt,false);return end
+    if self.screen.loading or not self.screen.fontReady then
+        self.view:update(0,self.run);self.screen:update(0)
+        self.post:updateGame(self.run,nil,0,'echo',self.view.pose,self.bridge)
+        Captions.loadStep(self.screen,dt,true);return
+    end
+    if self.history then
+        local at=require('render.EchoHistory').index(self.run)
+        if self.history.at~=at then self.history:place(self.view.view.scene,at)end
+        self.history:fill(self.view,self.run,self.historyAnswers or {})
+    end
+    if self.run.phase=='finale'then
+        self.screen:cancelPointer();self.screen.finale=true
+        if not self.finale and self.history:complete(require('render.EchoHistory').index(self.run))then
+            self.finale=require('render.EchoFinale').new(self.view,self.history,self.run)
+        end
+        if self.finale and self.focused then self.finale:update(math.min(dt,.05));self:events()end
+        self.post:updateGame(self.run,nil,dt,'echo',self.view.pose,nil);return
+    end
     if not self.paused and self.focused then require('game.AudioPlayback').get():environment(math.min(dt,.05),self.run,'echo')end
     if self.referencePending then
         local v,r=self.view,self.run
@@ -103,7 +141,7 @@ function Probe:update(dt)
             if r.loadId~=self.view.loadId then
                 self:syncScene();self.screen:update(1/60);break
             end
-            self.view:update(r.lastDt or 0,r);self.post.effects:update(r.lastDt or 0);self.screen:update(1/60)
+            self.screen.top:update(r.lastDt or 0);self.view:update(r.lastDt or 0,r);self.post.effects:update(r.lastDt or 0);self.screen:update(1/60)
             self.post.particles.model:update(r.lastDt or 0)
             if r.phase=='done' then print('ECHO_NATIVE_ROUTE: PASS; theme='..r.theme..'; '..frame..' frames; '..#r.levels..' levels; source-verified controls; no teleports; answer='..r.answer) end
             if r.loadId~=self.view.loadId or not self.view.view.ready then break end
@@ -122,6 +160,7 @@ function Probe:update(dt)
         local spin=held(KEY_K) or held(KEY_SHIFT) or held(KEY_LSHIFT) or held(KEY_RSHIFT)
         if self.touchInput then x=x+self.touchInput.x;y=y+self.touchInput.y;spin=spin or self.touchInput.spin end
         self.run:update(dt,{x=x,y=y,spin=spin,charge=self.charge,restart=self.restart},self.view.camYaw)
+        self.screen.top:update(self.run.lastDt or dt)
         self.charge=false;self.restart=false;self:events()
         if self.run.loadId~=self.view.loadId and not self:syncScene()then return end
         self.view:update(self.run.lastDt or 0,self.run);self.post.effects:update(self.run.lastDt or 0);self.screen:update(math.min(dt,.05))
@@ -182,5 +221,5 @@ function Probe:focus(focused)
     end
     self.screen:cancelPointer()
 end
-function Probe:dispose() if self.post then self.post:dispose() end;self.screen:dispose();self.view:dispose() end
+function Probe:dispose() if self.finale then self.finale:dispose()end;if self.history then self.history:park()end; if self.post then self.post:dispose() end;self.screen:dispose();self.view:dispose() end
 return Probe

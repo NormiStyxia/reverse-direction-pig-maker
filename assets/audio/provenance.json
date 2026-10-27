@@ -1,0 +1,135 @@
+{
+  "date": "2026-10-27",
+  "provider": "Mivo",
+  "musicModel": "Suno V5",
+  "sfxModel": "ElevenLabs eleven_text_to_sound_v2",
+  "tracks": [
+    {
+      "key": "music-dream",
+      "title": "倒着走的梦",
+      "prompt": "Instrumental indie narrative puzzle game score, delicate felt piano and celesta, soft bowed strings and airy warm synth pad, tiny clockwork plucks, recurring gentle descending four-note motif, 72 bpm, dreamlike blue and white paper world, mysterious but tender, spacious melodic phrases, clean studio sound, no drums, no vocals, no hiss, no static, no horror, no harsh drones. Continuous understated background underscore.",
+      "taskId": "6ae05a6d2c42a6bafa14f366",
+      "fileId": "6ae05aa55a48d8a07f8285d2"
+    },
+    {
+      "key": "music-night",
+      "title": "23点12分的灯",
+      "prompt": "Instrumental narrative game nighttime office and convenience store underscore, intimate felt piano, warm electric piano, soft muted guitar harmonics, gentle rounded bass, very sparse brushed percussion, 78 bpm, lonely late work night with quiet human warmth and subtle melancholy, memorable restrained melody, clean sound, no voices, no environmental noise, no lo-fi hiss, no buzzing, no aggressive drums.",
+      "taskId": "6ae05a6a2c42a6bafa14f362",
+      "fileId": "6ae05a9cb8f167a558d6881a"
+    },
+    {
+      "key": "music-puzzle",
+      "title": "反方向的刻度",
+      "prompt": "Instrumental playful thoughtful time-rewind puzzle game music, chamber minimalism, pizzicato strings, marimba, felt piano, woodblocks, warm soft bass, 96 bpm, interlocking repeating melodic patterns, curious and gently propulsive, whimsical paper clockwork world, clear melodic development with stable dynamics for long puzzle solving, no vocals, no static, no distortion, no dramatic crescendo.",
+      "taskId": "6ae05a7a2c42a6bafa14f373",
+      "fileId": "6ae05aaa5cad1c24552bf31e"
+    },
+    {
+      "key": "music-dawn",
+      "title": "事物螺旋上升",
+      "prompt": "Instrumental hopeful narrative game dawn and ending music, warm felt piano melody, delicate acoustic guitar, gentle cello and soft string quartet, glockenspiel accents, 82 bpm, bittersweet relief becoming quiet optimism, spacious understated opening and tender uplifting development, human and intimate, no vocals, no choir, no noise, no bombastic percussion.",
+      "taskId": "6ae05a7f90572148c314c7f2",
+      "fileId": "6ae05ae2b8f167a558d6881d"
+    }
+  ],
+  "effects": [
+    {
+      "key": "impact",
+      "prompt": "One short satisfying soft cardboard box bump on a wooden floor, papery crunch with a rounded low wooden knock, tactile whimsical puzzle game impact, dry close mic, no music, no voice, no background noise, immediate attack then short decay.",
+      "requestedDuration": 1,
+      "taskId": "6ae05aec349ea7894d14e1e1",
+      "fileId": "6ae05aef80ea0732672b6d94"
+    },
+    {
+      "key": "slide",
+      "prompt": "One cardboard archive box sliding across a smooth wooden floor, short tactile papery scrape with a soft stop, gentle clean close-up foley, no harsh squeal, no music, no voice, no background noise.",
+      "requestedDuration": 1.6,
+      "taskId": "6ae05af12c42a6bafa14f390",
+      "fileId": "6ae05af35cad1c24552bf32a"
+    },
+    {
+      "key": "rewind",
+      "prompt": "Seamless loop of a gentle magical clockwork time rewind, delicate reversed glass ticks and soft paper flutter, clear warm rounded shimmering texture, subtle rhythmic motion, no loud whoosh, no static, no buzzing, no voice, no music.",
+      "requestedDuration": 4,
+      "taskId": "6ae05af9d0297c01d014d176",
+      "fileId": "6ae05afd5a48d8a07f8285dd"
+    },
+    {
+      "key": "mechanism",
+      "prompt": "One compact friendly clockwork mechanism unlocking: wooden click, tiny brass gears rolling briefly, soft resonant latch at the end, tactile miniature puzzle game mechanism, clean isolated sound, no music or voice.",
+      "requestedDuration": 1.2,
+      "taskId": "6ae05afdd0297c01d014d17a",
+      "fileId": "6ae05affb8f167a558d68826"
+    },
+    {
+      "key": "success",
+      "prompt": "One short warm magical puzzle solved chime, three clear ascending celesta notes with delicate glass sparkle and soft warm tail, satisfying gentle achievement, clean isolated game sound, no voice, no noise.",
+      "requestedDuration": 2.5,
+      "taskId": "6ae05b092c42a6bafa14f398",
+      "fileId": "6ae05b0c5cad1c24552bf32c"
+    },
+    {
+      "key": "transition",
+      "prompt": "One gentle magical paper-world folding transition, pages softly turning in a spiral, airy reverse swell then a rounded soft landing and delicate glass shimmer, clean spacious game sound, no harsh noise, no voice, no loud boom.",
+      "requestedDuration": 3,
+      "taskId": "6ae05b12d0297c01d014d186",
+      "fileId": "6ae05b15b8f167a558d68828"
+    },
+    {
+      "key": "notification",
+      "prompt": "One warm gentle phone notification: two soft rounded marimba-like notes, clear friendly subtle game message alert, clean isolated sound, no voice, no background noise.",
+      "requestedDuration": 1.2,
+      "taskId": "6ae05b1bd0297c01d014d18d",
+      "fileId": "6ae05b1eb8f167a558d68829"
+    },
+    {
+      "key": "footstep",
+      "prompt": "One single soft shoe footstep on an indoor wooden floor, muted gentle heel toe contact, intimate clean dry foley for a quiet narrative game, no extra steps, no music, no voice, no ambience.",
+      "requestedDuration": 0.6,
+      "taskId": "6ae05b20349ea7894d14e1f3",
+      "fileId": "6ae05b235a48d8a07f8285de"
+    },
+    {
+      "key": "tap",
+      "prompt": "A single extremely soft fingertip tap on a padded wooden button. Intimate and understated UI confirmation for a calm story game. Short rounded muted tok, dry and warm, no bright click, no metallic ringing, no scratch, no static, no hiss, no swish, no music, no voice. One event only.",
+      "requestedDuration": 0.5,
+      "taskId": "6ae06bef349ea7894d14e48a",
+      "fileId": "6ae06bf1b8f167a558d68ccb",
+      "peakDb": -12
+    },
+    {
+      "key": "paper",
+      "prompt": "A single delicate paper card gently turned over with fingertips, barely audible short soft papery puff, calm intimate close-up Foley. Muted warm and dry, no long scraping, no harsh rustle, no bright hiss, no whoosh, no crackle, no music, no voice. One quiet event only.",
+      "requestedDuration": 0.7,
+      "taskId": "6ae06be6349ea7894d14e482",
+      "fileId": "6ae06bea5cad1c24552bf76a",
+      "peakDb": -12
+    },
+    {
+      "key": "pickup",
+      "prompt": "A small cloth-covered cardboard archive box gently lifted from a felt desk mat, one soft low cushioned wooden contact and a tiny fabric movement, calm close-up Foley, dry and warm. No scraping, no hiss, no crackle, no swoosh, no sharp click, no music, no voice. Very short single subtle event.",
+      "requestedDuration": 0.7,
+      "taskId": "6ae06be2349ea7894d14e47f",
+      "fileId": "6ae06be55a48d8a07f828af0",
+      "peakDb": -12
+    },
+    {
+      "key": "door",
+      "prompt": "A small indoor office door latch quietly releases, one soft rounded wooden knock with a restrained low mechanical tick, gentle intimate dry Foley, warm and muted. No creaking, no scraping, no swish, no metallic clang, no hiss, no music, no voice. One subtle short event only.",
+      "requestedDuration": 0.8,
+      "taskId": "6ae06bea349ea7894d14e488",
+      "fileId": "6ae06bed80ea0732672b6fdb",
+      "peakDb": -12
+    }
+  ],
+  "supersededEffects": [
+    {
+      "key": "tap",
+      "prompt": "One short soft tactile UI click, wooden button with a tiny glass plink, warm delicate clean game interface feedback, immediate onset and very short decay, no music, no voice, no ambience.",
+      "requestedDuration": 0.5,
+      "taskId": "6ae05b17d0297c01d014d189",
+      "fileId": "6ae05b1980ea0732672b6e6e"
+    }
+  ]
+}

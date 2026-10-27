@@ -33,6 +33,7 @@ local function add(a,b) for _,v in ipairs(b) do a[#a+1]=v end;return a end
 function Story.new(options) local self=setmetatable({},Story);self:init(options or {});return self end
 function Story:init(options)
     self.mode=options.mode or 'meeting';self.random=options.random or math.random
+    self.tried=copy(options.tried or {});self.rewound=options.rewound;self.fromStore=options.fromStore;self.parked=false;self.proofT=0
     self.morningBranch=options.morningBranch or false;self.branch=New.MEET_BRANCH[self.morningBranch]
     self.canFindChen=false;self.chenAt=0;self.chenLeaveT=false;self.chenY=.62;self.chenVisible=true;self.mutterT=1.2;self.mutterI=0
     self.normi=options.normi or Actor.new(Layout,self.random);self.tune=copy(Data.tune)
@@ -64,6 +65,14 @@ function Story:init(options)
         n.obstacles=add(add(copy(Data.meetingObstacles),{{x0=-7.9,x1=-7.4,z0=-6,z1=4.6}}),Data.officeObstacles)
         for _,p in ipairs(self.people) do p.visible=false end
     else self:emit('title',{text='第一章 · 下午三点的会'}) end
+    if self.fromStore then
+        self.answer=options.answer or 'same';self.tonightAnswer=self.answer
+        for _,p in ipairs(self.people)do p.visible=false end
+        self.boxVisible=false;self.deskBoxVisible=true;self.parked=true
+        self.clockMin=1078;self.clockDusk=true;self.duskK=1;self.duskTo=1
+        self.replied=true;self.doorOpened=true;self.fired.pass=true
+        n:setPosition(-8.6,0,1.9);n.side=-1;self.phase='back'
+    end
 end
 function Story:emit(kind,data)
     if kind=='clearCaptions' then self.dialog=false end
@@ -133,6 +142,12 @@ function Story:zones()
     end
     if self.phase=='desk' then return {desk('pig',Data.after.pigName,Data.after.pigVerb,2.4,3.2)} end
     if self.phase=='walk' then
+        if self.parked and not self.fromStore then
+            local out={{id='exit',object='电梯间',text='下楼',x0=-10.4,x1=-7.7,z0=Data.doorZ0-.9,z1=Data.doorZ1+.9}}
+            if self:triedCount()<3 then out[#out+1]=desk('rewind','档案盒上的小猪','回到 14:47',2.2,3)end
+            return out
+        end
+        if self.fromStore then return {desk('put','档案盒','看看',2.2,3)}end
         if not self.carrying then return {{id='take',object='档案盒',text='拿上',x0=-3.9,x1=-.9,z0=-.7,z1=1.5}} end
         local out={desk('put','档案盒','放下',2.2,3)}
         for _,v in ipairs({{'notes','便利贴'},{'seal','小海豹'},{'cup','保温杯'}}) do if not self.seen[v[1]] then out[#out+1]=desk(v[1],v[2],'看看',2.2,3) end end
@@ -179,11 +194,14 @@ function Story:onInteract(id)
     if self.mode=='morning' then
         if id=='chen' then self:chenTalk();return end
         if id~='box' then return end
-        n:doTouch('hesitate');self:look('档案盒','工位 · '..self:hm(),{{kind='scene',src='./assets/ch1/looks/box.png',prop=true},{kind='line',text='盒子是空的，里面一张纸都没有。'},think('还是空的。')},
+        n:doTouch('hesitate');self:look('档案盒','工位 · '..self:hm(),{{kind='scene',src='./assets/ch1/looks/box.png',prop=true},{kind='line',text='盒子是空的，里面一张纸都没有。'},think('空的。也是，才早上十点，下午那场评审会还没开呢。')},
             function() self:once('msg-soon',function() self:after(1.2,function() self:message() end) end) end);return
     end
     if id=='pig' then self:startFold();return end
-    if id=='put' then self:closeUp();return end
+    if id=='put' then if self.branch or self.fromStore then self:closeUp()else self:putDown()end;return end
+    if id=='exit'then self:goDown();return end
+    if id=='rewind'then self:goRewind();return end
+    self.proofT=(id=='chen'or id=='box')and -3 or 0;if id=='chen'then self.seen.chen=true end
     if id=='chen' then
         local lines=self.branch and self.branch.chen or New.CHEN_TALK
         if not lines then return end
@@ -201,11 +219,15 @@ function Story:onInteract(id)
     if id=='cup' then n:face(1);self:look('保温杯',at('工位'),{scene('office/prop-cup'),line('杯底沉着一层茶叶。'),think(A.cup)});return end
     if id=='clock' then
         n:face(1);local entries={scene('looks/clock'),line('会议室的挂钟，秒针走得很响。'),think('两点四十七。')}
-        if first then entries[#entries+1]=think('十一点四十，我还在便利店。')end
+        if not self.branch then entries[3]=think('两点四十七？半分钟前明明还是夜里十一点五十……');entries[4]=think('连秒针卡顿那一下都一样。')end
         self:look('挂钟',at('会议室'),entries);self:express('deadpan',2.6)
     end
-    if id=='screen' then self:look('投影',at('会议室'),{scene('looks/monitor'),line('第 14 页投在墙上，「核心循环」那张图。'),think('这页今晚还得改三遍。')});self:express('deadpan',3)end
+    if id=='screen' then self:look('投影',at('会议室'),{scene('looks/monitor'),line('第 14 页投在墙上，「核心循环」那张图。'),think(self.branch and '这页今晚还得改三遍。'or '「玩法评审 · 第 14 页」，今天下午两点半那场会。'),not self.branch and think('连右下角那个错别字都还在……做梦哪会抠这种细节。')or nil});self:express('deadpan',3)end
     if id=='box' then
+        if not self.branch then
+            n:face(Data.box.x-n.pos.x);self:say('标签还是「下午 14:47」，书脊上这只猪是我开会走神刚画的……','inner');self:express('deadpan',3)
+            self:after(3.2,function()if self.phase=='play'then self:say('书脊上这只猪……不就是刚才便利店桌上乱转那只吗？','inner');self:express('surprised',3)end end);return
+        end
         n:face(Data.box.x-n.pos.x);self:say('……我什么时候画的。');self:express('surprised',2)
         if first then self:after(2.2,function() self:say('哦，就是现在。');self:express('smile',2.4) end);self:after(5.5,function() self:ask() end) end
     end
@@ -213,11 +235,11 @@ end
 function Story:togglePhone()
     if self.mode~='meeting' or self.phase~='play' then return end
     self:sound('tap');if self.phone.open then self:closePanel();return end
-    self.panelClosable=true;self:openPanel('手机',self:hm(),{{kind='card',name='日程',rows={{'周五','策划案 v7'}}},think('周五。……今天就是周五。')},{'收起'});self.choiceMode='phone'
+    self.panelClosable=true;self:openPanel('手机',self:hm(),{{kind='card',name='日程',rows={{'周五','策划案 v7'}}},think(self.branch and '周五。……今天就是周五。'or '周五 14:47。群里晚上那几十条夺命连环催全没了，消息停在两点半。')},{'收起'});self.choiceMode='phone';self.seen.phone=true;self.proofT=0
 end
 function Story:canSkip()
     if self.mode=='morning' then return self.phase=='play' or self.phase=='msg' or (self.phase=='chen' and not not self.morningBranch) or self.phase=='fastforward' end
-    return self.phase=='play' or self.phase=='ask' or self.phase=='leave' or self.phase=='msg' or (self.phase=='walk' and not self.carrying)
+    return self.phase=='play' or self.phase=='ask' or self.phase=='leave' or self.phase=='msg' or (self.phase=='walk' and (not self.carrying or (not self.branch and not self.fromStore)))
 end
 function Story:takeBox()
     if self.carrying then return end
@@ -239,7 +261,7 @@ function Story:skip()
         end
         self.phone:flush();return true
     end
-    if self.phase=='walk' then self:takeBox();return true end
+    if self.phase=='walk' then self:takeBox();if not self.branch and not self.fromStore then self.carrying=false;self.deskBoxVisible=true;self.parked=true;self:goDown(true)end;return true end
     self.later={};self.waitPanel=false
     self.tonightAnswer=self.answer
     for _,p in ipairs(self.people) do p.leaveT=false;p.visible=false end
@@ -255,15 +277,18 @@ function Story:ask()
         self:talk('leader',self.branch.ask[1]);self:after(2.4,function() self:talk('leader',self.branch.ask[2]) end)
         self:after(4.8,function() self:openAsk() end)
     else
-        self:talk('leader','……总是螺旋上升的嘛。');self:after(2,function() self:say('……怎么有点耳熟。','inner') end)
+        self:talk('leader','……总是螺旋上升的嘛。');self:after(2,function() self:say(self.rewound and New.RE_ECHO or '来了，下午他也是先说这句废话，下一句就要甩锅让我改方案了！','inner') end)
         self:after(4.2,function() self:talk('leader',New.ASK) end);self:after(6.6,function() self:openAsk() end)
     end
 end
 function Story:openAsk()
     self.panelClosable=false;self.choiceMode='answer'
     if self.branch then self:openPanel('组会',self:hm(),{leader(self.branch.ask[2]),think(self.branch.think)},{'……行吧'})
-    else local choices={};for _,a in ipairs(Data.answers) do choices[#choices+1]=a.say end
-        self:openPanel('组会',self:hm(),{leader(New.ASK),think(New.ASK_THINK)},choices)
+    else local choices={};local tried={};local said={}
+        for _,key in ipairs(self.tried)do tried[key]=true;for _,a in ipairs(Data.answers)do if a.key==key then said[#said+1]=a.say end end end
+        for _,a in ipairs(Data.answers)do choices[#choices+1]=a.say..(tried[a.key]and '（试过了）'or '')end
+        local thought=#said>0 and ('「'..table.concat(said,'」「')..'」……试过了。这次换一个。')or New.ASK_THINK
+        self:openPanel('组会',self:hm(),{leader(New.ASK),think(thought)},choices)
     end
 end
 function Story:onChoice(i)
@@ -271,7 +296,7 @@ function Story:onChoice(i)
     if self.mode=='morning' then
         if self.choiceMode=='msg' then
             if self.waitPanel or self.canFindChen then return end
-            self.phone:push({think('……等等，现在才九点五十八。'),think('这时候老陈应该还没开始改底层！')},{})
+            self.phone:push({think('下午开会的时候，老陈已经把分支锁死了，神仙也救不了。'),think('但现在才十点不到，他应该刚卡在那个接口报错上！'),think('趁他还没动手拆底层，我现在过去把他摁住不就完了？')},{})
             self:after(1.4,function() self:express('surprised',2.4) end);self.waitPanel='msg';return
         end
         if self.choiceMode~='chen' or self.morningBranch then return end
@@ -339,8 +364,9 @@ function Story:closeUp()
     self:after(2.8,function() self.frozen=true;self.clockBack=1;self:sound('freeze');self:emit('shake',{amount=.08});self:after(.5,function() self:say(Data.after.freeze,'inner') end) end)
     self:after(5.6,function() self.tonightVisible=true;self:emit('flash',{amount=.35});self:emit('puff',{pos=Data.boxSpots[2],count=4});self:sound('chime') end)
     self:after(6.4,function() self:say(self.branch and New.TONIGHT[self.morningBranch].line or Data.after.tonight,'inner');self:express('surprised',2.4) end)
-    if self.branch then self:after(8.8,function() self:say(New.BRANCH_FATE,'inner');self:express('deadpan',3) end) end
-    self:after(self.branch and 10.6 or 8.8,function() self.phase='desk';self:emit('hint',{text=Data.after.touch,duration=6.5}) end)
+    self:after(8.8,function() self:say(self.branch and New.BRANCH_FATE[1]or New.WHY_FIRST[tostring(math.min(3,math.max(1,self:triedCount())))],'inner');self:express('deadpan',3)end)
+    self:after(11.8,function()self:say(self.branch and New.BRANCH_FATE[2]or Data.after.why[2],'inner');self:express('deadpan',4)end)
+    self:after(15.4,function() self.phase='desk';self:emit('hint',{text=Data.after.touch,duration=6.5}) end)
 end
 function Story:startFold()
     if self.phase~='desk' then return end
@@ -359,7 +385,7 @@ function Story:stepMeeting(dt,ctx)
     if self.phase=='intro' then
         self.fx.veil={k=1-smooth(T,.6,1.6),r=lerp(-.2,1.9,smooth(T,0,1.4)),cx=.42,cy=.55}
         self:once('time',function() self:after(1,function() self.clockShow=true end) end)
-        self:once('wake',function() self:after(1.8,function() self:say(self.branch and self.branch.wake or '……下午？','inner');self:express('surprised',2.6) end) end)
+        self:once('wake',function() self:after(1.8,function() local wake=self.rewound and New.REWAKE or New.WAKE;self:say(self.branch and self.branch.wake or wake[1],'inner');self:express('surprised',2.6);if not self.branch then self:after(2.8,function()self:say(wake[2],'inner');self:express('deadpan',2.6)end)end end) end)
         if T>3.2 then self.phase='play';self.fx.veil=false;self.playAt=T;self:emit('hint',{text='WASD 走动 · F 看看 · J / 空格 看手机',duration=6}) end
     end
     if self.phase=='play' or self.phase=='intro' then
@@ -369,7 +395,9 @@ function Story:stepMeeting(dt,ctx)
     if self.phase=='play' then
         self.idleT=hypot(n.vel.x,n.vel.z)<.1 and self.idleT+dt or 0
         if self.idleT>9 then self:once('idle',function() self:say('上次，我还在想晚饭吃什么。','inner') end) end
-        if T-self.playAt>45 then self:ask() end
+        if self.rewound and T-self.playAt>4.5 and not self.phone.open then self:ask()end
+        if not self.branch and not self.rewound and self.seen.box and (self.seen.clock or self.seen.screen or self.seen.chen or self.seen.phone)and not self.phone.open then self.proofT=self.proofT+dt;if self.proofT>2.6 then self:ask()end end
+        if T-self.playAt>(self.branch and 20 or 45)then self:ask()end
     end
     if self.waitPanel and #self.phone.queue==0 and not self.phone.choicesWaiting then
         local w=self.waitPanel;self.waitPanel=false
@@ -380,7 +408,7 @@ function Story:stepMeeting(dt,ctx)
         p.leaveT=p.leaveT+dt;local k=smooth(p.leaveT,0,1.1);p.y=k*k*7;p.rz=math.sin(p.leaveT*3)*.04*(1-k);if k>=1 then p.visible=false end
     end end
     local atDoor=n.pos.x< -5.4 and n.pos.z>Data.doorZ0-.8 and n.pos.z<Data.doorZ1+.8
-    if self.phase=='walk' and atDoor and not self.carrying and T-(self.noBoxAt or -9)>6 then self.noBoxAt=T;self:say(A.noBox) end
+    if self.phase=='walk' and atDoor and not self.carrying and not self.parked and T-(self.noBoxAt or -9)>6 then self.noBoxAt=T;self:say(A.noBox) end
     local want=self.carrying and (atDoor or self:inOffice())
     if want and not self.doorOpened then self.doorOpened=true;self:sound('slide') end
     self.doorK=self.doorK+((self.doorOpened and 1 or 0)-self.doorK)*math.min(1,dt*3)
@@ -393,14 +421,22 @@ function Story:stepMeeting(dt,ctx)
     end
     if self.autoWalk then
         n:moveStick(self.autoWalk)
-        if hypot(n.pos.x-self.autoWalk.x,n.pos.z-self.autoWalk.z)<.15 or self.phase~='pig' then self.autoWalk=false;n:face(1) end
+        if hypot(n.pos.x-self.autoWalk.x,n.pos.z-self.autoWalk.z)<.15 or (self.phase~='pig'and self.phase~='exit')then self.autoWalk=false;n:face(1) end
     end
     if self.phase=='walk' and self:inOffice() then
         for _,p in ipairs(Data.officePeople) do if math.abs(p.home.x-n.pos.x)<1.2 and p.home.z> -2.5 then self:once('pass',function() self:talk(p.head,self.branch and self.branch.passBy or A.passBy) end);break end end
     end
-    if self.doorOpened and self:inOffice() then self.duskTo=math.max(self.duskTo,clamp((-7.6-n.pos.x)/5.2,0,1)) end
+    if self.doorOpened and self:inOffice() then self.duskTo=math.max(self.duskTo,clamp((-7.6-n.pos.x)/5.2,0,not self.branch and not self.fromStore and .055 or 1)) end
     if self.phase=='pig' or self.phase=='desk' or self.phase=='fold' or self.phase=='done' then self.duskTo=1 end
     self.duskK=self.duskK+(self.duskTo-self.duskK)*math.min(1,dt*.7)
+    if self.phase=='exit'then
+        self.exitT=self.exitT+dt;local t=self.exitT
+        self.fx.veil={k=smooth(t,.9,1.5),r=lerp(1.9,-.2,smooth(t,1,2.2)),pivot=vec(n.pos.x,1.6,n.pos.z)};self.fx.audioFade=smooth(t,.8,2.2)
+        if t>2.4 then self.phase='gone';self.result={answer=self.answer,toStore=true};self:emit('finish',{result=self.result})end
+    elseif self.phase=='back'then
+        self.fx.veil={k=1-smooth(T,.4,1.4),r=lerp(-.2,1.9,smooth(T,.2,1.6)),cx=.55,cy=.5};self.clockShow=true
+        if T>1.6 then self.fx.veil=false;self.phase='walk';self:emit('hint',{text=A.backDesk,duration=6})end
+    end
     local tn=self.tune;local dk=smooth(math.max(self.duskK,tn.duskPreview or 0),0,1)
     self.lightDusk=dk
     if self.clockDusk then local m=math.floor(lerp(902,1078,smooth(self.duskK,0,1))+.5)-self.clockBack;self.clockSpin=m~=self.clockMin and not self.frozen;self.clockMin=m end
@@ -424,9 +460,9 @@ function Story:stepMorning(dt)
         local k=smooth(T,.4,2.8);self.clockMin=math.floor(lerp(887,598,k*k)+.5);self.clockShow=true;self.clockSpin=k<1
         self.fx.haze=1-smooth(T,2.4,3.6);self.fx.veil={k=1-smooth(T,2.6,3.6),r=lerp(-.2,1.9,smooth(T,2.4,3.8)),cx=.45,cy=.55}
         if T>2.9 then self:once('tick',function() self:sound('tick') end) end
-        if T>4 then self.phase='play';self.fx.veil=false;self.fx.haze=0;self.playAt=T;self:say('……早上？','inner');self:express('surprised',2.4);self:after(2.6,function() self:emit('hint',{text='WASD 走动 · F 看看',duration=4}) end) end
+        if T>4 then self.phase='play';self.fx.veil=false;self.fx.haze=0;self.playAt=T;self:say('九点五十八？直接退回今天早上了。','inner');self:after(2.8,function()self:say('每次碰完那只猪，时间都会往回跳一大截。','inner')end);self:express('surprised',2.4);self:after(2.6,function() self:emit('hint',{text='WASD 走动 · F 看看',duration=4}) end) end
     end
-    if self.phase=='play' and not self.canFindChen and T-self.playAt>8 then self:message() end
+    if self.phase=='play' and not self.canFindChen and T-self.playAt>11 then self:message() end
     if self.waitPanel and #self.phone.queue==0 and not self.phone.choicesWaiting then
         local w=self.waitPanel;self.waitPanel=false
         if w=='msg' then self:after(1.6,function()
@@ -459,5 +495,30 @@ function Story:update(dt,ctx)
     for i=#self.later,1,-1 do local l=self.later[i];l.t=l.t-dt;if l.t<=0 then table.remove(self.later,i);l.fn() end end
     self.normi:update(dt,ctx.camYaw or 0,self:walkEnabled(),0);self:updatePrompt();self.phone:update(dt)
     if self.mode=='morning' then self:stepMorning(dt) else self:stepMeeting(dt,ctx) end
+end
+
+function Story:triedCount()
+    local set={};for _,v in ipairs(self.tried)do set[v]=true end;if self.answer then set[self.answer]=true end
+    local n=0;for _ in pairs(set)do n=n+1 end;return n
+end
+function Story:putDown()
+    if self.parked then return end
+    self.parked=true;self.carrying=false;self.normi:doTouch('hesitate');self.deskBoxVisible=true;self:sound('pickup')
+    self:emit('puff',{pos=Data.boxSpots[1],count=2})
+    local n=self:triedCount();local lines=New.PARK[tostring(math.max(1,math.min(3,n)))]
+    self:after(.8,function()self:say(lines[1],'inner');self:express('deadpan',3)end)
+    self:after(3.6,function()self:say(lines[2]..(n<3 and '……或者先下楼买瓶喝的透透气。'or ''),'inner')end)
+    self:after(7.2,function()self:emit('hint',{text=n>=3 and Data.after.goDown or Data.after.goBack..' ／ '..Data.after.goDown,duration=7})end)
+end
+function Story:goRewind()
+    if self.phase~='walk'then return end
+    if self:triedCount()>=3 then self:say('……会上已经没有别的回法了。','inner');return end
+    self.normi:doTouch('hesitate');self:emit('flash',{amount=.3});self:sound('tick')
+    self:after(.5,function()self.result={answer=self.answer,toTimeline=true};self:emit('finish',{result=self.result})end)
+end
+function Story:goDown(now)
+    if self.phase~='walk'then return end
+    self.phase='exit';self.exitT=now and 1.6 or 0;self:emit('clearCaptions')
+    self.autoWalk=vec(-6.6,0,(Data.doorZ0+Data.doorZ1)/2);self:sound('door')
 end
 return Story

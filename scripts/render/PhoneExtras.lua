@@ -4,14 +4,16 @@ local Extras={}
 local function box(c,x,y,w,h,color,r)
     local vg=c.vg;nvgBeginPath(vg);nvgRoundedRect(vg,x,y,w,h,r or 6);nvgFillColor(vg,nvgRGBA(table.unpack(color)));nvgFill(vg)
 end
-function Extras.reset(c)c.stickersOpen=false;c.reactFor=false;c.longPressed=false end
+function Extras.reset(c)c.stickersOpen=false;c.reactFor=false;c.longPressed=false;c.composerScroll=0 end
 function Extras.action(c,id)
     local p=c.story.phone;if not p.stickers then return false end
-    if id=='stickers' then c.stickersOpen=not c.stickersOpen;c.reactFor=false;c.scrollBottom=true;return true end
+    if id=='stickers' then c.stickersOpen=not c.stickersOpen;c.reactFor=false;c.composerScroll=0;c.scrollBottom=true;return true end
     if id:sub(1,5)=='stab:' then c.stickerTab=id:sub(6);return true end
     if id:sub(1,9)=='reactbar:' then c.reactFor=c.reactFor~=id:sub(10) and id:sub(10) or false;c.stickersOpen=false;return true end
     if id=='dismiss-react' then c.reactFor=false;return true end
+    if id:sub(1,8)=='sticker:' then c.stickersOpen=false;c.reactFor=false;c.composerScroll=0;c.scrollBottom=true;return false end
     if id:sub(1,6)=='react:' then
+        c.reactFor=false
         local mid,key=id:match('^react:([^:]+):(.+)$');if not mid then return true end
         p.reacts=p.reacts or {};local list=p.reacts[mid] or {};p.reacts[mid]=list
         for i,r in ipairs(list)do if r==key then table.remove(list,i);if c.story.saveChat then c.story:saveChat()end;return true end end
@@ -19,26 +21,38 @@ function Extras.action(c,id)
     end
     return false
 end
-function Extras.input(c,p,y)
+function Extras.input(c,p,y,h)
     if not c.story.phone.stickers then return 0 end
-    box(c,p.x,y,36,44,c.stickersOpen and {175,225,135,255}or {250,251,244,230},6)
-    c:text('☺',p.x+7,y+9,24,{79,95,76,255});c:addHit('stickers','表情',p.x,y,36,44);return 42
+    h=h or 44;local size=36;local vg=c.vg;local cy=y+h/2;local cx=p.x+size/2
+    box(c,p.x,y,size,h,c.stickersOpen and {205,238,211,255}or {250,251,244,230},6)
+    -- Same outlined smile as phone.js; never depend on a platform emoji font.
+    nvgBeginPath(vg);nvgCircle(vg,cx,cy,10);nvgStrokeWidth(vg,1.6);nvgStrokeColor(vg,nvgRGBA(79,95,76,255));nvgStroke(vg)
+    nvgBeginPath(vg);nvgMoveTo(vg,cx-4,cy+3);nvgBezierTo(vg,cx-2,cy+7,cx+2,cy+7,cx+4,cy+3);nvgStroke(vg)
+    nvgBeginPath(vg);nvgCircle(vg,cx-3,cy-3,.8);nvgCircle(vg,cx+3,cy-3,.8);nvgFillColor(vg,nvgRGBA(79,95,76,255));nvgFill(vg)
+    c:addHit('stickers','表情',p.x,y,size,h);return size+(p.wide and 5 or 8)
 end
-function Extras.grid(c,p,bottom)
-    if not c.stickersOpen or not c.story.phone.stickers then return bottom end
+function Extras.gridLayout(c,p)
+    if not c.stickersOpen or not c.story.phone.stickers then return nil end
     local group=Data.STICKERS[1];for _,g in ipairs(Data.STICKERS)do if g.id==c.stickerTab then group=g end end
-    local size=math.min(p.wide and 56 or 92,(p.w-24)/4,(c.h*.34-46)/2)
-    size=math.max(24,size);local h=46+size*2;local top=bottom-h-8
-    box(c,p.x,top,p.w,h,{250,251,244,235},8)
-    for i,g in ipairs(Data.STICKERS)do
-        local x=p.x+8+(i-1)*74;box(c,x,top+5,70,30,g==group and {205,238,211,255}or {250,251,244,0},12)
-        c:text(g.label,x+19,top+12,13,{59,88,64,255});c:addHit('stab:'..g.id,g.label,x,top+5,70,30)
+    local pad=p.wide and 6 or 10;local top=p.wide and 6 or 8
+    local size=math.max(1,(p.w-2*pad-12)/4)
+    if not p.small then size=math.min(92,size)end
+    local tabH=require('game.StoryPanelLayout').normalHeight(14)+6
+    return {group=group,pad=pad,top=top,size=size,tabH=tabH,gridY=top+tabH+6,h=top+tabH+6+math.ceil(#group.list/4)*(size+4)-4+pad}
+end
+function Extras.grid(c,p,top,g)
+    if not g then return end
+    box(c,p.x,top,p.w,g.h,{250,251,244,235},8)
+    local x=p.x+g.pad
+    for _,group in ipairs(Data.STICKERS)do
+        local width=c:measure(group.label,14)+24
+        box(c,x,top+g.top,width,g.tabH,group==g.group and {205,238,211,255}or {250,251,244,0},12)
+        c:text(group.label,x+12,top+g.top+3,14,{59,88,64,255});c:addHit('stab:'..group.id,group.label,x,top+g.top,width,g.tabH);x=x+width+4
     end
-    for i,s in ipairs(group.list)do
-        local x=p.x+8+((i-1)%4)*(size+2);local y=top+39+math.floor((i-1)/4)*size
-        c:image('stickers/'..s[1]..'.png',x+4,y+4,size-8,size-8);c:addHit('sticker:'..s[1],s[2],x,y,size,size)
+    for i,s in ipairs(g.group.list)do
+        local xx=p.x+g.pad+((i-1)%4)*(g.size+4);local y=top+g.gridY+math.floor((i-1)/4)*(g.size+4)
+        c:image('stickers/'..s[1]..'.png',xx+6,y+6,math.max(1,g.size-12),math.max(1,g.size-12));c:addHit('sticker:'..s[1],s[2],xx,y,g.size,g.size)
     end
-    return top
 end
 function Extras.message(c,m,bx,by,layout,p)
     if not m.id or m.me or not c.story.phone.stickers or c.channel~='phone' then return end

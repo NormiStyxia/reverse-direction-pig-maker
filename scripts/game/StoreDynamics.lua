@@ -28,6 +28,7 @@ end
 function Dynamics:forceDoor(duration) self.door.force=duration end
 function Dynamics:update(dt,state)
     local T=Data.tune;local s=state.stress or 0;local time=state.time or 0
+    local day=state.day==true
     local fold=state.fold or 0;local pw=state.power==nil and 1 or state.power
     local D=self.door;local pos=state.pos;local door=Data.dynamics.door
     ---@type number
@@ -47,7 +48,7 @@ function Dynamics:update(dt,state)
     local chair=Data.dynamics.emptyHome
     self.chairPosition={chair[1]+k*.35,chair[2],chair[3]};self.chairScale=1+k*.14
     self.clerkAngle=math.sin(time*.6)*.012;self.clerkVisible=fold<.45
-    self.bounce={};for i,b in ipairs(Data.handles.bounce) do self.bounce[i]=b.base*T.bounce*(1+k*.6)*.15*(1-fold) end
+    self.bounce={};for i,b in ipairs(Data.handles.bounce) do self.bounce[i]=b.base*T.bounce*(1+k*.6)*(day and 1 or .15)*(1-fold) end
     local glow=T.foodGlow*(1-k*.3)*(1-fold)
     self.food={4*glow*(.95+math.sin(time*2.3)*.05),3*glow};self.foodAngle=self.foodAngle+dt*1.6
     self.foodQuaternion=quaternion(self.foodAngle,0,math.pi/2)
@@ -56,13 +57,13 @@ function Dynamics:update(dt,state)
     if self.flickT<=0 then self.flickT=self.random()<.012 and (.06+self.random()*.16) or 0 end
     if self.flickT<=0 and self.random()<.004 then self.flickT=.35 end
     local boost=(state.flickBoost or 0)>0 and self.random()<.45 and .15 or 1
-    local on={lerp(0,.12,pw),self.flickT>0 and .1 or lerp(.55,.7,pw),lerp(.9,.95,pw)}
+    local on=day and {1,1,1}or {lerp(0,.12,pw),self.flickT>0 and .1 or lerp(.55,.7,pw),lerp(.9,.95,pw)}
     self.tubeColors={}
-    for i,v in ipairs(on) do local n=v*boost;self.tubeColors[i]={3.2*n+.25,3.2*n+.27,2.9*n+.3} end
+    for i,v in ipairs(on) do local n=v*boost;self.tubeColors[i]={3.2*n+(day and 0 or .25),3.2*n+(day and 0 or .27),2.9*n+(day and 0 or .3)} end
     self.ceiling={}
     for i=1,#Data.handles.ceiling do
         local flick=s>.8 and self.random()<(s-.8)*.2 and .6 or 1
-        self.ceiling[i]=T.ceiling*(1-k*.15)*(i==1 and lerp(.06,.4,pw) or lerp(.62,1,pw))*boost*(1-fold)*flick
+        self.ceiling[i]=T.ceiling*(1-k*.15)*(day and 1 or (i==1 and lerp(.06,.4,pw) or lerp(.62,1,pw)))*boost*(1-fold)*flick
     end
     self.hemiIntensity=lerp(.3,.72,pw);self.shadowStep=lerp(.04,.08,pw)
     local order={'outside','beams','wallR','back','wallL','furniture','floor'}

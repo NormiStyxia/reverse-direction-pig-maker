@@ -98,9 +98,12 @@ function Renderer:pig(id,pose,frame)
     param(m,'map_uv',uv);param(m,'emit_uv',uv)
 end
 function Renderer:updateCamera(dt,run)
+    self.topK=(self.topK or 0)+((self.topOn and 1 or 0)-(self.topK or 0))*math.min(1,dt*2.6)
+    local top=self.topK
     local p=run.pig.pos;local k=math.min(1,dt*3.2);local look=self.look
     local meeting=run.theme~='store'
     local target=run.exitCamera or {x=meeting and p.x*.12 or math.max(-4.5,math.min(4.5,p.x))*.85,y=meeting and .5 or .8,z=meeting and (-.7+p.z*.08) or (p.z*.7+.4)}
+    target={x=target.x*(1-top),y=target.y*(1-top),z=target.z+(-.5-target.z)*top}
     look.x=look.x+(target.x-look.x)*k
     look.y=look.y+(target.y-look.y)*k;look.z=look.z+(target.z-look.z)*k
     local spin=run.pig.spinSpeed
@@ -110,7 +113,9 @@ function Renderer:updateCamera(dt,run)
     self.camDist=self.camDist+((meeting and 1.32 or 1)-self.camDist)*math.min(1,dt*2)
     self.camPitch=self.camPitch+(math.rad(meeting and 23 or 16)-self.camPitch)*math.min(1,dt*2)
     local pitch=self.camPitch;local dist=22*self.camDist*(self.bridgeDistance or 1);local yaw=self.yawOff;local v=self.view
-    v.camera.fov=24*self.fovMul
+    local fit=math.max(12.5*.62/math.tan(math.rad(12)),17.5/2/(math.tan(math.rad(12))*graphics:GetWidth()/math.max(1,graphics:GetHeight())))
+    pitch=pitch+(math.rad(70)-pitch)*top;dist=dist+(fit-dist)*top;yaw=yaw*(1-top)
+    v.camera.fov=24*(self.fovMul+(1-self.fovMul)*top)
     v.cameraNode.position=Vector3(look.x+math.sin(yaw)*math.cos(pitch)*dist,look.y+math.sin(pitch)*dist,-(look.z+math.cos(yaw)*math.cos(pitch)*dist))
     if v.screenEffects then local x,y=v.screenEffects:camera(dt);v.cameraNode.position=v.cameraNode.position+Vector3(x,y,0) end
     v.cameraNode:LookAt(Vector3(look.x,look.y,-look.z))
@@ -120,7 +125,7 @@ function Renderer:update(dt,run)
     if self.loadId~=run.loadId then self:load(run) end
     if not self.view.ready then return end
     if not self.ready then self:configure(run) end
-    self.time=self.time+dt;self.pose:update(run,dt)
+    self.time=self.time+dt;self.pose:update(run,dt);run.topK=self.topK or 0
     self:updateRain(dt)
     local p,H,v=self.pose,self.data.handles,self.view
     self:node(H.root,p.root.position,p.root.quaternion,p.root.scale)
@@ -164,7 +169,7 @@ function Renderer:update(dt,run)
     end
     v.nodes[H.ring].rotation=Quaternion(90,Vector3(1,0,0))*Quaternion(math.deg(p.ringAngle),Vector3(0,0,1))
     for i,id in ipairs(H.hands) do v.nodes[id].rotation=Quaternion(math.deg(p.hands[i]),Vector3(0,0,1)) end
-    self:pig(H.pig,run.pig.pose,run.pig.frame)
+    self:pig(H.pig,run.pig.pose,run.pig.frame);v:setSourceVisible(H.pig,(self.topK or 0)<=.5)
     for i,g in ipairs(run.pig.ghosts) do
         local id=H.ghosts[i]
         if v.visible[id]~=g.visible then v:setSourceVisible(id,g.visible) end

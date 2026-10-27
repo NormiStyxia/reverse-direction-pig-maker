@@ -39,6 +39,7 @@ function Canvas:init(story)
     self.scroll={phone=0,browse=0};self.maxScroll=0;self.scrollBottom=false;self.thread=false
     self.pointerId=false;self.press=false;self.dragged=false;self.pointerY=0;self.startX=0;self.startY=0
     self.probeBackdrop=false
+    self.sceneBackdrop=false
     self.sceneHUD=false
     self.sceneActions=false
     self:resize(graphics:GetWidth(),graphics:GetHeight(),graphics:GetDPR())
@@ -58,7 +59,7 @@ function Canvas:resize(w,h,dpr)
 end
 function Canvas:place(left,right) self.actorLeft=left;self.actorRight=right end
 function Canvas:cancelPointer()
-    self.pointerId=false;self.press=false;self.dragged=false
+    self.pointerId=false;self.press=false;self.dragged=false;self.scrollTarget=false
     if self.sceneActions then self.sceneActions:cancel() end
 end
 function Canvas:fontSize(size)
@@ -136,7 +137,7 @@ function Canvas:update(dt)
     if not p.open or p.view~='chat' then Extras.reset(self)end
     if p.open and not self.wasOpen then self.placement.layoutSide=false;self.lastView=false end
     self.wasOpen=p.open
-    Layout.place(self.placement,self.actorLeft,self.actorRight);b:place(self.actorLeft,self.actorRight)
+    Layout.placePhone(self.placement,self.actorLeft,self.actorRight);b:place(self.actorLeft,self.actorRight)
     if p.draft~=self.lastDraft then self.lastDraft=p.draft;self.typeFrom=p.elapsed end
     local count=math.min(utf8.len(p.draft),math.floor((p.elapsed-self.typeFrom)/.05))
     self.typed=Layout.utf8Prefix(p.draft,math.max(0,count));self.ready=p.draft~='' and count>=utf8.len(p.draft)
@@ -153,6 +154,11 @@ function Canvas:update(dt)
     for i in ipairs(b.entries) do if not self.browseArrivals[i] then self.browseArrivals[i]=self.elapsed end end
 end
 function Canvas:addHit(id,text,x,y,w,h,enabled)
+    if self.hitClip then
+        local r=self.hitClip;local right,bottom=math.min(x+w,r.x+r.w),math.min(y+h,r.y+r.h)
+        x=math.max(x,r.x);y=math.max(y,r.y);w=right-x;h=bottom-y
+        if w<=0 or h<=0 then return end
+    end
     self.hits[#self.hits+1]={id=id,text=text,key=tostring(self.channel)..':'..id..':'..text,x=x,y=y,w=w,h=h,enabled=enabled~=false}
 end
 function Canvas:hitTest(x,y)
@@ -169,7 +175,9 @@ function Canvas:pointerDown(x,y,id)
     local px,py=x,y
     x=x/self.dpr;y=y/self.dpr
     local hit=self:hitTest(x,y);local inThread=self.thread and inside(x,y,self.thread)
-    if not hit and not inThread then return self.sceneActions and self.sceneActions:down(px,py,id or 'mouse') or false end
+    local inComposer=self.composer and inside(x,y,self.composer)
+    if not hit and not inThread and not inComposer then return self.sceneActions and self.sceneActions:down(px,py,id or 'mouse') or false end
+    self.scrollTarget=inComposer and 'composer' or 'thread'
     self.pointerId=id or 'mouse';self.press=hit;self.dragged=false;self.startX=x;self.startY=y;self.pointerY=y
     self.pressAt=self.elapsed;self.longPressed=false
     return true
@@ -179,7 +187,9 @@ function Canvas:pointerMove(x,y,id)
     if self.pointerId~=(id or 'mouse') then return end
     x=x/self.dpr;y=y/self.dpr
     if math.abs(x-self.startX)+math.abs(y-self.startY)>6 then self.dragged=true end
-    if self.dragged and (not self.press or self.press.message) and self.channel then
+    if self.dragged and self.scrollTarget=='composer' then
+        self.composerScroll=math.max(0,math.min(self.composerMaxScroll or 0,(self.composerScroll or 0)+self.pointerY-y))
+    elseif self.dragged and (not self.press or self.press.message) and self.channel then
         self.scroll[self.channel]=math.max(0,math.min(self.maxScroll,self.scroll[self.channel]+self.pointerY-y))
         self.scrollBottom=false
     end
@@ -200,12 +210,16 @@ function Canvas:contextMenu(x,y)
     return false
 end
 function Canvas:wheel(delta,x,y)
+    if self.channel and self.composer and inside(x/self.dpr,y/self.dpr,self.composer)then
+        self.composerScroll=math.max(0,math.min(self.composerMaxScroll or 0,(self.composerScroll or 0)-delta*40));return true
+    end
     if self.channel and self.thread and inside(x/self.dpr,y/self.dpr,self.thread) then
         self.scroll[self.channel]=math.max(0,math.min(self.maxScroll,self.scroll[self.channel]-delta*40));self.scrollBottom=false;return true
     end
     return false
 end
 function Canvas:dispatch(id)
+    if not self:inputEnabled() then return false end
     if self.channel=='browse' then self.story:onBrowse(id)
     elseif Extras.action(self,id) then
     elseif id~='send' or self.ready then self.story:onPhone(id) end
@@ -237,40 +251,57 @@ function Canvas:drawHeader(p,isBrowse)
 end
 function Canvas:drawChoices(p,list,bottom,hasInput)
     local buttons,height=Layout.choices(list,p.w,p.small,function(t,s)return self:measure(t,s)end,self.touchUI,p.wide)
-    local inputH=hasInput and 54 or 0
-    local top=bottom-height-inputH-13
-    box(self.vg,p.x,top,p.w,1,{240,237,223,56})
+    local inputH=hasInput and (p.wide and not self.touchUI and 36 or 44)or 0
+    local grid=hasInput and Extras.gridLayout(self,p)or nil
+    local gap=p.wide and 5 or 10;local pad=p.wide and 6 or 13
+    local content=pad+height+(grid and gap+grid.h or 0)+(hasInput and gap+inputH or 0)
+    local compact=self.w>self.h and self.h<=600
+    local limit=p.wide and (p.bottom-p.y)*.48 or compact and (p.bottom-p.y)*.58 or content
+    -- Preserve a readable thread even when long choices and the picker coexist.
+    limit=math.min(limit,math.max(44,bottom-(p.y+p.headerH+p.gap)-44))
+    local visible=math.min(content,limit);local top=bottom-visible
+    self.composer={x=p.x,y=top,w=p.w,h=visible};self.composerMaxScroll=math.max(0,content-visible)
+    self.composerScroll=math.max(0,math.min(self.composerMaxScroll,self.composerScroll or 0))
+    nvgSave(self.vg);nvgIntersectScissor(self.vg,p.x,top,p.w,visible);self.hitClip=self.composer
+    local y0=top+pad-self.composerScroll
+    box(self.vg,p.x,top-self.composerScroll,p.w,1,{240,237,223,56})
     for _,b in ipairs(buttons) do
-        local y=top+13+b.y;local c=b.id=='chat' and {128,182,101,255} or (b.quietReply and {239,228,207,179} or CHOICE)
-        if self.story.mode=='dream' then c={250,252,255,235}end
-        box(self.vg,p.x+b.x,y,b.w,b.h,c,6)
+        local y=y0+b.y;local color=b.id=='chat' and {128,182,101,255} or (b.quietReply and {239,228,207,179} or CHOICE)
+        if self.story.mode=='dream' then color={250,252,255,235}end
+        box(self.vg,p.x+b.x,y,b.w,b.h,color,6)
         if self.story.mode=='dream' then nvgStrokeColor(self.vg,nvgRGBA(1,64,196,153));nvgStrokeWidth(self.vg,1);nvgStroke(self.vg)end
         self:lines(b.lines,p.x+b.x+b.px+1,y+(b.h-#b.lines*Layout.normalHeight(b.size))/2,b.size,Layout.normalHeight(b.size),b.id=='chat' and LIGHT or INK)
         self:addHit(b.id,b.text,p.x+b.x,y,b.w,b.h)
     end
-    if hasInput then self:drawInput(p,bottom-44) end
-    if hasInput then top=Extras.grid(self,p,top)end
+    local nextY=y0+height
+    if grid then nextY=nextY+gap;Extras.grid(self,p,nextY,grid);nextY=nextY+grid.h end
+    if hasInput then self:drawInput(p,nextY+gap,inputH)end
+    self.hitClip=false;nvgRestore(self.vg)
+    if self.composerMaxScroll>0 then
+        local bar=math.max(16,visible*visible/content)
+        box(self.vg,p.x+p.w-2,top+(visible-bar)*self.composerScroll/self.composerMaxScroll,2,bar,{240,237,223,160},1)
+    end
     return top
 end
-function Canvas:drawInput(p,y)
-    local offset=Extras.input(self,p,y);if offset>0 then local q={};for k,v in pairs(p)do q[k]=v end;q.x=q.x+offset;q.w=q.w-offset;p=q end
+function Canvas:drawInput(p,y,h)
+    h=h or 44;local offset=Extras.input(self,p,y,h);if offset>0 then local q={};for k,v in pairs(p)do q[k]=v end;q.x=q.x+offset;q.w=q.w-offset;p=q end
     local phone=self.story.phone;local hasDraft=phone.draft~=''
     local dream=self.story.mode=='dream'
-    local sendW=dream and 0 or 58;local clearW=hasDraft and 27 or 0
+    local sendSize=p.wide and 11 or 15;local sendW=dream and 0 or self:measure('发送',sendSize)+(p.wide and 18 or 28);local clearW=hasDraft and 27 or 0
     local draftW=math.max(20,p.w-sendW-8-(hasDraft and clearW+8 or 0))
-    box(self.vg,p.x,y,draftW,44,{250,251,244,230},6)
-    nvgSave(self.vg);nvgIntersectScissor(self.vg,p.x+13,y,draftW-26,44)
-    local text=hasDraft and self.typed or phone.placeholder or '选一句，或者什么都不说';local size=p.wide and 12 or (hasDraft and 18 or 15)
+    box(self.vg,p.x,y,draftW,h,{250,251,244,230},6)
+    nvgSave(self.vg);nvgIntersectScissor(self.vg,p.x+13,y,draftW-26,h)
+    local text=hasDraft and self.typed or phone.placeholder or '选一句，或者什么都不说';local size=p.wide and (hasDraft and 12 or 10)or (hasDraft and 18 or 15)
     local offset=math.max(0,self:measure(text,size)-(draftW-30))
-    self:text(text,p.x+13-offset,y+(44-size)/2,size,hasDraft and INK or MUTED)
-    if hasDraft and self.elapsed%1<.5 then box(self.vg,p.x+14+self:measure(text,size)-offset,y+12,2,19.8,{95,174,74,255}) end
+    self:text(text,p.x+13-offset,y+(h-size)/2,size,hasDraft and INK or MUTED)
+    if hasDraft and self.elapsed%1<.5 then box(self.vg,p.x+14+self:measure(text,size)-offset,y+(h-size*1.1)/2,2,size*1.1,{95,174,74,255}) end
     nvgRestore(self.vg)
     if dream then return end
     local sendX=p.x+p.w-sendW
-    if hasDraft then self:text('✕',sendX-8-clearW+6,y+13,15,LIGHT,true);self:addHit('clear','clear',sendX-8-clearW,y,clearW,44) end
-    box(self.vg,sendX,y+4,sendW,36,self.ready and {7,193,96,255} or {225,230,218,217},6)
-    self:text('发送',sendX+14,y+13,15,self.ready and {255,255,255,255} or {138,149,133,255})
-    self:addHit('send',phone.draft,sendX,y,sendW,44,self.ready)
+    if hasDraft then self:text('✕',sendX-8-clearW+6,y+(h-sendSize)/2,sendSize,LIGHT,true);self:addHit('clear','clear',sendX-8-clearW,y,clearW,h) end
+    box(self.vg,sendX,y,sendW,h,self.ready and {7,193,96,255} or {225,230,218,217},6)
+    self:text('发送',sendX+(sendW-self:measure('发送',sendSize))/2,y+(h-sendSize)/2,sendSize,self.ready and {255,255,255,255} or {138,149,133,255})
+    self:addHit('send',phone.draft,sendX,y,sendW,h,self.ready)
 end
 function Canvas:drawMessage(m,x,y,width,p,motion,opacity)
     local layout=Layout.message(m,width,p,function(t,s)return self:measure(t,s)end)
@@ -391,11 +422,16 @@ function Canvas:browseEntry(e,x,y,width,p,draw)
     return #lines*Layout.normalHeight(size)
 end
 function Canvas:render()
-    if self.disposed or not self.fontReady then return end
-    local vg=self.vg;self.hits={};self.thread=false;self.reactAnchor=false
+    if self.disposed then return end
+    if not self.fontReady then
+        nvgBeginFrame(self.vg,self.w,self.h,self.dpr);require('render.CaptionOverlay').drawLoading(self);nvgEndFrame(self.vg);return
+    end
+    local vg=self.vg;self.hits={};self.thread=false;self.composer=false;self.hitClip=false;self.panel=false;self.reactAnchor=false
     nvgBeginFrame(vg,self.w,self.h,self.dpr)
-    if self.sceneActions then self.sceneActions:render() end
     if self.probeBackdrop then box(vg,0,0,self.w,self.h,{29,26,36,255});self:text('NVG 界面校验 · 非剧情场景',20,20,16,LIGHT) end
+    -- Dialog wash < interaction prompts < phone/cards < dialog ink < finale/menus.
+    if self.sceneBackdrop then nvgSave(vg);self.sceneBackdrop(self);nvgRestore(vg)end
+    if self.sceneActions then self.sceneActions:render() end
     if self.channel=='browse'and self.story.browse.presentation=='look'then
         self.panel=false;require('render.LookCard').draw(self,self.story.browse)
     elseif self.channel then
@@ -452,6 +488,7 @@ function Canvas:render()
     if self.sceneHUD then nvgSave(vg);nvgGlobalAlpha(vg,1);self.sceneHUD(self);nvgRestore(vg) end
     if self.externalHUD then nvgSave(vg);nvgGlobalAlpha(vg,1);self.externalHUD(self);nvgRestore(vg) end
     require('render.TimelinePortal').draw(self)
+    require('render.CaptionOverlay').drawLoading(self)
     nvgEndFrame(vg)
 end
 function Canvas:dispose()

@@ -37,7 +37,13 @@ local function merge(remote,localData)
                 dest.nodes=nodes;dest.floors=floors
             else
                 for k,v in pairs(fields)do
-                    if id=='echo' and k=='reached' then dest[k]=math.max(tonumber(dest[k])or 0,tonumber(v)or 0)
+                    if id=='ch1'and k=='tried'then
+                        local seen,answers={},{}
+                        for _,list in ipairs({dest.tried or {},v or {}})do for _,answer in ipairs(list)do
+                            if (answer=='same'or answer=='late'or answer=='done')and not seen[answer]then seen[answer]=true;answers[#answers+1]=answer end
+                        end end
+                        dest.tried=answers
+                    elseif id=='echo' and k=='reached' then dest[k]=math.max(tonumber(dest[k])or 0,tonumber(v)or 0)
                     elseif id=='echo' and k=='done' then dest[k]=dest[k]or v
                     else dest[k]=copy(v)end
                 end

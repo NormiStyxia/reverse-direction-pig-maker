@@ -45,6 +45,15 @@ function Save:echoLoaded(index)
     if self:reached()<index then self:saveChapter('echo',{reached=index}) end
 end
 function Save:echoFinished() self:saveChapter('echo',{done=true}) end
+function Save:tried()
+    local c=self.data.chapters.ch1 or {};local out={};local seen={}
+    for _,v in ipairs(type(c.tried)=='table'and c.tried or {})do if (v=='same'or v=='late'or v=='done')and not seen[v]then out[#out+1]=v;seen[v]=true end end
+    return out
+end
+function Save:noteTried(answer)
+    local tried=self:tried();for _,v in ipairs(tried)do if v==answer then return end end
+    assert(answer=='same'or answer=='late'or answer=='done');tried[#tried+1]=answer;self:saveChapter('ch1',{answer=answer,tried=tried})
+end
 function Save:meetingFinished(answer)
     assert(answer=='same' or answer=='late' or answer=='done','Invalid answer')
     self:saveChapter('ch1',{answer=answer})

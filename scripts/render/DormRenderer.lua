@@ -50,7 +50,35 @@ function Renderer:update(dt,story)
     local k=story.foldK;local root=v.nodes[H.root];local scale=math.max(.001,1-k)
     local q=Quaternion(math.deg(-k*.5),Vector3(1,0,0))*Quaternion(math.deg(-k*2.4),Vector3(0,1,0))*Quaternion(math.deg(k*.6),Vector3(0,0,1))
     local a=self.data.pivot;local pivot=Vector3(a[1],a[2],-a[3]);root.rotation=q;root.scale=Vector3(scale,scale,scale);root.position=pivot-q*(pivot*scale)
-    self:lighting(story)
+    self:lighting(story);self:assemble(story)
+end
+-- Cache final imported paper dimensions only after all textures/meshes are ready.
+function Renderer:assemble(story)
+    if not story.assembleT then return end
+    local v,H=self.view,self.data.handles
+    if not self.assemblyParts then
+        self.assemblyParts={}
+        for _,spec in ipairs(self.data.nodes)do
+            -- H.drape identifies a material, not a source node. Keep the sky
+            -- backdrop fixed while the room's actual paper objects assemble.
+            local backdrop=false
+            for _,material in ipairs(spec.materials or {}) do if material==H.drape then backdrop=true end end
+            if spec.parent==H.root and not backdrop and spec.type~='PointLight'and spec.type~='DirectionalLight'then
+                local node=v.nodes[spec.id];local p=node.position
+                local x,z=p.x-2.2*.3+(math.random()-.5)*2,-p.z+1.5;local length=math.max(.001,math.sqrt(x*x+z*z));local distance=7+math.random()*9
+                self.assemblyParts[#self.assemblyParts+1]={node=node,p=p,q=node.rotation,s=node.scale,d=Vector3(x/length*distance,3+math.random()*7,-z/length*distance),w=Vector3((math.random()-.5)*4,(math.random()-.5)*4,(math.random()-.5)*4),delay=math.random()*.9}
+            end
+        end
+    end
+    for _,part in ipairs(self.assemblyParts)do
+        if not part.done then
+            local k=smooth((story.assembleT-part.delay)/1.6);local e=1-(1-k)^3;local a=1-e;local w=part.w
+            part.node.position=part.p+part.d*a
+            part.node.rotation=part.q*Quaternion(math.deg(w.x*a),Vector3.RIGHT)*Quaternion(math.deg(w.y*a),Vector3.UP)*Quaternion(math.deg(w.z*a),Vector3.FORWARD)
+            part.node.scale=part.s*math.max(.001,.25+.75*e)
+            if k>=1 then part.done=true;part.node.position=part.p;part.node.rotation=part.q;part.node.scale=part.s end
+        end
+    end
 end
 function Renderer:screenBounds()
     local n=self.view.nodes[self.data.handles.screen];local c=self.view.camera

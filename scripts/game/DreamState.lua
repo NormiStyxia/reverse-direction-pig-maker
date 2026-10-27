@@ -70,7 +70,7 @@ function State:begin()
     at(9.6,function()self:say(L.where)end);at(11,function()self:say(L.lost)end);at(12.6,function()self:openPhone()end)
 end
 function State:canSkip()return self.phase~='break' and self.phase~='done'end
-function State:skip()if self:canSkip()then self:startBreak()end end
+function State:skip()if self:canSkip()then if self.phone.open then self:closePhone(true)end;self:startBreak()end end
 function State:openPhone()
     if self.phone.open or self.phase=='break' or self.phase=='done' or self.phase=='voice'then return end
     if self.phase=='intro'then self.phase='phone';self:after(1,function()if self.phase=='phone'then self:say(L.garbled[1],'deadpan')end end);self:after(3.4,function()if self.phase=='phone'then self:say(L.garbled[2],'deadpan')end end);self:after(7.8,function()if self.phase=='phone'then self:closePhone()end end)end
@@ -136,7 +136,6 @@ function State:updateGuide(dt,ctx)
     elseif self.phase=='walk' or self.phase=='voice'then
         local goal=math.min(self.normi.pos.x+5.2,16.25);local go=p.x<goal-.3 and (self.normi.pos.x>p.x-3.4 or self.phase=='voice');p.vx=mix(p.vx,go and 3.4 or 0,math.min(1,dt*6));p.x=p.x+p.vx*dt;moving=p.vx>.4
         p.z=mix(p.z,self.phase=='voice' and -.55 or -.45,math.min(1,dt*2));p.waitT=moving and 0 or p.waitT+dt
-        if moving then p.ran=true elseif p.ran and self.phase=='walk'then self:once('follow',function()self:say(L.follow)end)end
         if p.waitT>3.8 and self.phase=='walk'then p.waitT=0;p.spinLeft=8 end;if self.phase=='voice' and p.spinLeft<=0 then p.spinLeft=8 end
     end
     if p.spinLeft>0 then p.spinT=p.spinT+dt/(self.phase=='voice' and .11 or .055);while p.spinT>=1 and p.spinLeft>0 do p.spinT=p.spinT-1;p.spinLeft=p.spinLeft-1;p.frame=(p.frame+1)%8 end

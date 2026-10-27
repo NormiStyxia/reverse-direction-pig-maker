@@ -12,7 +12,7 @@ local function mesh(ready)return{ready=ready,pumpBuild=function()end}end
 local v={loadId=1,view=mesh(true),load=function(self,run)
  operations[#operations+1]='room-load';self.view.disposed=true;self.loadId=run.loadId;self.view=mesh(false)
 end}
-local p=setmetatable({run={loadId=1},view=v,screen={}},P)
+local p=setmetatable({run={loadId=1},view=v,screen={cancelPointer=function()end}},P)
 assert(p:syncScene()and p.post.view==v.view and made==1)
 local first=p.post;p:syncScene();assert(made==1)
 for level=2,19 do
