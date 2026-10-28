@@ -48,19 +48,23 @@ function History:place(scene,at)
 end
 function History:fill(active,run,answers)
     local at=History.index(run)
+    -- Room construction activates its raw viewport. Preserve the caller's
+    -- final composite instead of replacing it with active:activate(): the
+    -- caller may already own an HDR/post pipeline for the current room.
+    local viewport=renderer:GetViewport(0)
     if self.pending then
         local p=self.pending;p.view.view:pumpBuild()
         if p.view.view.ready then
             p.view:update(0,p.run);self:capture(p.view,p.run);p.view:dispose();self.pending=nil
             self:place(active.view.scene,at)
         end
-        active:activate();return
+        renderer:SetViewport(0,viewport);return
     end
     for j=0,at-1 do if not self.rooms[j]then
         local set,i=require('game.LevelCatalog').at(j)
         local r=require('game.EchoRun').new(set.levels,set.theme);r:load(i+1);r.answer=answers[set.theme]or set.answer
         r.phase='play';r.fold=1;r.t=3;r:drainEvents()
-        local v=require('render.EchoRenderer').new(r);self.pending={run=r,view=v};active:activate();return
+        local v=require('render.EchoRenderer').new(r);self.pending={run=r,view=v};renderer:SetViewport(0,viewport);return
     end end
 end
 function History:complete(at)for j=0,at-1 do if not self.rooms[j]then return false end end;return true end

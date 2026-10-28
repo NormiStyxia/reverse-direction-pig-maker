@@ -3,6 +3,7 @@
 local Layout=require('game.StoryPanelLayout')
 local Motion=require('game.StoryPanelMotion')
 local Extras=require('render.PhoneExtras')
+local Viewport=require('render.UIViewport')
 local Canvas={}
 Canvas.__index=Canvas
 local INK={41,58,48,255};local LIGHT={240,237,223,255};local GREEN={175,225,135,255}
@@ -54,7 +55,8 @@ function Canvas:init(story)
     end)
 end
 function Canvas:resize(w,h,dpr)
-    self.dpr=math.max(.01,dpr or 1);self.w=math.max(1,w)/self.dpr;self.h=math.max(1,h)/self.dpr
+    self.w,self.h,self.dpr=Viewport.resolve(w,h,dpr)
+    self.touchUI=self.touchUI or Viewport.isMobile()
     self:cancelPointer();self.scrollBottom=true
 end
 function Canvas:place(left,right) self.actorLeft=left;self.actorRight=right end

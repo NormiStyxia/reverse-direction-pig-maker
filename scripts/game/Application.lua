@@ -451,7 +451,8 @@ function TitlePreviewTouchEnd(eventType,eventData)
 end
 ---@param eventData MouseWheelEventData
 function StoryPanelPreviewWheel(eventType,eventData)
-    if probe.demo.active or (store.demo and store.demo.active) or (chapter.demo and chapter.demo.active) then local p=input:GetMousePosition();activeScreen():wheel(eventData:GetInt('Wheel'),p.x,p.y) end
+    local screen=activeScreen()
+    if screen.wheel then local p=input:GetMousePosition();screen:wheel(eventData:GetInt('Wheel'),p.x,p.y) end
 end
 function Stop() if history then history:dispose();history=nil end;if suspendedChapter then suspendedChapter:dispose();suspendedChapter=nil end;if save and save.close then save:close()end;SoundBank.get():dispose();if chapter.demo then chapter.demo:dispose() end;if echo.demo then echo.demo:dispose() end;if store.demo then store.demo:dispose() end;overlay.screen:dispose();probe.demo.screen:dispose();view:dispose() end
 return {configureValidation=function(config)

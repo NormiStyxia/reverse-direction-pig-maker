@@ -23,7 +23,12 @@ function Canvas:init(run)
     end)
     return self
 end
-function Canvas:resize(w,h,dpr) self.dpr=math.max(.01,dpr);self.w=w/self.dpr;self.h=h/self.dpr;self:cancelPointer() end
+function Canvas:resize(w,h,dpr)
+    local viewport=require('render.UIViewport')
+    self.w,self.h,self.dpr=viewport.resolve(w,h,dpr)
+    self.touchUI=self.touchUI or viewport.isMobile()
+    self:cancelPointer()
+end
 function Canvas:cancelPointer() self.ending:cancel() end
 function Canvas:pointerDown(x,y,id) if self.ending.active then self.ending:down(self,x,y,id);return true end end
 function Canvas:pointerMove() end

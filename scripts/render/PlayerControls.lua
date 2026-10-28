@@ -6,10 +6,11 @@ function Controls.new(context,action)
     local self=setmetatable({},Controls);self:init(context,action);return self
 end
 function Controls:init(context,action)
-    self.context=context;self.action=action;self.mobile=false;self.pointers={};self.x=0;self.y=0;self.spin=false
+    self.context=context;self.action=action;self.mobile=require('render.UIViewport').isMobile();self.pointers={};self.x=0;self.y=0;self.spin=false
 end
-function Controls:cancel() self.pointers={};self.x=0;self.y=0;self.spin=false;self.hover=false end
+function Controls:cancel() self.pointers={};self.x=0;self.y=0;self.spin=false;self.hover=false;self.stick=nil end
 local Layout=require('game.StoryPanelLayout')
+local Skin=require('render.TouchControlSkin')
 local INK={16,32,63,255}
 local function width(c,text,size,spacing)
     return c:measure(text,size)+(utf8.len(text)or 0)*(spacing or 0)
@@ -29,6 +30,7 @@ local function paper(c,r,hover)
 end
 function Controls:layout(c)
     local s=self.context();local out={};local wide=c.w/c.h>=2
+    self:syncMotion(c,s)
     local mobile=self.mobile or c.touchUI
     local compact=c.w>c.h and c.h<=600
     local function add(id,text,x,y,w,h,kind,size)
@@ -79,15 +81,18 @@ function Controls:layout(c)
         end
     end
     if mobile and c.w>c.h and (s.echo or s.movable) then
-        local size=wide and 12 or 15;local min=wide and 44 or 56;local pad=wide and 6 or 8
+        local size=wide and 12 or 14;local pad=wide and 6 or 8
         local actions={}
         if s.cycle then actions[#actions+1]={'cycle','换一个'}end
         if s.echo then actions[#actions+1]={'rewind','倒带'};actions[#actions+1]={'charge','冲撞'}
         elseif not s.moveOnly then actions[#actions+1]={'interact','交互'}end
         local x=c.w-16;local bottom=wide and 12 or 16;local gap=wide and 8 or 12
         for i=#actions,1,-1 do
-            local a=actions[i];local w=math.max(min,width(c,a[2],size,size*.06)+pad*2+2)
-            x=x-w;local r=add(a[1],a[2],x,c.h-bottom-min,w,min,'touch',size)
+            local a=actions[i];local primary=a[1]=='interact'or a[1]=='charge'
+            local diameter=primary and (wide and 60 or 64)or (wide and 52 or 56)
+            local w=math.max(diameter,width(c,a[2],size,size*.06)+pad*2+2)
+            x=x-w;local r=add(a[1],a[2],x,c.h-bottom-diameter,w,diameter,'touch',size)
+            r.primary=primary
             r.disabled=not s.movable;r.spacing=size*.06;x=x-gap
         end
         if s.echo then
@@ -96,13 +101,37 @@ function Controls:layout(c)
                 r.disabled=(a[1]=='restart'and not s.movable)or (a[1]=='mechanism'and not s.hasCard)
             end
         end
-        if s.movable then
-            local diameter=wide and 72 or math.max(84,math.min(112,c.h*.25))
-            local r=add('stick','走动',18,c.h-bottom-diameter,diameter,diameter,'stick',wide and 11 or 14)
-            r.knob=wide and 40 or 52
+        if self.stick then
+            out[#out+1]=self.stick.hit
         end
     end
     return out,s
+end
+-- Drop ownership as soon as a modal or movement gate closes. A held finger
+-- must press again afterwards, never resurrect its old movement on resume.
+function Controls:syncMotion(c,s)
+    if not s.movable or s.covered or s.ending or s.paused or s.card or c.channel then
+        for id,p in pairs(self.pointers)do
+            if p.hit.id=='stick'or p.hit.id=='rewind'then self.pointers[id]=nil end
+        end
+        self.stick=nil;self.x=0;self.y=0;self.spin=false
+    end
+end
+function Controls:canStartStick(c,x,y,s)
+    if not (self.mobile or c.touchUI)or not s.movable or c.w<=c.h or
+        s.covered or s.ending or s.paused or s.card or c.channel then return false end
+    if x<0 or x>=c.w*.48 or y<64 or y>=c.h then return false end
+    if c.hitTest and c:hitTest(x,y)then return false end
+    for _,r in ipairs({c.thread or {},c.composer or {}})do
+        if r.x and inside(x,y,r)then return false end
+    end
+    local p=c.panel
+    if p and x>=p.x and x<p.x+p.w and y>=p.y and y<(p.bottom or p.y+p.h)then return false end
+    if c.sceneActions then
+        -- Reserve even disabled/animating UI; pressing it must not move the hero.
+        for _,r in ipairs(c.sceneActions:layout())do if inside(x,y,r)then return false end end
+    end
+    return true
 end
 function Controls:hit(c,x,y)
     local rows=self:layout(c)
@@ -112,28 +141,40 @@ function Controls:down(c,x,y,id)
     if type(id)=='number' then self.mobile=true;c.touchUI=true end
     x=x/c.dpr;y=y/c.dpr
     local hit=self:hit(c,x,y);local s=self.context()
+    if not hit and self:canStartStick(c,x,y,s)then
+        if self.stick then return true end
+        local diameter=c.w/c.h>=2 and 88 or 96;local radius=diameter/2
+        -- Keep the visible dial inside the screen, but measure movement from the
+        -- actual press. Edge touches therefore also start with zero velocity.
+        local cx=math.max(radius+8,math.min(c.w-radius-8,x))
+        local cy=math.max(radius+8,math.min(c.h-radius-8,y))
+        hit={id='stick',kind='stick',x=cx-radius,y=cy-radius,w=diameter,h=diameter,knob=32}
+    end
     if not hit then return s.paused or s.covered end
+    if self.pointers[id]then return true end
     for _,p in pairs(self.pointers) do if p.hit.id==hit.id then return true end end
     self.pointers[id]={hit=hit,x=x,y=y}
-    if hit.id=='stick' then self:move(c,x*c.dpr,y*c.dpr,id)
+    if hit.id=='stick' then self.stick=self.pointers[id];self.x=0;self.y=0
     elseif hit.id=='rewind' then self.spin=true end
     return true
 end
 function Controls:move(c,x,y,id)
+    self:syncMotion(c,self.context())
     if id=='mouse'then local h=self:hit(c,x/c.dpr,y/c.dpr);self.hover=h and h.id or false end
     local p=self.pointers[id];if not p then return false end
     if p.hit.id=='stick' then
         local radius=p.hit.w*.32
-        local dx=(x/c.dpr-p.hit.x-p.hit.w/2)/radius;local dy=(y/c.dpr-p.hit.y-p.hit.h/2)/radius
+        local dx=(x/c.dpr-p.x)/radius;local dy=(y/c.dpr-p.y)/radius
         local len=math.sqrt(dx*dx+dy*dy);local scale=math.max(1,len)
         self.x=len*radius<8 and 0 or dx/scale;self.y=len*radius<8 and 0 or dy/scale
     end
     return true
 end
 function Controls:up(c,x,y,id)
+    self:syncMotion(c,self.context())
     local p=self.pointers[id];self.pointers[id]=nil
     if not p then return self.context().paused or self.context().covered end
-    if p.hit.id=='stick' then self.x=0;self.y=0
+    if p.hit.id=='stick' then self.x=0;self.y=0;self.stick=nil
     elseif p.hit.id=='rewind' then self.spin=false
     else
         local hit=self:hit(c,x/c.dpr,y/c.dpr)
@@ -152,7 +193,9 @@ function Controls:attach(c)
 end
 function Controls:render(c)
     local rows,s=self:layout(c);local vg=c.vg
-    if not s.movable then self.x=0;self.y=0;self.spin=false end
+    if (self.mobile or c.touchUI)and c.w>c.h and s.movable and not c.channel and not self.stick then
+        c:text('左侧按住拖动',24,c.h-30,11,{243,241,234,150})
+    end
     if s.paused then
         nvgBeginPath(vg);nvgRect(vg,0,0,c.w,c.h);nvgFillColor(vg,nvgRGBA(12,16,14,158));nvgFill(vg)
         local size=c.w/c.h>=2 and 24 or 36;local w=width(c,'暂停',size,size*.3)
@@ -171,25 +214,15 @@ function Controls:render(c)
                 nvgBeginPath(vg);nvgRect(vg,x+.5,ky+.5,r.keyW-1,17);nvgStrokeColor(vg,nvgRGBA(16,32,63,255));nvgStrokeWidth(vg,1);nvgStroke(vg)
                 ink(c,r.key,x+7,ky+2,12,INK,.96)
             end
+        elseif r.kind=='invisible'then
+            -- Full-screen dismissal hit target; the card supplies its own art.
         elseif r.kind=='home'then
             c:text(r.text,r.x+(r.w-c:measure(r.text,r.size))/2,r.y+(r.h-Layout.normalHeight(r.size))/2,r.size,INK)
         elseif r.kind=='stick'then
-            nvgBeginPath(vg);nvgCircle(vg,r.x+r.w/2,r.y+r.h/2,r.w/2-.5)
-            nvgFillColor(vg,nvgRGBA(7,11,22,77));nvgFill(vg);nvgStrokeColor(vg,nvgRGBA(243,241,234,128));nvgStrokeWidth(vg,1);nvgStroke(vg)
-            local x=r.x+r.w/2+self.x*r.w*.32;local y=r.y+r.h/2+self.y*r.w*.32
-            nvgBeginPath(vg);nvgCircle(vg,x,y,r.knob/2);nvgFillColor(vg,nvgRGBA(243,241,234,204));nvgFill(vg)
-            c:text(r.text,x-c:measure(r.text,r.size)/2,y-Layout.normalHeight(r.size)/2,r.size,{23,35,59,255})
+            Skin.stick(c,r,self.x,self.y)
         else
             local pressed=false;for _,p in pairs(self.pointers)do if p.hit.id==r.id then pressed=true end end
-            nvgBeginPath(vg)
-            if r.kind=='tool'then nvgRoundedRect(vg,r.x+.5,r.y+.5,r.w-1,r.h-1,4)
-            else nvgEllipse(vg,r.x+r.w/2,r.y+r.h/2,(r.w-1)/2,(r.h-1)/2)end
-            nvgFillColor(vg,pressed and nvgRGBA(53,121,241,166)or nvgRGBA(7,11,22,163));nvgFill(vg)
-            nvgStrokeColor(vg,nvgRGBA(243,241,234,153));nvgStrokeWidth(vg,1);nvgStroke(vg)
-            local small=c.w/c.h>=2 and 9 or 10;local h=Layout.normalHeight(r.size)+(r.id=='rewind'and Layout.normalHeight(small)or 0)
-            local y=r.y+(r.h-h)/2
-            ink(c,r.text,r.x+(r.w-width(c,r.text,r.size,r.spacing))/2,y,r.size,{243,241,234,255},r.spacing)
-            if r.id=='rewind'then ink(c,'按住',r.x+(r.w-width(c,'按住',small,r.spacing))/2,y+Layout.normalHeight(r.size),small,{243,241,234,179},r.spacing)end
+            Skin.button(c,r,pressed)
         end
         nvgRestore(vg)
     end
