@@ -44,24 +44,24 @@
     "SendRemoteEvent", "RegisterRemoteEvent",
     "SetAttribute", "GetAttribute", "HasAttribute",
     "CreateScriptObject",
+    "nvgCreateImage",
     "print", "error",
     "log:Write", "log:WriteRaw",
     "_raw"
   ],
 
   "context_excludes": [
-    { "name": "require", "prefix_pattern": "require\\s*\\(?\\s*", "file_exts": [".lua"] }
+    { "name": "require", "prefix_pattern": "\\brequire\\b\\s*\\(?\\s*", "file_exts": [".lua"] }
   ],
 
   "content_excludes": [
     { "name": "url",       "pattern": "^https?://" },
     { "name": "project_path", "pattern": "^(?:[Aa]ssets|[Ss]cripts)/.*\\.[A-Za-z][A-Za-z0-9]*$" },
     { "name": "file_ext",  "pattern": "^(?!.*(?:[　-〿＀-￯]|\\\\[nrt]|\\s)).*\\.(meta|lua|xml|png|hlsl|glsl|ani|jpg|jpeg|mdl|dds|json|txt|blendspace|wav|ttf|otf|fsm|tmx|sh|scml|tga|sdf|pex|ogg|mp3|mp4|ktx|effect|prefab|lodgroup|material|fbx|cube)$" },
-    { "name": "log_tag",   "pattern": "^\\[[A-Za-z0-9_]+\\]" },
     { "name": "rel_path",  "pattern": "^\\.{1,2}/" },
     { "name": "abs_path",  "pattern": "^[A-Za-z]:[/\\\\]" },
-    { "name": "dir_sep",   "pattern": "^(?=.*(?<!\\\\)[A-Za-z])(?!.*(?:[　-〿＀-￯]|\\\\[nrt]|\\s)).*/[^/]+/" },
-    { "name": "path_ext",  "pattern": "^(?!.*(?:[　-〿＀-￯]|\\\\[nrt]|\\s)).*/.*\\.[a-zA-Z][a-zA-Z0-9]*$" }
+    { "name": "dir_sep",   "pattern": "^(?:/[^/]+/|(?i:images?|audios?|scripts?|textures?|models?|sprites?|assets?|materials?|mesh(?:es)?|shaders?|videos?|effects?|prefabs?|anim(?:ations?)?|spine|fonts?|sounds?|music|bgm|icons?|ui|data|particles?|atlas|tilesets?)/)(?!.*(?:[　-〿＀-￯]|\\\\[nrt]))(?!.*\\s.*/)(?!.*\\s(?!.*\\.[A-Za-z][A-Za-z0-9]*$))" },
+    { "name": "path_ext",  "pattern": "^(?!.*(?:[　-〿＀-￯]|\\\\[nrt]))(?!.*\\s.*/).*/.*\\.[a-zA-Z][a-zA-Z0-9]*$" }
   ],
 
   "file_exts": [".lua", ".json", ".xml"],
